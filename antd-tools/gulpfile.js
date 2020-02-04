@@ -13,13 +13,10 @@ const argv = require('minimist')(process.argv.slice(2));
 const GitHub = require('@octokit/rest');
 
 const packageJson = require(`${process.cwd()}/package.json`);
-// const getNpm = require('./getNpm')
-// const selfPackage = require('../package.json')
 const chalk = require('chalk');
 const getNpmArgs = require('./utils/get-npm-args');
 const getChangelog = require('./utils/getChangelog');
 const path = require('path');
-// const watch = require('gulp-watch')
 const gulp = require('gulp');
 const fs = require('fs');
 const rimraf = require('rimraf');
