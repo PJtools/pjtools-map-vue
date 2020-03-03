@@ -1,3 +1,3 @@
 export function isZhCN(name) {
-  return /-cn\/?$/.test(name);
+  return name ? /-cn\/?$/.test(name) : true;
 }

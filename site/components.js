@@ -128,3 +128,8 @@ Vue.use(Skeleton);
 Vue.use(Comment);
 Vue.use(ConfigProvider);
 Vue.use(Empty);
+
+// 增加 pjtools-map-vue 组件
+import { preload } from 'pjtools-map-vue';
+
+Vue.prototype.$preload = preload;

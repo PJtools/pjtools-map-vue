@@ -15,7 +15,7 @@ import demoContainer from './components/demoContainer';
 import zhCN from './theme/zh-CN';
 import enUS from './theme/en-US';
 
-import Test from '../components/map/demo/index';
+import Test from '../components/preload/demo/index';
 
 Vue.use(Vuex);
 Vue.use(VueClipboard);
@@ -29,8 +29,8 @@ Vue.component('demo-container', demoContainer);
 const i18n = new VueI18n({
   locale: zhCN.locale,
   messages: {
-    [enUS.locale]: { message: enUS.messages },
     [zhCN.locale]: { message: zhCN.messages },
+    [enUS.locale]: { message: enUS.messages },
   },
 });
 
@@ -49,6 +49,7 @@ const store = new Vuex.Store({
     },
   },
 });
+
 new Vue({
   el: '#app',
   i18n,

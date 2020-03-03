@@ -12,12 +12,16 @@ import { default as Base } from './base';
 
 import { default as version } from './version';
 
+import { default as preload } from './preload';
+
 const components = [Base];
 
 const install = function(Vue) {
   components.map(component => {
     Vue.use(component);
   });
+
+  Vue.prototype.$preload = preload;
 };
 
 /* istanbul ignore if */
@@ -25,7 +29,7 @@ if (typeof window !== 'undefined' && window.Vue) {
   install(window.Vue);
 }
 
-export { Base, version, install };
+export { Base, version, install, preload };
 
 export default {
   version,

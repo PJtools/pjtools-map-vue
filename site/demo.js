@@ -1,8 +1,14 @@
 export default {
+  preload: {
+    category: 'Components',
+    subtitle: '预加载文件',
+    type: 'General',
+    title: 'Preload',
+  },
   map: {
     category: 'Components',
     subtitle: '地图',
-    type: 'General',
+    type: 'Display',
     title: 'Map',
   },
 };
