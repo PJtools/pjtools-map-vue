@@ -11,7 +11,7 @@ xx.
 ```tpl
 <template>
 	<div>
-		111
+		Hello Map Component！
 	</div>
 </template>
 
