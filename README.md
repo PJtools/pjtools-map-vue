@@ -1,5 +1,5 @@
 # PJtools Map Vue
-基于GeoGlobe、MapboxGL版本基础包，扩展构建Map Vue Component组件.
+基于GeoGlobe、MapboxGL（非官方版）为基础库，二次扩展构建Map Vue Component组件.
 
 ## License
 [MIT](http://opensource.org/licenses/MIT)
