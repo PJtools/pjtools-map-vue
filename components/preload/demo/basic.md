@@ -32,7 +32,9 @@ xx.
 			</span>
 		</li>
 		<li class="footer-wrapper">
-			<a-button type="primary" icon="sync" :loading="loading" @click="handlePreloadStart">预加载开始</a-button>
+			<a-button type="primary" :icon="isLoaded ? 'check' : 'sync'" :loading="loading" :disabled="isLoaded" @click="handlePreloadStart">
+				{{isLoaded ? '预加载完成' : '预加载开始'}}
+			</a-button>
 		</li>
 	</ul>
 </template>
@@ -52,6 +54,9 @@ xx.
 					'feedback-warpper': true,
 					'feedback-success': !!this.fileCSSLoaded
 				}
+			},
+			isLoaded () {
+				return this.fileCSSLoaded && this.fileJsLoaded;
 			}
 		},
 		created() {
@@ -77,8 +82,12 @@ xx.
 						}
 					}
 				}).then(({ feedback }) => {
-					feedback && feedback.callback();
-					this.loading = false;
+					!this.fileCSSLoaded && (this.fileCSSLoaded = true);
+					!this.fileJsLoaded && (this.fileJsLoaded = true);
+					this.$nextTick(() => {
+						feedback && feedback.callback();
+						this.loading = false;
+					});
 				});
 			}
 		}
