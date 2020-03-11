@@ -6,7 +6,7 @@
 
 import createjs from 'createjs-npm/lib/preload';
 import merge from 'lodash/merge';
-import PQueue from 'p-queue';
+import PromiseQueue from '../_util/promiseQueue';
 
 // 定义默认的预加载对象的参数选项
 const DEFAULT_PRELOAD_OPTIONS = {
@@ -44,12 +44,12 @@ const fetchManifestList = function(baseUrl = DEFAULT_PRELOAD_OPTIONS.baseUrl) {
         const cssList = (result && result.load && result.load.css) || [];
         const filesCss = [];
         cssList.map(item => {
-          filesCss.push({ id: item, src: api.$alias[item] || item, type: createjs.AbstractLoader.CSS, exports: null });
+          filesCss.push({ id: item, src: api.$alias[item] || item, type: 'css', exports: null });
         });
         const jsList = (result && result.load && result.load.js) || [];
         const filesJs = [];
         jsList.map(item => {
-          filesJs.push({ id: item, src: api.$alias[item] || item, type: createjs.AbstractLoader.JAVASCRIPT, exports: $exports[item] || null });
+          filesJs.push({ id: item, src: api.$alias[item] || item, type: 'javascript', exports: $exports[item] || null });
         });
         // 注销实例对象
         instance.destroy();
@@ -221,7 +221,7 @@ const api = {
   createjs,
 
   // 预加载的队列
-  $queue: new PQueue({ concurrency: 1 }),
+  $queue: new PromiseQueue({ concurrency: 1 }),
 
   // 缓存配置文件型Manifest资源清单列表（注意：不会缓存手动加载清单列表）
   $cacheManifest: null,

@@ -55,18 +55,10 @@ function getWebpackConfig(modules) {
       },
     },
 
-    node: [
-      'child_process',
-      'cluster',
-      'dgram',
-      'dns',
-      'fs',
-      'module',
-      'net',
-      'readline',
-      'repl',
-      'tls',
-    ].reduce((acc, name) => Object.assign({}, acc, { [name]: 'empty' }), {}),
+    node: ['child_process', 'cluster', 'dgram', 'dns', 'fs', 'module', 'net', 'readline', 'repl', 'tls'].reduce(
+      (acc, name) => Object.assign({}, acc, { [name]: 'empty' }),
+      {},
+    ),
 
     module: {
       noParse: [/moment.js/],

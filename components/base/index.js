@@ -1,4 +1,4 @@
-import antDirective from 'ant-design-vue/es/_util/antDirective';
+import { antDirective } from '../_util/antdv';
 
 const base = {};
 const install = function(Vue) {
