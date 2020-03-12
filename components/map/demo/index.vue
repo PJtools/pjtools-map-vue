@@ -19,7 +19,7 @@ const md = {
 	`,
 };
 
-import Basic from './basic';
+import Editor from './editor';
 
 export default {
 	category: 'Components',
@@ -29,8 +29,8 @@ export default {
 	render() {
 		return (
 			<div>
+				<Editor />
 				<md cn={md.cn} us={md.us} />
-				<Basic />
 			</div>
 		)
 	},
