@@ -28,11 +28,31 @@ function externalMoment(config) {
   };
 }
 
+function externalAntdVue(config) {
+  config.externals['ant-design-vue'] = {
+    root: 'antd',
+    commonjs2: 'ant-design-vue',
+    commonjs: 'ant-design-vue',
+    amd: 'ant-design-vue',
+  };
+}
+
+function externalLodash(config) {
+  config.externals.lodash = {
+    root: '_',
+    commonjs2: 'lodash',
+    commonjs: 'lodash',
+    amd: 'lodash',
+  };
+}
+
 const webpackConfig = getWebpackConfig(false);
 if (process.env.RUN_ENV === 'PRODUCTION') {
   webpackConfig.forEach(config => {
     ignoreMomentLocale(config);
+    externalLodash(config);
     externalMoment(config);
+    externalAntdVue(config);
     addLocales(config);
   });
 }

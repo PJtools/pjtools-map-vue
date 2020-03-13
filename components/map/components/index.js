@@ -5,5 +5,6 @@
  */
 
 import { default as PreLoading } from './pre-loading';
+import { default as Message } from './message';
 
-export { PreLoading };
+export { PreLoading, Message };

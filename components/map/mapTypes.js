@@ -14,4 +14,6 @@ export default () => ({
   height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   // 地图容器是否有边框
   bordered: PropTypes.bool.def(false),
+  // 地图资源库的基础路径
+  baseUrl: PropTypes.string,
 });

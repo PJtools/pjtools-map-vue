@@ -67,6 +67,7 @@
     "dom-closest": "^0.2.0",
     "dom-scroll-into-view": "^1.2.1",
     "enquire.js": "^2.1.6",
+    "hat": "0.0.3",
     "intersperse": "^1.0.0",
     "is-negative-zero": "^2.0.0",
     "ismobilejs": "^1.0.0",
