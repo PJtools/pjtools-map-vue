@@ -10,7 +10,8 @@ import hat from 'hat';
 import { PreLoading, Message } from './components';
 import { initDefaultProps } from '../_util/antdv';
 import { getPrefixCls, isNumeric } from '../_util/methods-util';
-import mapTypes from './mapTypes';
+import PJtoolsMap from '../_pmap';
+import mapProps from './mapProps';
 
 const Map = {
   name: 'PjMap',
@@ -18,7 +19,7 @@ const Map = {
     PreLoading,
   },
   inheritAttrs: false,
-  props: initDefaultProps(mapTypes(), {
+  props: initDefaultProps(mapProps(), {
     width: '100%',
     height: '100%',
     baseUrl: '/static/GeoMap/',
@@ -100,16 +101,67 @@ const Map = {
       const { baseUrl } = this;
 
       this.description = '地图依赖资源加载中';
-      // this.$preload
-      //   .load({
-      //     baseUrl,
-      //   })
-      //   .then(exports => {
-      //     console.log(exports);
-      //   })
-      //   .catch(() => {
-      //     this.message.error('地图前置依赖资源库加载失败，资源库地址可能错误或不存在.');
-      //   });
+      this.$preload
+        .load({
+          baseUrl,
+        })
+        .then(exports => {
+          setTimeout(() => {
+            this.initPJtoolsMap(exports);
+          }, 0);
+        })
+        .catch(() => {
+          this.message.error('地图前置依赖资源库加载失败，资源库地址可能错误或不存在.');
+        });
+    },
+
+    // 渲染地图的容器区域
+    renderMapContainer() {
+      const { prefixCls: customizePrefixCls } = this;
+      const prefixCls = getPrefixCls('map', customizePrefixCls);
+      const mapCls = `${prefixCls}-container`;
+
+      return (
+        <div class={mapCls}>
+          {/* 地图视图区域 */}
+          <div class={`${mapCls}-views-group`}>
+            <div ref="PJMapViewWrapper" class={`${mapCls}-view-wrapper`}></div>
+          </div>
+          {/* 扩展交互组件 */}
+          <div class={`${prefixCls}-extended-components`}></div>
+        </div>
+      );
+    },
+
+    // 实例化PJtools.Map地图对象
+    initPJtoolsMap(exports) {
+      if (!this.$refs.PJMapViewWrapper) {
+        this.message.error('地图初始化容器对象不存在，请检查设定是否正确.');
+        return;
+      }
+      this.description = '地图初始化配置';
+      // 实例化地图
+      const iMapApi = new PJtoolsMap(
+        this.$refs.PJMapViewWrapper,
+        exports,
+        {},
+        {
+          onRender: () => {
+            setTimeout(() => {
+              this.description = '地图正在加载图层源数据';
+            }, 0);
+          },
+          onLoad: () => {
+            // 移除Pre-Loading预加载转场
+            this.description = '';
+            this.preloading = false;
+            setTimeout(() => {
+              console.log('load');
+            }, 0);
+          },
+        },
+      );
+      console.log(iMapApi);
     },
   },
   render() {
@@ -122,7 +174,7 @@ const Map = {
     return (
       <section ref="PJtoolsMapSection" {...mapProps}>
         {/* Map-Container */}
-        <div>map container.</div>
+        {this.renderMapContainer()}
         {/* Pre-Loading */}
         {this.renderPreLoading()}
       </section>

@@ -13,4 +13,104 @@
   &-bordered {
     border: @border-width-base @border-style-base @border-color-split;
   }
+
+  &-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    &-views-group {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      height: 100%;
+    }
+
+    &-view-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      outline: none;
+      user-select: none;
+
+      .mapboxgl-canvas {
+        outline: none;
+        user-select: none;
+      }
+    }
+  }
+
+  &-extended-components {
+    width: 100%;
+    height: 0;
+  }
+
+  &-extended-component-wrapper {
+    position: absolute;
+    z-index: @zindex-map-component;
+    transition: all 0.5s ease;
+
+    &.map-component-top-left {
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    &.map-component-top-right {
+      top: 0;
+      right: 0;
+      pointer-events: none;
+    }
+
+    &.map-component-bottom-left {
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    &.map-component-bottom-right {
+      bottom: 0;
+      right: 0;
+      pointer-events: none;
+    }
+
+    &.map-component-top-center {
+      display: flex;
+      justify-content: center;
+      left: 0;
+      top: 0;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    &.map-component-bottom-center {
+      display: flex;
+      justify-content: center;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      pointer-events: none;
+    }
+
+    &.map-component-left-center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      left: 0;
+      top: 0;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    &.map-component-right-center {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+      right: 0;
+      top: 0;
+      height: 100%;
+      pointer-events: none;
+    }
+  }
 }
