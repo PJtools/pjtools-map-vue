@@ -7,9 +7,10 @@
 import Vue from 'vue';
 import Base from '../base';
 import hat from 'hat';
+import isPlainObject from 'lodash/isPlainObject';
 import { PreLoading, Message } from './components';
 import { initDefaultProps } from '../_util/antdv';
-import { getPrefixCls, isNumeric } from '../_util/methods-util';
+import { getPrefixCls, isNumeric, isHttpUrl, getUrlToLink, fetchJsFile } from '../_util/methods-util';
 import PJtoolsMap from '../_pmap';
 import mapProps from './mapProps';
 
@@ -133,19 +134,52 @@ const Map = {
       );
     },
 
+    // 加载解析当前地图的配置文件
+    loadMapConfig() {
+      const { baseUrl, config } = this;
+
+      return new Promise((resolve, reject) => {
+        if (config) {
+          // 判断config是否为字符串格式类型，则采用异步读取配置文件形式
+          if (typeof config === 'string') {
+            let url = `${config}`;
+            // 判断是否不是有效的Http链接地址，则拼接前缀基础路径
+            if (!isHttpUrl(config)) {
+              url = getUrlToLink(url, baseUrl);
+            }
+            // 异步请求Config配置文件
+            fetchJsFile(url)
+              .then(data => {
+                if (data) {
+                  resolve(data);
+                } else {
+                  this.message.error('地图初始化[config]参数配置文件地址路径或内容解析错误.');
+                  reject();
+                }
+              })
+              .catch(error => {
+                reject(error);
+              });
+          } else if (isPlainObject(config)) {
+            resolve(config);
+          }
+        } else {
+          reject('未设定地图初始化[config]参数配置项，无法保证地图的有效渲染.');
+        }
+      });
+    },
+
     // 实例化PJtools.Map地图对象
     initPJtoolsMap(exports) {
       if (!this.$refs.PJMapViewWrapper) {
         this.message.error('地图初始化容器对象不存在，请检查设定是否正确.');
         return;
       }
+
       this.description = '地图初始化配置';
-      // 实例化地图
-      const iMapApi = new PJtoolsMap(
-        this.$refs.PJMapViewWrapper,
-        exports,
-        {},
-        {
+      this.loadMapConfig().then(config => {
+        // 实例化地图
+        const iMapApi = new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
           onRender: () => {
             setTimeout(() => {
               this.description = '地图正在加载图层源数据';
@@ -159,9 +193,9 @@ const Map = {
               console.log('load');
             }, 0);
           },
-        },
-      );
-      console.log(iMapApi);
+        });
+        console.log(iMapApi);
+      });
     },
   },
   render() {

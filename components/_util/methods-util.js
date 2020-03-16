@@ -123,6 +123,15 @@ export const isEmpty = value => {
 export const has = antdHas;
 
 /**
+ * 判断是否为Http形式的链接地址
+ * @param {string} value 待检查的链接地址
+ */
+export const isHttpUrl = value => {
+  const reg = new RegExp('(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]');
+  return reg.test(value);
+};
+
+/**
  * 在DOM对象上添加Class类名
  * @param {Element} el DOM对象
  * @param {string} cls 待添加的ClassName名
@@ -135,3 +144,45 @@ export const addClass = addAntdClass;
  * @param {string} cls 待移除的ClassName名
  */
 export const removeClass = removeAntdClass;
+
+/**
+ * 将相对路径地址转换成绝对路径地址
+ * @param {string} url 待转换的相对路径
+ * @param {string} prefix 前缀路径
+ */
+export const getUrlToLink = (url, prefix = null) => {
+  if (prefix) {
+    url = prefix + '/' + url;
+  }
+  url = url.replace(/\/\/\//g, '/').replace(/\/\//g, '/');
+  // 借助浏览器等链接能力辅助转化
+  const link = document.createElement('a');
+  link.href = url;
+  return link.href;
+};
+
+/**
+ * 通过异步Fetch请求JS文件，读取文件流并解析
+ * @param {string} url 待请求的JS文件路径地址
+ */
+export const fetchJsFile = url => {
+  return new Promise((resolve, reject) => {
+    fetch(url, {
+      method: 'GET',
+    })
+      .then(response => {
+        response &&
+          response.text().then(data => {
+            try {
+              const json = data && eval(data);
+              resolve(json);
+            } catch (e) {
+              resolve(null);
+            }
+          });
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+};

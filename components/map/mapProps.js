@@ -17,7 +17,5 @@ export default () => ({
   // 地图资源库的基础路径
   baseUrl: PropTypes.string,
   // 地图的初始化配置文件或选项
-  config: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  // 地图的基础底图类型，可选项：[vec, img]
-  mapBaseType: PropTypes.oneOf(['vec', 'img']),
+  config: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 });
