@@ -132,6 +132,22 @@ export const isHttpUrl = value => {
 };
 
 /**
+ * 判断是否为地图Map的坐标数组结构
+ * @param {string} value 待检查的地理坐标
+ */
+export const isCoordinate = value => {
+  if (value && isArray(value) && value.length === 2) {
+    if (typeof value[0] === 'number' && typeof value[1] === 'number') {
+      if (value[0] === 0 && value[1] === 0) {
+        return false;
+      }
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
  * 在DOM对象上添加Class类名
  * @param {Element} el DOM对象
  * @param {string} cls 待添加的ClassName名

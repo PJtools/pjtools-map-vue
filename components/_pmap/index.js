@@ -6,7 +6,9 @@
 
 import merge from 'deepmerge';
 import hat from 'hat';
-import { isFunction } from '../_util/methods-util';
+import validateConfig from './util/validateMapConfig';
+import { isFunction, isBooleanFlase } from '../_util/methods-util';
+import isPlainObject from 'lodash/isPlainObject';
 
 // 默认Mapbox地图的Style对象
 const defaultMapStyle = {
@@ -65,8 +67,12 @@ const defaultMapOptions = {
   epsg: 'EPSG:3857',
   // 地图单位，可选项值：[ degrees | m ]
   units: 'degrees',
-  // 地图倾斜程度
+  // 地图倾斜角度
   pitch: 0,
+  // 地图的最小倾斜角度
+  minPitch: 0,
+  // 地图的最大倾斜角度
+  maxPitch: 60,
   // 地图旋转度
   bearing: 0,
   // 地图的Mapbox样式，必须是符合Mapbox样式规范中描述的模式的JSON对象，或者是此类JSON的URL
@@ -113,10 +119,24 @@ class PJtoolsMap {
     this.exports = exports;
 
     // 处理地图的配置项
-    const opts = merge(defaultMapOptions, options);
+    let opts = merge(defaultMapOptions, validateConfig(options));
     const cb = merge(defaultMapCallback, callback);
     // 覆盖地图容器Id值
     opts.container = id;
+
+    // 添加渲染前的干预回调事件
+    if (isFunction(cb.onBeforeRender)) {
+      const result = cb.onBeforeRender.call(this, opts);
+      if (result !== null && result !== undefined) {
+        // 判断是否返回值是布尔类型的False值，则直接阻止后续地图的渲染；
+        if (isBooleanFlase(result)) {
+          return;
+        } else if (isPlainObject(result)) {
+          // 如返回值是Object格式类型数据，则直接覆盖默认的地图参数属性
+          opts = result;
+        }
+      }
+    }
 
     this.options = opts;
     // 实例化GeoGlobe地图
