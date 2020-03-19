@@ -202,6 +202,7 @@
     "webpack-dev-server": "^3.1.14",
     "webpack-merge": "^4.1.1",
     "webpackbar": "^3.1.5",
+    "whatwg-fetch": "^3.0.0",
     "xhr-mock": "^2.5.1"
   },
   "sideEffects": [
