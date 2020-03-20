@@ -4,6 +4,7 @@
  * @创建时间: 2020-03-10 19:01:55
  */
 
+import 'whatwg-fetch';
 import Vue from 'vue';
 import Base from '../base';
 import hat from 'hat';
@@ -179,7 +180,7 @@ const Map = {
       this.description = '地图初始化配置';
       this.loadMapConfig().then(config => {
         // 实例化地图
-        const iMapApi = new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
+        this.iMapApi = new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
           onRender: () => {
             setTimeout(() => {
               this.description = '地图正在加载图层源数据';
@@ -190,11 +191,10 @@ const Map = {
             this.description = '';
             this.preloading = false;
             setTimeout(() => {
-              console.log('load');
+              console.log('load', this.iMapApi);
             }, 0);
           },
         });
-        console.log(iMapApi);
       });
     },
   },
