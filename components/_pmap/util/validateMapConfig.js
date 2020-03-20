@@ -6,8 +6,21 @@
 
 import omit from 'omit.js';
 import constantMapCRS from './constantCRS';
-import { isHttpUrl, isArray, isEmpty, isCoordinate, isNumeric, isBooleanFlase, isFunction, isInteger, has } from '../../_util/methods-util';
+import {
+  isHttpUrl,
+  isArray,
+  isEmpty,
+  isCoordinate,
+  isNumeric,
+  isBooleanFlase,
+  isFunction,
+  isInteger,
+  has,
+  isNotEmptyArray,
+} from '../../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
+import { providersLayersTypes } from '../providers';
+import { mapServicesTypeKeys } from '../layers/services';
 
 /**
  * 验证地图的proxyURL代理服务地址属性
@@ -188,16 +201,124 @@ const validateMapCRS = mapCRS => {
 };
 
 /**
- * 验证地图的mapBaseType和mapBasicLayers地图基础底图属性
+ * 验证地图的Service服务源对象的必填项是否符合规则
+ * @param {Object} serviceItem 待检查的服务源对象
+ * @param {String} prefixMsg 错误提示语的前缀信息文本
  */
-const validateMapBasicLayers = options => {
-  return options;
+const validateServiceLayerItem = (serviceItem, prefixMsg) => {
+  // 验证自定义服务源的必须属性字段
+  if (serviceItem.id && serviceItem.url && serviceItem.type) {
+    if (!isNumeric(serviceItem.id) && typeof serviceItem.id !== 'string') {
+      console.error(`${prefixMsg}属性[id]格式有误.`);
+      return null;
+    }
+    if (typeof serviceItem.url !== 'string' || !isHttpUrl(serviceItem.url)) {
+      console.error(`${prefixMsg}属性[url]格式有误.`);
+      return null;
+    }
+    if (mapServicesTypeKeys.indexOf(serviceItem.type) === -1) {
+      console.error(`${prefixMsg}属性[type]不属于内置的服务类型名.`);
+      return null;
+    }
+    return serviceItem;
+  } else {
+    console.error(`${prefixMsg}缺少必填项[id]、[url]、[type]属性.`);
+    return null;
+  }
 };
 
 /**
- * 验证地图的mapControls地图控件属性
+ * 验证地图的mapBasicLayers底图类型属性
  */
-const validateMapControls = options => {
+const validateMapBaseType = (mapBaseType, mapBasicLayers) => {
+  const errorMsg = '地图Map的底图类型[mapBaseType]不属于底图服务源[mapBasicLayers]的Key名.';
+  if (mapBasicLayers && isPlainObject(mapBasicLayers) && typeof mapBaseType === 'string') {
+    // 判断底图服务源是否为内置服务源
+    if (mapBasicLayers.key && typeof mapBasicLayers.key === 'string') {
+      const providersLayersKeys = providersLayersTypes[mapBasicLayers.key];
+      if (providersLayersKeys.indexOf(mapBaseType) !== -1) {
+        return mapBaseType;
+      }
+      console.error(errorMsg);
+      return providersLayersKeys[0] || 'vec';
+    } else {
+      const basicLayersKeys = Object.keys(mapBasicLayers);
+      if (basicLayersKeys.indexOf(mapBaseType) !== -1) {
+        return mapBaseType;
+      }
+      console.error(errorMsg);
+      return basicLayersKeys[0] || 'vec';
+    }
+  } else {
+    console.error(errorMsg);
+    return 'vec';
+  }
+};
+
+/**
+ * 验证地图的mapBaseType和mapBasicLayers地图基础底图属性
+ */
+const validateMapBasicLayers = options => {
+  const errorNotProvidersMsg = '地图Map的基础底图[mapBasicLayers]不是内置设定的服务源Key名.';
+  // 验证基础底图的服务源
+  const mapBasicLayers = options.mapBasicLayers;
+  const providersKeys = Object.keys(providersLayersTypes);
+  // 判断底图服务源的值类型是否为字符串，则采用内置服务源验证模式
+  if (typeof mapBasicLayers === 'string') {
+    // 判断设定的Key是否为内置服务源的名称
+    if (providersKeys.indexOf(mapBasicLayers) === -1) {
+      console.error(errorNotProvidersMsg);
+      options.mapBasicLayers = null;
+    } else {
+      // 转换成默认的Object对象
+      options.mapBasicLayers = {
+        key: mapBasicLayers,
+        options: {},
+      };
+    }
+  } else if (isPlainObject(mapBasicLayers)) {
+    // 判断是否为内置服务源的Object格式模式
+    if (mapBasicLayers.key && typeof mapBasicLayers.key === 'string') {
+      if (providersKeys.indexOf(mapBasicLayers.key) === -1) {
+        console.error(errorNotProvidersMsg);
+        options.mapBasicLayers = null;
+      } else {
+        // 补全错误的服务源的Options参数选项属性
+        (!options.mapBasicLayers.options || !isPlainObject(options.mapBasicLayers.options)) && (options.mapBasicLayers.options = {});
+      }
+    } else {
+      const keys = Object.keys(mapBasicLayers);
+      const basicLayers = {};
+      keys.map(key => {
+        if (isArray(mapBasicLayers[key])) {
+          basicLayers[key] = [];
+          mapBasicLayers[key].map((item, index) => {
+            // 验证自定义服务源的必须属性字段
+            const serviceItem = validateServiceLayerItem(item, `地图Map的基础底图[mapBasicLayers]自定义[${key}]名的索引'${index}'服务源对象`);
+            serviceItem && basicLayers[key].push(serviceItem);
+          });
+          !basicLayers[key].length && (basicLayers[key] = null);
+        } else {
+          console.error(`地图Map的基础底图[mapBasicLayers]自定义格式的[${key}]名的格式有误，类型必须为"Array"数组.`);
+        }
+      });
+      // 移除为空值的服务源对象
+      const bLayers = {};
+      Object.keys(basicLayers).map(key => {
+        if (basicLayers[key] && isNotEmptyArray(basicLayers[key])) {
+          bLayers[key] = basicLayers[key];
+        }
+      });
+      options.mapBasicLayers = Object.keys(bLayers).length ? bLayers : null;
+    }
+  } else {
+    console.error('地图Map的基础底图[mapBasicLayers]的格式有误，类型必须为"String"、"Object"其中的一种.');
+    options.mapBasicLayers = null;
+  }
+
+  // 验证地图的mapBasicLayers底图类型
+  options.mapBaseType = validateMapBaseType(options.mapBaseType, options.mapBasicLayers);
+
   return options;
 };
 
@@ -217,8 +338,6 @@ const validate = (options = {}) => {
   }
   // 验证地图的基础底图属性结构
   options = validateMapBasicLayers(options);
-  // 验证地图的控件的属性结构
-  options = validateMapControls(options);
 
   return options;
 };

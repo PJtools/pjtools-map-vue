@@ -43,11 +43,11 @@ export const isFunction = isAntdFunction;
 export const isArray = isAntdArray;
 
 /**
- * 判断是否为零长度的Array数组类型
+ * 判断是否为非零长度的Array数组类型
  * @param {array} value 待判断的对象
  */
-export const isEmptyArray = value => {
-  return !!(isArray(value) && !value.length);
+export const isNotEmptyArray = value => {
+  return !!(isArray(value) && value.length);
 };
 
 /**
