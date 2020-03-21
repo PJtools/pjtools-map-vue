@@ -100,10 +100,10 @@ const validateBasicParams = options => {
       if (!(isArray(options.center) && options.center.join(',') === '0,0')) {
         console.error('地图Map的中心点坐标[center]属性不是有效的值.');
       }
-      options = omit(options, ['center']);
+      options.center = [0, 0];
     }
   } else {
-    options = omit(options, ['center']);
+    options.center = [0, 0];
   }
   // 验证地图的层级
   options.zoom = validateMapZoom('zoom', options.zoom, 0);
