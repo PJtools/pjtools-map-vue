@@ -36,7 +36,6 @@ class Providers extends BasicMapApi {
   getTianditu(options = {}) {
     let tianditu = new Tianditu(this.iMapApi);
     const layers = tianditu.getLayers(options);
-    console.log(layers);
     tianditu = null;
     return layers;
   }

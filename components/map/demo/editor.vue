@@ -1,6 +1,10 @@
 <template>
 	<div style="margin: 10px;">
-		<pj-map bordered height="600" baseUrl="/static/GeoMap/" config="../MapConfig/map.config.js"></pj-map>
+		<pj-map bordered height="600" 
+						baseUrl="/static/GeoMap/" 
+						config="../MapConfig/map.config.js" 
+						@loaded="handleMapLoaded">
+		</pj-map>
 	</div>
 </template>
 
@@ -11,9 +15,14 @@
 		props: ['id'],
 		data () {
 			return {
+				iMapApi: null,
 			};
 		},
-		mounted () {
+		methods: {
+			handleMapLoaded(iMapApi) {
+				this.iMapApi = iMapApi;
+				console.log('loaded');
+			}
 		}
 	}
 </script>

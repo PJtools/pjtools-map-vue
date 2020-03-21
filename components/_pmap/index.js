@@ -145,6 +145,18 @@ const PJtoolsMap = (function() {
     }
 
     /**
+     * 当前地图的图层集合
+     * @readonly
+     */
+    get mapLayers() {
+      return this._mapLayersIds.map(id => {
+        // 获取图层或图层组的名称
+        const layerId = isPlainObject(this._mapLayersIds[id]) ? this._mapLayersIds[id].layerGroupId : id;
+        return this._mapLayers[layerId];
+      });
+    }
+
+    /**
      * PJtoolsMap的二级属性 - Provoders地图服务源对象
      * @readonly
      */
@@ -170,6 +182,7 @@ const PJtoolsMap = (function() {
 
       // 记录当前Map实例的已添加的地图图层对象
       this._mapLayers = {};
+      this._mapLayersIds = [];
       // 记录当前Map实例的已添加的数据源所对应的图层Id名称
       this._mapSourcesLayersId = {};
 
@@ -244,32 +257,33 @@ const PJtoolsMap = (function() {
         return;
       }
       const mapBasicLayers = this.options.mapBasicLayers;
+      let layers = null;
       // 判断地图的基础底图服务源是否为内置服务源
       if (typeof mapBasicLayers === 'string' || (mapBasicLayers.key && typeof mapBasicLayers.key) === 'string') {
         const key = mapBasicLayers && mapBasicLayers.key ? mapBasicLayers.key : mapBasicLayers;
         const options = mapBasicLayers && mapBasicLayers.options ? mapBasicLayers.options : {};
         // 获取内置底图服务源的图层数据集合
         const providersLayers = this.Providers.getProvidersLayers(key, options);
-        const layers = providersLayers && providersLayers[type];
-        // 判断是否有底图的服务源图层对象，则添加到地图Map中
-        if (layers && isNotEmptyArray(layers)) {
-          this.addLayers(layers);
-        }
+        layers = providersLayers && providersLayers[type];
       } else {
         // 自定义底图服务源数据集合
+        const basicLayers = mapBasicLayers[type];
+        console.log(basicLayers);
+        // TODO...
       }
 
-      // 判断地图的基础底图数据源是否为字符串类型，则采用内置的服务源数据
-      if (typeof mapBasicLayers === 'string') {
-        // this.Providers.getProvidersLayers(mapBasicLayers)
-        // // 判断是否有对应的服务源数据
-        // if (this.Providers.keys.indexOf(mapBasicLayers) !== -1) {
-        //   console.log(this.Providers.keys);
-        // }
+      // 获取待插入的最底部的非底图图层组的前置图层Id，保证更新时底图永远在底部，不被其他图层覆盖.
+      let beforeId = null;
+      const mapLayers = this.getMapboxLayers();
+      if (isNotEmptyArray(mapLayers)) {
+        beforeId = mapLayers[0].id;
       }
 
-      // const layers = this.Providers.getTianditu();
-      // console.log(layers);
+      // 判断是否有底图的服务源图层对象，则添加到地图Map中
+      if (layers && isNotEmptyArray(layers)) {
+        this.addLayersToGroup('pjtoolsmap_basic_layers_group', layers, beforeId);
+        this[_currentMapBaseType] = type;
+      }
     }
   }
 
