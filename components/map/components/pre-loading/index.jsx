@@ -91,7 +91,11 @@ export default {
   },
   render() {
     const { prefixCls, slotsVNode } = this;
-    const transitionProps = getTransitionProps('fade');
+    const transitionProps = getTransitionProps('fade', {
+      leave: () => {
+        this.$emit('destroy');
+      },
+    });
 
     return <transition {...transitionProps}>{slotsVNode ? <div class={prefixCls}>{slotsVNode}</div> : this.renderDefaultPreLoading()}</transition>;
   },

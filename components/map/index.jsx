@@ -92,10 +92,15 @@ const Map = {
       }
 
       return (
-        <PreLoading description={description}>
+        <PreLoading description={description} on-destroy={this.handlePreLoadingDestroy}>
           {this.$slots && this.$slots.preloading ? <template slot="preloading">{this.$slots.preloading}</template> : null}
         </PreLoading>
       );
+    },
+
+    // 触发Pre-Loading组件注销时回调事件
+    handlePreLoadingDestroy() {
+      this.$emit('loaded', this.iMapApi);
     },
 
     // 预加载地图依赖插件基础库
@@ -182,17 +187,13 @@ const Map = {
         // 实例化地图
         this.iMapApi = new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
           onRender: () => {
-            setTimeout(() => {
-              this.description = '地图正在加载图层源数据';
-            }, 0);
+            this.description = '地图正在加载图层源数据';
+            this.$emit('render', this.iMapApi);
           },
           onLoad: () => {
             // 移除Pre-Loading预加载转场
             this.description = '';
             this.preloading = false;
-            setTimeout(() => {
-              console.log('load', this.iMapApi);
-            }, 0);
           },
         });
       });
