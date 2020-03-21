@@ -79,13 +79,15 @@ const getTDTSource = function(layerName, type, token, maxzoom) {
  * @param {string} layerName 图层名称
  * @param {Object} source 图层服务源
  * @param {string} type 服务类型
+ * @param {number} maxzoom 最大层级限制
  */
-const getTDTLayer = function(id, layerName, source, type) {
+const getTDTLayer = function(id, layerName, source, type, maxzoom) {
   const prefix = 'providers_tianditu';
   return {
     id: `${prefix}_${layerName}_${id}`,
     type: 'raster',
     source,
+    maxzoom,
     metadata: {
       type: type === 'WMTS' ? 'WMTS' : 'XYZTile',
     },
@@ -111,18 +113,18 @@ class Tianditu {
       // 天地图的基础瓦片
       const baseLayerName = `${DEFAULT_SOURCES_BASE[key]}_${isWGS84 ? 'c' : 'w'}`;
       const baseSource = getTDTSource(baseLayerName, opts.type, opts.tk, maxzoom);
-      baseSource && layers[key].push(getTDTLayer(this.id, baseLayerName, baseSource, opts.type));
+      baseSource && layers[key].push(getTDTLayer(this.id, baseLayerName, baseSource, opts.type, maxzoom));
       // 天地图的行政边界瓦片
       if (DEFAULT_SOURCES_BOUNDARY[key] && !isBooleanFlase(opts.boundary)) {
         const boundaryLayerName = `${DEFAULT_SOURCES_BOUNDARY[key]}_${isWGS84 ? 'c' : 'w'}`;
         const boundarySource = getTDTSource(boundaryLayerName, opts.type, opts.tk, maxzoom);
-        boundarySource && layers[key].push(getTDTLayer(this.id, boundaryLayerName, boundarySource, opts.type));
+        boundarySource && layers[key].push(getTDTLayer(this.id, boundaryLayerName, boundarySource, opts.type, maxzoom));
       }
       // 天地图的中文标注瓦片
       if (DEFAULT_SOURCES_LABELS[key] && !isBooleanFlase(opts.labels)) {
         const labelsLayerName = `${DEFAULT_SOURCES_LABELS[key]}_${isWGS84 ? 'c' : 'w'}`;
         const labelsSource = getTDTSource(labelsLayerName, opts.type, opts.tk, maxzoom);
-        labelsSource && layers[key].push(getTDTLayer(this.id, labelsLayerName, labelsSource, opts.type));
+        labelsSource && layers[key].push(getTDTLayer(this.id, labelsLayerName, labelsSource, opts.type, maxzoom));
       }
     });
     return layers;
