@@ -91,7 +91,7 @@ export default {
   },
   render() {
     const { prefixCls, slotsVNode } = this;
-    const transitionProps = getTransitionProps('fade', {
+    const transitionProps = getTransitionProps('mapFade', {
       leave: () => {
         this.$emit('destroy');
       },
