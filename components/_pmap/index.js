@@ -7,8 +7,11 @@
 import merge from 'deepmerge';
 import hat from 'hat';
 import validateConfig from './util/validateMapConfig';
-import { isFunction, isBooleanFlase } from '../_util/methods-util';
+import { isFunction, isBooleanFlase, isEmpty, isNotEmptyArray } from '../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
+import { bindPrototypeMethods } from './util/basicMapApiClass';
+import { default as mapPrototypes } from './map';
+import Providers from './providers';
 
 // 默认Mapbox地图的Style对象
 const defaultMapStyle = {
@@ -86,7 +89,7 @@ const defaultMapOptions = {
   // 地图的最大级别
   maxZoom: 22,
   // 初始化时地图的中心点坐标
-  center: [0, 0],
+  center: null,
   // 初始化时地图的当前级别
   zoom: 0,
 };
@@ -101,71 +104,179 @@ const defaultMapCallback = {
   onLoad: null,
 };
 
-class PJtoolsMap {
-  /**
-   * 初始化地图对象
-   * @param {String|Element} id 地图容器Id或地图容器的Element对象
-   * @param {Object} exports 地图前置依赖项，如：{ GeoGlobe, mapboxgl, ... }
-   * @param {Object} options 地图参数选项
-   * @param {Object} callback 地图的回调事件
-   */
-  constructor(id, exports = {}, options = {}, callback = {}) {
-    // 缓存预加载导出的Map前置对象（GeoGlobe、mapboxgl等）
-    if (!exports || !exports.mapboxgl || !exports.GeoGlobe) {
-      console.error('前置必需依赖库[mapboxgl]或[GeoGlobe]缺失，无法有效实例化地图.');
-      return;
+const PJtoolsMap = (function() {
+  let _exports = Symbol('exports');
+  let _options = Symbol('options');
+  let _map = Symbol('map');
+  let _currentMapBaseType = Symbol('currentMapBaseType');
+  let _Providers = Symbol('Providers');
+
+  class PJtoolsMap {
+    /**
+     * 地图前置依赖项对象，如：{ GeoGlobe, mapboxgl, ... }
+     * @readonly
+     */
+    get exports() {
+      return this[_exports];
     }
-    const { GeoGlobe } = exports;
-    this.exports = exports;
 
-    // 处理地图的配置项
-    let opts = merge(defaultMapOptions, validateConfig(options));
-    const cb = merge(defaultMapCallback, callback);
-    // 覆盖地图容器Id值
-    opts.container = id;
+    /**
+     * 地图实例化的参数选项
+     * @readonly
+     */
+    get options() {
+      return this[_options];
+    }
 
-    // 添加渲染前的干预回调事件
-    if (isFunction(cb.onBeforeRender)) {
-      const result = cb.onBeforeRender.call(this, opts);
-      if (result !== null && result !== undefined) {
-        // 判断是否返回值是布尔类型的False值，则直接阻止后续地图的渲染；
-        if (isBooleanFlase(result)) {
-          return;
-        } else if (isPlainObject(result)) {
-          // 如返回值是Object格式类型数据，则直接覆盖默认的地图参数属性
-          opts = result;
+    /**
+     * 原生地图Map的实例化对象
+     * @readonly
+     */
+    get map() {
+      return this[_map];
+    }
+
+    /**
+     * 当前地图底图的类型
+     * @readonly
+     */
+    get currentMapBaseType() {
+      return this[_currentMapBaseType];
+    }
+
+    /**
+     * PJtoolsMap的二级属性 - Provoders地图服务源对象
+     * @readonly
+     */
+    get Providers() {
+      return this[_Providers];
+    }
+
+    /**
+     * 初始化地图对象
+     * @param {String|Element} id 地图容器Id或地图容器的Element对象
+     * @param {Object} exports 地图前置依赖项，如：{ GeoGlobe, mapboxgl, ... }
+     * @param {Object} options 地图参数选项
+     * @param {Object} callback 地图的回调事件
+     */
+    constructor(id, exports = {}, options = {}, callback = {}) {
+      // 缓存预加载导出的Map前置对象（GeoGlobe、mapboxgl等）
+      if (!exports || !exports.mapboxgl || !exports.GeoGlobe) {
+        console.error('前置必需依赖库[mapboxgl]或[GeoGlobe]缺失，无法有效实例化地图.');
+        return;
+      }
+      this[_exports] = exports;
+      const { GeoGlobe } = exports;
+
+      // 记录当前Map实例的已添加的地图图层对象
+      this._mapLayers = {};
+      // 记录当前Map实例的已添加的数据源所对应的图层Id名称
+      this._mapSourcesLayersId = {};
+
+      // 处理地图的配置项
+      let opts = merge(defaultMapOptions, validateConfig(options));
+      const cb = merge(defaultMapCallback, callback);
+      // 覆盖地图容器Id值
+      opts.container = id;
+
+      // 添加渲染前的干预回调事件
+      if (isFunction(cb.onBeforeRender)) {
+        const result = cb.onBeforeRender.call(this, opts);
+        if (result !== null && result !== undefined) {
+          // 判断是否返回值是布尔类型的False值，则直接阻止后续地图的渲染；
+          if (isBooleanFlase(result)) {
+            return;
+          } else if (isPlainObject(result)) {
+            // 如返回值是Object格式类型数据，则直接覆盖默认的地图参数属性
+            opts = result;
+          }
         }
       }
-    }
 
-    this.options = opts;
-    // 实例化GeoGlobe地图
-    const map = new GeoGlobe.Map(opts);
-    map.id = typeof id === 'string' ? id : hat();
-    map.options = opts;
-    this.map = map;
+      // 设置GeoGlobe全局的代理服务
+      !isEmpty(opts.proxyURL) && GeoGlobe.Request.setProxyHost(opts.proxyURL);
+      // 赋值地图的Options参数属性项
+      this[_options] = opts;
 
-    // 移除MapboxGL内部的原生Logo
-    const mapboxLogo = map.getContainer().querySelector('.mapboxgl-ctrl-logo');
-    if (mapboxLogo) {
-      const logoParentNode = mapboxLogo.parentNode;
-      if (logoParentNode && logoParentNode.parentNode) {
-        logoParentNode.parentNode.removeChild(logoParentNode);
-      } else {
-        logoParentNode.removeChild(mapboxLogo);
+      // 实例化GeoGlobe地图
+      const map = new GeoGlobe.Map(opts);
+      map.id = typeof id === 'string' ? id : hat();
+      map.options = opts;
+
+      // 移除MapboxGL内部的原生Logo
+      const mapboxLogo = map.getContainer().querySelector('.mapboxgl-ctrl-logo');
+      if (mapboxLogo) {
+        const logoParentNode = mapboxLogo.parentNode;
+        if (logoParentNode && logoParentNode.parentNode) {
+          logoParentNode.parentNode.removeChild(logoParentNode);
+        } else {
+          logoParentNode.removeChild(mapboxLogo);
+        }
       }
+
+      // 增加地图的回调事件监控
+      map.once('styledata', () => {
+        // 设置当前地图的基础底图数据
+        this.setMapBasicLayers(this.options.mapBaseType);
+        // 判断是否触发回调地图的样式数据渲染的回调事件
+        isFunction(cb.onRender) && cb.onRender.call(this, map);
+      });
+      map.once('load', () => {
+        isFunction(cb.onLoad) && cb.onLoad.call(this, map);
+      });
+
+      // 缓存地图Map实例化对象
+      this[_map] = map;
+
+      // 绑定PJtoolsMap.Providers对象
+      this[_Providers] = new Providers(this);
+
+      return this;
     }
 
-    // 触发回调事件
-    map.once('styledata', () => {
-      isFunction(cb.onRender) && cb.onRender.call(this, map);
-    });
-    map.once('load', () => {
-      isFunction(cb.onLoad) && cb.onLoad.call(this, map);
-    });
+    /**
+     * 设置更新地图Map的底图服务图层
+     * @param {string} type 地图底图类型，具体可选参数根据[mapBasicLayers]设定的服务源的Key名；
+     */
+    setMapBasicLayers(type) {
+      // 判断待更新设置的底图服务类型是否与当前地图类型一致，则直接忽略；
+      if (!type || this.currentMapBaseType === type) {
+        return;
+      }
+      const mapBasicLayers = this.options.mapBasicLayers;
+      // 判断地图的基础底图服务源是否为内置服务源
+      if (typeof mapBasicLayers === 'string' || (mapBasicLayers.key && typeof mapBasicLayers.key) === 'string') {
+        const key = mapBasicLayers && mapBasicLayers.key ? mapBasicLayers.key : mapBasicLayers;
+        const options = mapBasicLayers && mapBasicLayers.options ? mapBasicLayers.options : {};
+        // 获取内置底图服务源的图层数据集合
+        const providersLayers = this.Providers.getProvidersLayers(key, options);
+        const layers = providersLayers && providersLayers[type];
+        // 判断是否有底图的服务源图层对象，则添加到地图Map中
+        if (layers && isNotEmptyArray(layers)) {
+          this.addLayers(layers);
+        }
+      } else {
+        // 自定义底图服务源数据集合
+      }
 
-    return this;
+      // 判断地图的基础底图数据源是否为字符串类型，则采用内置的服务源数据
+      if (typeof mapBasicLayers === 'string') {
+        // this.Providers.getProvidersLayers(mapBasicLayers)
+        // // 判断是否有对应的服务源数据
+        // if (this.Providers.keys.indexOf(mapBasicLayers) !== -1) {
+        //   console.log(this.Providers.keys);
+        // }
+      }
+
+      // const layers = this.Providers.getTianditu();
+      // console.log(layers);
+    }
   }
-}
+
+  // 动态扩展PJtoolsMap地图Class类的函数方法
+  bindPrototypeMethods(mapPrototypes, PJtoolsMap.prototype);
+
+  return PJtoolsMap;
+})();
 
 export default PJtoolsMap;
