@@ -102,6 +102,10 @@ class Tianditu {
     this.prefix = 'providers_tianditu';
   }
 
+  /**
+   * 获取天地图服务源的图层对象
+   * @param {Object} options 服务源的参数选项
+   */
   getLayers(options = {}) {
     const opts = deepmerge(DEFAULT_OPTIONS, options);
     const isWGS84 = !!(opts.crs === 'wgs84');
