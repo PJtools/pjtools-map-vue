@@ -212,7 +212,14 @@ const validateServiceLayerItem = (serviceItem, prefixMsg) => {
       console.error(`${prefixMsg}属性[id]格式有误.`);
       return null;
     }
-    if (typeof serviceItem.url !== 'string' || !isHttpUrl(serviceItem.url)) {
+    if (isArray(serviceItem.url)) {
+      for (let i = 0, len = serviceItem.url.length; i < len; i++) {
+        if (typeof serviceItem.url[i] !== 'string' || !isHttpUrl(serviceItem.url[i])) {
+          console.error(`${prefixMsg}属性[url]格式有误.`);
+          return null;
+        }
+      }
+    } else if (typeof serviceItem.url !== 'string' || !isHttpUrl(serviceItem.url)) {
       console.error(`${prefixMsg}属性[url]格式有误.`);
       return null;
     }
