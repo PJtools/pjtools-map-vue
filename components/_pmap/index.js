@@ -149,10 +149,10 @@ const PJtoolsMap = (function() {
      * @readonly
      */
     get mapLayers() {
-      return this._mapLayersIds.map(id => {
+      return this._mapLayersIds.map(layerId => {
         // 获取图层或图层组的名称
-        const layerId = isPlainObject(this._mapLayersIds[id]) ? this._mapLayersIds[id].layerGroupId : id;
-        return this._mapLayers[layerId];
+        const id = isPlainObject(layerId) ? layerId.layerGroupId : layerId;
+        return this._mapLayers[id];
       });
     }
 
@@ -183,8 +183,6 @@ const PJtoolsMap = (function() {
       // 记录当前Map实例的已添加的地图图层对象
       this._mapLayers = {};
       this._mapLayersIds = [];
-      // 记录当前Map实例的已添加的数据源所对应的图层Id名称
-      this._mapSourcesLayersId = {};
 
       // 处理地图的配置项
       let opts = merge(defaultMapOptions, validateConfig(options));
@@ -256,6 +254,10 @@ const PJtoolsMap = (function() {
       if (!type || this.currentMapBaseType === type) {
         return;
       }
+
+      // 移除旧地图底图图层
+      this.removeMapBasicLayers();
+      // 获取待更新的底图服务源
       const mapBasicLayers = this.options.mapBasicLayers;
       let layers = null;
       // 判断地图的基础底图服务源是否为内置服务源
@@ -284,6 +286,25 @@ const PJtoolsMap = (function() {
         this.addLayersToGroup('pjtoolsmap_basic_layers_group', layers, beforeId);
         this[_currentMapBaseType] = type;
       }
+    }
+
+    /**
+     * 删除当前地图Map的底图服务图层
+     */
+    removeMapBasicLayers() {
+      const basicLayerGroupId = 'pjtoolsmap_basic_layers_group';
+      const basicLayerGroup = this.getLayer(basicLayerGroupId);
+      if (basicLayerGroup) {
+        this.removeLayer(basicLayerGroupId);
+        this[_currentMapBaseType] = null;
+      }
+    }
+
+    /**
+     * 获取当前地图Map的底图服务对象集合
+     */
+    getMapBasicLayers() {
+      return this.getLayer('pjtoolsmap_basic_layers_group');
     }
   }
 
