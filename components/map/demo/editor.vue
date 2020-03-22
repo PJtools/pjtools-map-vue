@@ -23,9 +23,13 @@
 				this.iMapApi = iMapApi;
 				console.log('loaded');
 
-				window.setTimeout(() => {
-					console.log('start');
-				}, 3000);
+				// window.setTimeout(() => {
+				// 	console.log('start');
+				// 	const layer = iMapApi.Services.getServicesLayer('XYZTile', 'abc', 'http://t0.tianditu.gov.cn/DataServer?T=vec_w&x={x}&y={y}&l={z}&tk=${token}', {
+				// 		proxy: false
+				// 	});
+				// 	console.log(layer);
+				// }, 3000);
 			}
 		}
 	}

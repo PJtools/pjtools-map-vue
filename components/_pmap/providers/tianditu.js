@@ -89,7 +89,7 @@ const getTDTLayer = function(id, layerName, source, type, maxzoom) {
     source,
     maxzoom,
     metadata: {
-      type: type === 'WMTS' ? 'WMTS' : 'XYZTile',
+      serviceType: type === 'WMTS' ? 'WMTS' : 'XYZTile',
     },
   };
 };

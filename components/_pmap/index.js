@@ -12,6 +12,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import { bindPrototypeMethods } from './util/basicMapApiClass';
 import { default as mapPrototypes } from './map';
 import Providers from './providers';
+import Services from './layers/services';
 
 // 默认Mapbox地图的Style对象
 const defaultMapStyle = {
@@ -110,6 +111,7 @@ const PJtoolsMap = (function() {
   let _map = Symbol('map');
   let _currentMapBaseType = Symbol('currentMapBaseType');
   let _Providers = Symbol('Providers');
+  let _Services = Symbol('Services');
 
   class PJtoolsMap {
     /**
@@ -165,6 +167,14 @@ const PJtoolsMap = (function() {
     }
 
     /**
+     * PJtoolsMap的二级属性 - Services地图的Web GIS Service服务对象
+     * @readonly
+     */
+    get Services() {
+      return this[_Services];
+    }
+
+    /**
      * 初始化地图对象
      * @param {String|Element} id 地图容器Id或地图容器的Element对象
      * @param {Object} exports 地图前置依赖项，如：{ GeoGlobe, mapboxgl, ... }
@@ -204,8 +214,6 @@ const PJtoolsMap = (function() {
         }
       }
 
-      // 设置GeoGlobe全局的代理服务
-      !isEmpty(opts.proxyURL) && GeoGlobe.Request.setProxyHost(opts.proxyURL);
       // 赋值地图的Options参数属性项
       this[_options] = opts;
 
@@ -241,6 +249,8 @@ const PJtoolsMap = (function() {
 
       // 绑定PJtoolsMap.Providers对象
       this[_Providers] = new Providers(this);
+      // 绑定PJtoolsMap.Services对象
+      this[_Services] = new Services(this);
 
       return this;
     }
@@ -270,8 +280,18 @@ const PJtoolsMap = (function() {
       } else {
         // 自定义底图服务源数据集合
         const basicLayers = mapBasicLayers[type];
-        console.log(basicLayers);
-        // TODO...
+        const blayers = [];
+        basicLayers &&
+          basicLayers.length &&
+          basicLayers.map(basicItem => {
+            const basicOptions = basicItem.options || {};
+            basicOptions.name = basicItem.name || '';
+            const layer = this.Services.getServicesLayer(basicItem.type, basicItem.id, basicItem.url, basicOptions);
+            layer && blayers.push(layer);
+          });
+        if (blayers && blayers.length) {
+          layers = blayers;
+        }
       }
 
       // 获取待插入的最底部的非底图图层组的前置图层Id，保证更新时底图永远在底部，不被其他图层覆盖.
