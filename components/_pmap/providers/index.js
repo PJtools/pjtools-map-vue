@@ -12,6 +12,7 @@ import Bing, { bingLayersTypes, bingMapOptions } from './bing';
 import Google, { googleLayersTypes, googleMapOptions } from './google';
 import GDMap, { gdLayersTypes, gdMapOptions } from './gdmap';
 import QQMap, { qqLayersTypes, qqMapOptions } from './qqmap';
+import Mapbox, { mapboxLayersTypes, mapboxMapOptions } from './mapbox';
 
 // 内置互联网地图服务源的类型枚举名
 export const providersLayersTypes = {
@@ -22,6 +23,7 @@ export const providersLayersTypes = {
   google: googleLayersTypes,
   gdmap: gdLayersTypes,
   qqmap: qqLayersTypes,
+  mapbox: mapboxLayersTypes,
 };
 
 // 内置互联网地图服务源的Map限制Options
@@ -33,6 +35,7 @@ export const providersMapOptions = {
   google: googleMapOptions,
   gdmap: gdMapOptions,
   qqmap: qqMapOptions,
+  mapbox: mapboxMapOptions,
 };
 
 class Providers extends BasicMapApi {
@@ -141,11 +144,22 @@ class Providers extends BasicMapApi {
   }
 
   /**
+   * 获取MapboxGL在线服务源的图层数据集合
+   * @param {Object} options 服务源的参数选项
+   */
+  getMapbox(options = {}) {
+    let mapbox = new Mapbox(this.iMapApi);
+    const layers = mapbox.getLayers(options);
+    mapbox = null;
+    return layers;
+  }
+
+  /**
    * 根据对应内置的服务源Key名获取服务源图层数据
    * @param {String} key 内置服务源Key名
    * @param {Object} options 服务源的参数选项
    */
-  getProvidersLayers(key, options = {}) {
+  async getProvidersLayers(key, options = {}) {
     switch (key) {
       case 'tianditu':
         return this.getTianditu(options);
@@ -161,6 +175,8 @@ class Providers extends BasicMapApi {
         return this.getGDMap(options);
       case 'qqmap':
         return this.getQQMap(options);
+      case 'mapbox':
+        return this.getMapbox(options);
       default:
         return null;
     }

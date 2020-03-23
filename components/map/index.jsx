@@ -185,8 +185,9 @@ const Map = {
       this.description = '地图初始化配置';
       this.loadMapConfig().then(config => {
         // 实例化地图
-        this.iMapApi = new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
-          onRender: () => {
+        new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
+          onRender: iMapApi => {
+            this.iMapApi = iMapApi;
             this.description = '地图正在加载图层源数据';
             this.$emit('render', this.iMapApi);
           },
