@@ -5,7 +5,7 @@
  */
 
 import hat from 'hat';
-import deepmerge from 'deepmerge';
+import assign from 'lodash/assign';
 import { isBooleanFlase } from '../../_util/methods-util';
 
 // 天地图的图层服务源的类型
@@ -112,7 +112,7 @@ class Tianditu {
    * @param {Object} options 服务源的参数选项
    */
   getLayers(options = {}) {
-    const opts = deepmerge(DEFAULT_OPTIONS, options);
+    const opts = assign({}, DEFAULT_OPTIONS, options);
     const isWGS84 = !!(opts.crs === 'wgs84');
     const layers = {};
     // 生成天地图对应类型的图层集合

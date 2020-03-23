@@ -5,7 +5,7 @@
  */
 
 import hat from 'hat';
-import deepmerge from 'deepmerge';
+import assign from 'lodash/assign';
 import { isEmpty, isBooleanFlase } from '../../_util/methods-util';
 
 // 百度的图层服务源的类型
@@ -103,7 +103,7 @@ class Baidu {
    * @param {Object} options 服务源的参数选项
    */
   getLayers(options = {}) {
-    const opts = deepmerge(DEFAULT_OPTIONS, options);
+    const opts = assign({}, DEFAULT_OPTIONS, options);
     const layers = {};
     // 生成百度对应类型的图层集合
     bdLayersTypes.map(key => {
