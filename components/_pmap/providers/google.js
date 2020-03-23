@@ -30,12 +30,12 @@ class Google {
   }
 
   /**
-   * 获取Bing地图服务源的图层对象
+   * 获取Google地图服务源的图层对象
    * @param {Object} options 服务源的参数选项
    */
   getLayers(options = {}) {
     const layers = {};
-    // 生成Bing对应类型的图层集合
+    // 生成Google对应类型的图层集合
     googleLayersTypes.map(key => {
       layers[key] = [];
       const layer = {

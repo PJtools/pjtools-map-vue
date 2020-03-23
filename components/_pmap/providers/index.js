@@ -10,6 +10,7 @@ import Baidu, { bdLayersTypes, bdMapOptions } from './baidu';
 import OSM, { osmLayersTypes, osmMapOptions } from './osm';
 import Bing, { bingLayersTypes, bingMapOptions } from './bing';
 import Google, { googleLayersTypes, googleMapOptions } from './google';
+import GDMap, { gdLayersTypes, gdMapOptions } from './gdmap';
 
 // 内置互联网地图服务源的类型枚举名
 export const providersLayersTypes = {
@@ -18,6 +19,7 @@ export const providersLayersTypes = {
   osm: osmLayersTypes,
   bing: bingLayersTypes,
   google: googleLayersTypes,
+  gdmap: gdLayersTypes,
 };
 
 // 内置互联网地图服务源的Map限制Options
@@ -27,6 +29,7 @@ export const providersMapOptions = {
   osm: osmMapOptions,
   bing: bingMapOptions,
   google: googleMapOptions,
+  gdmap: gdMapOptions,
 };
 
 class Providers extends BasicMapApi {
@@ -72,9 +75,9 @@ class Providers extends BasicMapApi {
    * 添加百度的交通实时路况的图层
    * @param {String} id 图层Id名称
    */
-  addBaiduTrafficLayer(id, beforeId) {
+  addBaiduTrafficLayer(id, beforeId, options = {}) {
     let baidu = new Baidu(this.iMapApi);
-    const layer = baidu.getTrafficLayer(id);
+    const layer = baidu.getTrafficLayer(id, options);
     baidu = null;
     return this.iMapApi.addLayer(layer, beforeId);
   }
@@ -113,6 +116,17 @@ class Providers extends BasicMapApi {
   }
 
   /**
+   * 获取高德在线服务源的图层数据集合
+   * @param {Object} options 服务源的参数选项
+   */
+  getGDMap(options = {}) {
+    let gdmap = new GDMap(this.iMapApi);
+    const layers = gdmap.getLayers(options);
+    gdmap = null;
+    return layers;
+  }
+
+  /**
    * 根据对应内置的服务源Key名获取服务源图层数据
    * @param {String} key 内置服务源Key名
    * @param {Object} options 服务源的参数选项
@@ -129,6 +143,8 @@ class Providers extends BasicMapApi {
         return this.getBing(options);
       case 'google':
         return this.getGoogle(options);
+      case 'gdmap':
+        return this.getGDMap(options);
       default:
         return null;
     }

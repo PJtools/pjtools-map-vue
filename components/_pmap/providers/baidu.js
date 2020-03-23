@@ -22,21 +22,25 @@ export const bdMapOptions = {
 const baiduTilesUrls = {
   vec: {
     default: [0, 1, 2, 3, 4].map(
-      key => `http://online${key}.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}&scaler=2&styles=pl&p=1&udt=20200317`,
+      key => `http://online${key}.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}&scaler={{scale}}&styles=pl&p=1&udt=20200317`,
     ),
-    custom: [0, 1, 2].map(key => `http://api${key}.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&scale=2&udt=20200317`),
+    custom: [0, 1, 2].map(key => `http://api${key}.map.bdimg.com/customimage/tile?&x={x}&y={y}&z={z}&scale={{scale}}&udt=20200317`),
   },
   img: {
     default: [0, 1, 2, 3].map(
       key => `https://maponline${key}.bdimg.com/starpic/?qt=satepc&u=x={x};y={y};z={z};v=009;type=sate&fm=46&app=webearth2&v=009&udt=20200317`,
     ),
-    labels: [0, 1, 2, 3].map(key => `https://maponline${key}.bdimg.com/tile/?qt=vtile&x={x}&y={y}&z={z}&styles=sl&showtext=1&v=083&udt=20200317`),
+    labels: [0, 1, 2, 3].map(
+      key => `https://maponline${key}.bdimg.com/tile/?qt=vtile&x={x}&y={y}&z={z}&styles=sl&scaler={{scale}}&showtext=1&v=083&udt=20200317`,
+    ),
   },
-  traffic: [0, 1, 2, 3].map(key => `http://its.map.baidu.com:8002/traffic/TrafficTileService?v=016&scaler=2&level={z}&x={x}&y={y}`),
+  traffic: [0, 1, 2, 3].map(key => `http://its.map.baidu.com:8002/traffic/TrafficTileService?v=016&scaler={{scale}}&level={z}&x={x}&y={y}`),
 };
 
 // 默认服务数据源的参数选项
 const DEFAULT_OPTIONS = {
+  // 地图缩放比
+  scale: 2,
   // 百度个性化地图的样式
   styles: null,
   // 是否配置地名文本标注
@@ -57,19 +61,21 @@ const getBDSource = function(type, options, key) {
     minzoom: bdMapOptions.minZoom,
     maxzoom: bdMapOptions.maxZoom + 1,
   };
+  const scale = options.scale && String(options.scale) === '1' ? '1' : '2';
   // 添加数据源地址
   switch (type) {
     case 'vec': {
       // 判断是否有个性化样式
       if (!isEmpty(options.styles)) {
-        source.tiles = baiduTilesUrls[type].custom.map(item => `${item}&styles=${options.styles}`);
+        source.tiles = baiduTilesUrls[type].custom.map(item => `${item.replace(/{{scale}}/g, scale)}&styles=${options.styles}`);
       } else {
-        source.tiles = baiduTilesUrls[type].default;
+        source.tiles = baiduTilesUrls[type].default.map(item => item.replace(/{{scale}}/g, scale));
       }
       break;
     }
     case 'img': {
-      source.tiles = baiduTilesUrls[type][key || 'default'];
+      source.tiles = baiduTilesUrls[type][key || 'default'].map(item => item.replace(/{{scale}}/g, scale));
+      break;
     }
   }
   return source;
@@ -127,8 +133,9 @@ class Baidu {
    * 获取百度的实时路况瓦片服务图层
    * @param {String} id 图层Id名称
    */
-  getTrafficLayer(id) {
+  getTrafficLayer(id, options = {}) {
     const time = new Date().getTime();
+    const scale = options && options.scale && String(options.scale) === '1' ? '1' : '2';
     const layer = {
       id: id || hat(),
       type: 'raster',
@@ -138,7 +145,7 @@ class Baidu {
         minzoom: 7,
         maxzoom: bdMapOptions.maxZoom,
         tileSize: 256,
-        tiles: baiduTilesUrls.traffic.map(item => `${item}&time=${time}`),
+        tiles: baiduTilesUrls.traffic.map(item => `${item.replace(/{{scale}}/g, scale)}&time=${time}`),
       },
       metadata: {
         serviceType: 'XYZTile',
