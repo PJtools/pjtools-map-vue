@@ -11,6 +11,12 @@ import { isBooleanFlase } from '../../_util/methods-util';
 // 天地图的图层服务源的类型
 export const tdtLayersTypes = ['vec', 'img', 'terrain'];
 
+// 天地图地图的限制地图Map属性
+export const tdtMapOptions = {
+  minZoom: 0,
+  maxZoom: 17,
+};
+
 // 默认服务数据源的参数选项
 const DEFAULT_OPTIONS = {
   // 天地图服务的默认许可密钥
@@ -99,7 +105,6 @@ class Tianditu {
     this.iMapApi = iMapApi;
     this.exports = iMapApi && iMapApi.exports ? iMapApi.exports : {};
     this.id = hat();
-    this.prefix = 'providers_tianditu';
   }
 
   /**

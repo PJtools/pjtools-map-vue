@@ -4,12 +4,14 @@
  * @创建时间: 2020-03-14 17:45:33
  */
 
-import merge from 'deepmerge';
+import assign from 'lodash/assign';
 import hat from 'hat';
 import validateConfig from './util/validateMapConfig';
-import { isFunction, isBooleanFlase, isEmpty, isNotEmptyArray } from '../_util/methods-util';
+import { isFunction, isBooleanFlase, isNotEmptyArray } from '../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
 import { bindPrototypeMethods } from './util/basicMapApiClass';
+import { providersMapOptions } from './providers';
+import constantMapCRS from './util/constantCRS';
 import { default as mapPrototypes } from './map';
 import Providers from './providers';
 import Services from './layers/services';
@@ -105,6 +107,14 @@ const defaultMapCallback = {
   onLoad: null,
 };
 
+/**
+ * 验证基础底图服务源是否为内置在线服务源
+ * @param {String|Object} mapBasicLayers 地图服务源对象
+ */
+const isMapProviders = function(mapBasicLayers) {
+  return !!(typeof mapBasicLayers === 'string' || (mapBasicLayers && mapBasicLayers.key && typeof mapBasicLayers.key === 'string'));
+};
+
 const PJtoolsMap = (function() {
   let _exports = Symbol('exports');
   let _options = Symbol('options');
@@ -195,8 +205,8 @@ const PJtoolsMap = (function() {
       this._mapLayersIds = [];
 
       // 处理地图的配置项
-      let opts = merge(defaultMapOptions, validateConfig(options));
-      const cb = merge(defaultMapCallback, callback);
+      let opts = assign({}, defaultMapOptions, validateConfig(options));
+      const cb = assign({}, defaultMapCallback, callback);
       // 覆盖地图容器Id值
       opts.container = id;
 
@@ -214,6 +224,22 @@ const PJtoolsMap = (function() {
         }
       }
 
+      // 判断内置初始底图服务源，则强制覆盖地图的属性
+      if (isMapProviders(opts.mapBasicLayers)) {
+        const providerKey = opts.mapBasicLayers.key || opts.mapBasicLayers;
+        const providerOptions = providersMapOptions[providerKey] || {};
+        opts = assign(opts, providerOptions);
+      }
+
+      // 转换内置MapCRS属性
+      if (opts.mapCRS && typeof opts.mapCRS === 'string' && constantMapCRS[opts.mapCRS]) {
+        opts.mapCRS = constantMapCRS[opts.mapCRS];
+      }
+      // 转换地图的设定投影坐标的各属性参数
+      if (opts.mapCRS && isPlainObject(opts.mapCRS)) {
+        opts.mapCRS.units && (opts.units = opts.mapCRS.units);
+        opts.mapCRS.epsg && (opts.epsg = opts.mapCRS.epsg);
+      }
       // 赋值地图的Options参数属性项
       this[_options] = opts;
 
@@ -271,7 +297,7 @@ const PJtoolsMap = (function() {
       const mapBasicLayers = this.options.mapBasicLayers;
       let layers = null;
       // 判断地图的基础底图服务源是否为内置服务源
-      if (typeof mapBasicLayers === 'string' || (mapBasicLayers.key && typeof mapBasicLayers.key) === 'string') {
+      if (isMapProviders(mapBasicLayers)) {
         const key = mapBasicLayers && mapBasicLayers.key ? mapBasicLayers.key : mapBasicLayers;
         const options = mapBasicLayers && mapBasicLayers.options ? mapBasicLayers.options : {};
         // 获取内置底图服务源的图层数据集合
@@ -279,7 +305,7 @@ const PJtoolsMap = (function() {
         layers = providersLayers && providersLayers[type];
       } else {
         // 自定义底图服务源数据集合
-        const basicLayers = mapBasicLayers[type];
+        const basicLayers = mapBasicLayers && mapBasicLayers[type];
         const blayers = [];
         basicLayers &&
           basicLayers.length &&

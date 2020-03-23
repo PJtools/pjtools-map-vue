@@ -340,9 +340,6 @@ const validate = (options = {}) => {
   options = validateBasicParams(options);
   // 验证地图的投影
   options.mapCRS = validateMapCRS(options.mapCRS);
-  if (options.mapCRS && options.mapCRS.units) {
-    options.units = options.mapCRS.units;
-  }
   // 验证地图的基础底图属性结构
   options = validateMapBasicLayers(options);
 

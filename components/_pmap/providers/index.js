@@ -5,11 +5,19 @@
  */
 
 import BasicMapApi from '../util/basicMapApiClass';
-import Tianditu, { tdtLayersTypes } from './tianditu';
+import Tianditu, { tdtLayersTypes, tdtMapOptions } from './tianditu';
+import Baidu, { bdLayersTypes, bdMapOptions } from './baidu';
 
 // 内置互联网地图服务源的类型枚举名
 export const providersLayersTypes = {
   tianditu: tdtLayersTypes,
+  baidu: bdLayersTypes,
+};
+
+// 内置互联网地图服务源的Map限制Options
+export const providersMapOptions = {
+  tianditu: tdtMapOptions,
+  baidu: bdMapOptions,
 };
 
 class Providers extends BasicMapApi {
@@ -31,13 +39,35 @@ class Providers extends BasicMapApi {
 
   /**
    * 获取天地图在线服务源的图层数据集合
-   * @param {Object} options 天地图服务源的参数选项
+   * @param {Object} options 服务源的参数选项
    */
   getTianditu(options = {}) {
     let tianditu = new Tianditu(this.iMapApi);
     const layers = tianditu.getLayers(options);
     tianditu = null;
     return layers;
+  }
+
+  /**
+   * 获取百度在线服务源的图层数据集合
+   * @param {Object} options 服务源的参数选项
+   */
+  getBaidu(options = {}) {
+    let baidu = new Baidu(this.iMapApi);
+    const layers = baidu.getLayers(options);
+    baidu = null;
+    return layers;
+  }
+
+  /**
+   * 添加百度的交通实时路况的图层
+   * @param {String} id 图层Id名称
+   */
+  addBaiduTrafficLayer(id, beforeId) {
+    let baidu = new Baidu(this.iMapApi);
+    const layer = baidu.getTrafficLayer(id);
+    baidu = null;
+    return this.iMapApi.addLayer(layer, beforeId);
   }
 
   /**
@@ -49,6 +79,8 @@ class Providers extends BasicMapApi {
     switch (key) {
       case 'tianditu':
         return this.getTianditu(options);
+      case 'baidu':
+        return this.getBaidu(options);
       default:
         return null;
     }
