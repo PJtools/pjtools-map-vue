@@ -11,6 +11,7 @@ import OSM, { osmLayersTypes, osmMapOptions } from './osm';
 import Bing, { bingLayersTypes, bingMapOptions } from './bing';
 import Google, { googleLayersTypes, googleMapOptions } from './google';
 import GDMap, { gdLayersTypes, gdMapOptions } from './gdmap';
+import QQMap, { qqLayersTypes, qqMapOptions } from './qqmap';
 
 // 内置互联网地图服务源的类型枚举名
 export const providersLayersTypes = {
@@ -20,6 +21,7 @@ export const providersLayersTypes = {
   bing: bingLayersTypes,
   google: googleLayersTypes,
   gdmap: gdLayersTypes,
+  qqmap: qqLayersTypes,
 };
 
 // 内置互联网地图服务源的Map限制Options
@@ -30,6 +32,7 @@ export const providersMapOptions = {
   bing: bingMapOptions,
   google: googleMapOptions,
   gdmap: gdMapOptions,
+  qqmap: qqMapOptions,
 };
 
 class Providers extends BasicMapApi {
@@ -127,6 +130,17 @@ class Providers extends BasicMapApi {
   }
 
   /**
+   * 获取腾讯在线服务源的图层数据集合
+   * @param {Object} options 服务源的参数选项
+   */
+  getQQMap(options = {}) {
+    let qqmap = new QQMap(this.iMapApi);
+    const layers = qqmap.getLayers(options);
+    qqmap = null;
+    return layers;
+  }
+
+  /**
    * 根据对应内置的服务源Key名获取服务源图层数据
    * @param {String} key 内置服务源Key名
    * @param {Object} options 服务源的参数选项
@@ -145,6 +159,8 @@ class Providers extends BasicMapApi {
         return this.getGoogle(options);
       case 'gdmap':
         return this.getGDMap(options);
+      case 'qqmap':
+        return this.getQQMap(options);
       default:
         return null;
     }
