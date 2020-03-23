@@ -46,7 +46,6 @@ const source = {
    */
   addSource(id, source) {
     if (this.getSource(id)) {
-      console.error('数据源Source对象在地图中已存在，无需重复添加.');
       return;
     }
     // 添加图层数据源
