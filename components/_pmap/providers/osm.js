@@ -45,11 +45,11 @@ class OSM {
           type: 'raster',
           tileSize: 256,
           minzoom: osmMapOptions.minZoom,
-          maxzoom: osmMapOptions.maxZoom,
+          maxzoom: osmMapOptions.maxZoom + 1,
           tiles: osmTilesUrls[key],
         },
         minzoom: osmMapOptions.minZoom,
-        maxzoom: osmMapOptions.maxZoom,
+        maxzoom: osmMapOptions.maxZoom + 1,
         metadata: {
           serviceType: 'XYZTile',
         },

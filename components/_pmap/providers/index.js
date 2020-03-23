@@ -9,6 +9,7 @@ import Tianditu, { tdtLayersTypes, tdtMapOptions } from './tianditu';
 import Baidu, { bdLayersTypes, bdMapOptions } from './baidu';
 import OSM, { osmLayersTypes, osmMapOptions } from './osm';
 import Bing, { bingLayersTypes, bingMapOptions } from './bing';
+import Google, { googleLayersTypes, googleMapOptions } from './google';
 
 // 内置互联网地图服务源的类型枚举名
 export const providersLayersTypes = {
@@ -16,6 +17,7 @@ export const providersLayersTypes = {
   baidu: bdLayersTypes,
   osm: osmLayersTypes,
   bing: bingLayersTypes,
+  google: googleLayersTypes,
 };
 
 // 内置互联网地图服务源的Map限制Options
@@ -24,6 +26,7 @@ export const providersMapOptions = {
   baidu: bdMapOptions,
   osm: osmMapOptions,
   bing: bingMapOptions,
+  google: googleMapOptions,
 };
 
 class Providers extends BasicMapApi {
@@ -99,6 +102,17 @@ class Providers extends BasicMapApi {
   }
 
   /**
+   * 获取Google在线服务源的图层数据集合
+   * @param {Object} options 服务源的参数选项
+   */
+  getGoogle(options = {}) {
+    let google = new Google(this.iMapApi);
+    const layers = google.getLayers(options);
+    google = null;
+    return layers;
+  }
+
+  /**
    * 根据对应内置的服务源Key名获取服务源图层数据
    * @param {String} key 内置服务源Key名
    * @param {Object} options 服务源的参数选项
@@ -113,6 +127,8 @@ class Providers extends BasicMapApi {
         return this.getOSM(options);
       case 'bing':
         return this.getBing(options);
+      case 'google':
+        return this.getGoogle(options);
       default:
         return null;
     }

@@ -55,7 +55,7 @@ const getBDSource = function(type, options, key) {
     rasterType: 'baidu',
     tileSize: 256,
     minzoom: bdMapOptions.minZoom,
-    maxzoom: bdMapOptions.maxZoom,
+    maxzoom: bdMapOptions.maxZoom + 1,
   };
   // 添加数据源地址
   switch (type) {
@@ -88,7 +88,7 @@ const getBDLayer = function(id, layerName, source) {
     type: 'raster',
     source,
     minzoom: bdMapOptions.minZoom,
-    maxzoom: bdMapOptions.maxZoom,
+    maxzoom: bdMapOptions.maxZoom + 1,
     metadata: {
       serviceType: 'XYZTile',
     },

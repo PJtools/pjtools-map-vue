@@ -119,7 +119,7 @@ class Tianditu {
     // 生成天地图对应类型的图层集合
     tdtLayersTypes.map(key => {
       layers[key] = [];
-      let maxzoom = key === 'terrain' ? 13 : tdtMapOptions.maxZoom;
+      let maxzoom = key === 'terrain' ? 13 : tdtMapOptions.maxZoom + 1;
       // 天地图的基础瓦片
       const baseLayerName = `${DEFAULT_SOURCES_BASE[key]}_${isWGS84 ? 'c' : 'w'}`;
       const baseSource = getTDTSource(baseLayerName, opts.type, opts.tk, maxzoom);

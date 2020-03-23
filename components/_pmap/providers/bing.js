@@ -67,11 +67,11 @@ class Bing {
           type: 'raster',
           tileSize: 256,
           minzoom: bingMapOptions.minZoom,
-          maxzoom: bingMapOptions.maxZoom,
+          maxzoom: bingMapOptions.maxZoom + 1,
           tiles: bingTilesUrls[key],
         },
         minzoom: bingMapOptions.minZoom,
-        maxzoom: bingMapOptions.maxZoom,
+        maxzoom: bingMapOptions.maxZoom + 1,
         metadata: {
           serviceType: 'XYZTile',
         },
