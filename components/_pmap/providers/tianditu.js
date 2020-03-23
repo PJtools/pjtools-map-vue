@@ -63,6 +63,7 @@ const getTDTSource = function(layerName, type, token, maxzoom) {
   const source = {
     type: 'raster',
     tileSize: 256,
+    minzoom: tdtMapOptions.minZoom,
     maxzoom,
     tiles: [0, 1, 2, 3, 4].map(key => {
       let url = null;
@@ -93,6 +94,7 @@ const getTDTLayer = function(id, layerName, source, type, maxzoom) {
     id: `${prefix}_${layerName}_${id}`,
     type: 'raster',
     source,
+    minzoom: tdtMapOptions.minZoom,
     maxzoom,
     metadata: {
       serviceType: type === 'WMTS' ? 'WMTS' : 'XYZTile',
@@ -103,7 +105,6 @@ const getTDTLayer = function(id, layerName, source, type, maxzoom) {
 class Tianditu {
   constructor(iMapApi) {
     this.iMapApi = iMapApi;
-    this.exports = iMapApi && iMapApi.exports ? iMapApi.exports : {};
     this.id = hat();
   }
 
@@ -118,7 +119,7 @@ class Tianditu {
     // 生成天地图对应类型的图层集合
     tdtLayersTypes.map(key => {
       layers[key] = [];
-      let maxzoom = key === 'terrain' ? 13 : 17;
+      let maxzoom = key === 'terrain' ? 13 : tdtMapOptions.maxZoom;
       // 天地图的基础瓦片
       const baseLayerName = `${DEFAULT_SOURCES_BASE[key]}_${isWGS84 ? 'c' : 'w'}`;
       const baseSource = getTDTSource(baseLayerName, opts.type, opts.tk, maxzoom);

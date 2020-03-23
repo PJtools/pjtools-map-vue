@@ -7,17 +7,20 @@
 import BasicMapApi from '../util/basicMapApiClass';
 import Tianditu, { tdtLayersTypes, tdtMapOptions } from './tianditu';
 import Baidu, { bdLayersTypes, bdMapOptions } from './baidu';
+import OSM, { osmLayersTypes, osmMapOptions } from './osm';
 
 // 内置互联网地图服务源的类型枚举名
 export const providersLayersTypes = {
   tianditu: tdtLayersTypes,
   baidu: bdLayersTypes,
+  osm: osmLayersTypes,
 };
 
 // 内置互联网地图服务源的Map限制Options
 export const providersMapOptions = {
   tianditu: tdtMapOptions,
   baidu: bdMapOptions,
+  osm: osmMapOptions,
 };
 
 class Providers extends BasicMapApi {
@@ -71,6 +74,17 @@ class Providers extends BasicMapApi {
   }
 
   /**
+   * 获取OSM在线服务源的图层数据集合
+   * @param {Object} options 服务源的参数选项
+   */
+  getOSM(options = {}) {
+    let osm = new OSM(this.iMapApi);
+    const layers = osm.getLayers(options);
+    osm = null;
+    return layers;
+  }
+
+  /**
    * 根据对应内置的服务源Key名获取服务源图层数据
    * @param {String} key 内置服务源Key名
    * @param {Object} options 服务源的参数选项
@@ -81,6 +95,8 @@ class Providers extends BasicMapApi {
         return this.getTianditu(options);
       case 'baidu':
         return this.getBaidu(options);
+      case 'osm':
+        return this.getOSM(options);
       default:
         return null;
     }

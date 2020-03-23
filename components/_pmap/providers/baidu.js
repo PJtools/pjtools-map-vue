@@ -54,6 +54,8 @@ const getBDSource = function(type, options, key) {
     type: 'raster',
     rasterType: 'baidu',
     tileSize: 256,
+    minzoom: bdMapOptions.minZoom,
+    maxzoom: bdMapOptions.maxZoom,
   };
   // 添加数据源地址
   switch (type) {
@@ -85,6 +87,8 @@ const getBDLayer = function(id, layerName, source) {
     id: `${prefix}_${layerName}_${id}`,
     type: 'raster',
     source,
+    minzoom: bdMapOptions.minZoom,
+    maxzoom: bdMapOptions.maxZoom,
     metadata: {
       serviceType: 'XYZTile',
     },
@@ -94,7 +98,6 @@ const getBDLayer = function(id, layerName, source) {
 class Baidu {
   constructor(iMapApi) {
     this.iMapApi = iMapApi;
-    this.exports = iMapApi && iMapApi.exports ? iMapApi.exports : {};
     this.id = hat();
   }
 
@@ -133,6 +136,7 @@ class Baidu {
         type: 'raster',
         rasterType: 'baidu',
         minzoom: 7,
+        maxzoom: bdMapOptions.maxZoom,
         tileSize: 256,
         tiles: baiduTilesUrls.traffic.map(item => `${item}&time=${time}`),
       },
