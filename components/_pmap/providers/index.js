@@ -8,12 +8,14 @@ import BasicMapApi from '../util/basicMapApiClass';
 import Tianditu, { tdtLayersTypes, tdtMapOptions } from './tianditu';
 import Baidu, { bdLayersTypes, bdMapOptions } from './baidu';
 import OSM, { osmLayersTypes, osmMapOptions } from './osm';
+import Bing, { bingLayersTypes, bingMapOptions } from './bing';
 
 // 内置互联网地图服务源的类型枚举名
 export const providersLayersTypes = {
   tianditu: tdtLayersTypes,
   baidu: bdLayersTypes,
   osm: osmLayersTypes,
+  bing: bingLayersTypes,
 };
 
 // 内置互联网地图服务源的Map限制Options
@@ -21,6 +23,7 @@ export const providersMapOptions = {
   tianditu: tdtMapOptions,
   baidu: bdMapOptions,
   osm: osmMapOptions,
+  bing: bingMapOptions,
 };
 
 class Providers extends BasicMapApi {
@@ -85,6 +88,17 @@ class Providers extends BasicMapApi {
   }
 
   /**
+   * 获取Bing在线服务源的图层数据集合
+   * @param {Object} options 服务源的参数选项
+   */
+  getBing(options = {}) {
+    let bing = new Bing(this.iMapApi);
+    const layers = bing.getLayers(options);
+    bing = null;
+    return layers;
+  }
+
+  /**
    * 根据对应内置的服务源Key名获取服务源图层数据
    * @param {String} key 内置服务源Key名
    * @param {Object} options 服务源的参数选项
@@ -97,6 +111,8 @@ class Providers extends BasicMapApi {
         return this.getBaidu(options);
       case 'osm':
         return this.getOSM(options);
+      case 'bing':
+        return this.getBing(options);
       default:
         return null;
     }
