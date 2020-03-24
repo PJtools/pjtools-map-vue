@@ -32,11 +32,14 @@ const layerGroup = {
     const addMapLayer = (currentLayer, currentBeforeId) => {
       // 添加数据源
       let currentSource = null;
-      if (typeof currentLayer.source !== 'string') {
-        currentSource = this.addSource(currentLayer.id, currentLayer.source);
-        currentLayer.source = currentSource.id;
-      } else {
-        currentSource = this.getSource(currentLayer.source);
+      if (currentLayer.source) {
+        if (typeof currentLayer.source !== 'string') {
+          const currentSourceId = currentLayer.source && currentLayer.source.id ? currentLayer.source.id : currentLayer.id;
+          currentSource = this.addSource(currentSourceId, currentLayer.source);
+          currentLayer.source = currentSource.id;
+        } else {
+          currentSource = this.getSource(currentLayer.source);
+        }
       }
       // 添加图层
       if (currentBeforeId) {
@@ -44,9 +47,11 @@ const layerGroup = {
       } else {
         map.addLayer(currentLayer);
       }
-      // 存储数据源的所属图层Id
-      currentSource._layersIds.indexOf(currentLayer.id) === -1 && currentSource._layersIds.push(currentLayer.id);
-
+      if (currentSource) {
+        // 存储数据源的所属图层Id
+        !currentSource._layersIds && (currentSource._layersIds = []);
+        currentSource._layersIds.indexOf(currentLayer.id) === -1 && currentSource._layersIds.push(currentLayer.id);
+      }
       return map.getLayer(currentLayer.id);
     };
 

@@ -202,3 +202,24 @@ export const fetchJsFile = url => {
       });
   });
 };
+
+/**
+ * 通过异步Fetch请求JSON数据
+ * @param {string} url 待请求的地址
+ */
+export const fetchGetJson = url => {
+  return new Promise((resolve, reject) => {
+    fetch(url, {
+      method: 'GET',
+    })
+      .then(response => {
+        response &&
+          response.json().then(data => {
+            resolve(data);
+          });
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+};

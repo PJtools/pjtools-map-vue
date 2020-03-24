@@ -45,11 +45,13 @@ const source = {
    * @param {Object} source 数据源对象
    */
   addSource(id, source) {
-    if (this.getSource(id)) {
-      return;
+    const chkSource = this.getSource(id);
+    if (chkSource) {
+      return chkSource;
     }
     // 添加图层数据源
     this.map.addSource(id, source);
+    // 获取实际数据源
     const currentSource = this.map.getSource(id);
     currentSource._layersIds = [];
     return currentSource;

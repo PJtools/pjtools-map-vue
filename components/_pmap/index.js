@@ -7,7 +7,7 @@
 import assign from 'lodash/assign';
 import hat from 'hat';
 import validateConfig from './util/validateMapConfig';
-import { isFunction, isBooleanFlase, isNotEmptyArray } from '../_util/methods-util';
+import { isFunction, isEmpty, isBooleanFlase, isBooleanTrue, isNotEmptyArray } from '../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
 import { bindPrototypeMethods } from './util/basicMapApiClass';
 import { providersMapOptions } from './providers';
@@ -115,6 +115,70 @@ const isMapProviders = function(mapBasicLayers) {
   return !!(typeof mapBasicLayers === 'string' || (mapBasicLayers && mapBasicLayers.key && typeof mapBasicLayers.key === 'string'));
 };
 
+/**
+ * 验证基础底图服务源是否为Mapbox服务源
+ * @param {Object} mapBasicLayers 地图服务源对象
+ */
+const isMapboxProviders = function(mapBasicLayers) {
+  if (isMapProviders(mapBasicLayers)) {
+    const providerKey = mapBasicLayers.key || mapBasicLayers;
+    if (providerKey === 'mapbox') {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * 检测地图的初始样式资源是否加载完毕
+ */
+const checkMapStyleCompleted = function(styledata) {
+  const style = styledata.style;
+  // 检查图片资源是否加载完毕
+  const isSpriteLoaded = style.imageManager && isBooleanTrue(style.imageManager.loaded);
+  // 检查请求资源是否为空
+  const isRequestNull = isEmpty(style._request);
+
+  return isSpriteLoaded && isRequestNull && isBooleanTrue(style._loaded);
+};
+
+/**
+ * 设置初始当前Mapbox服务源的缓存信息
+ */
+const setMapboxProvidersLayersGroup = function() {
+  const map = this.map;
+  const mapMapboxLayers = map.getStyle().layers || [];
+  const basicGroupId = 'pjtoolsmap_basic_layers_group';
+
+  const layersGroup = {
+    id: basicGroupId,
+    isLayerGroup: true,
+    layers: [],
+  };
+  const layersGroupIds = {
+    layerGroupId: basicGroupId,
+    layersIds: [],
+  };
+  mapMapboxLayers &&
+    mapMapboxLayers.map(item => {
+      let layer = map.getLayer(item.id);
+      layer = assign({}, layer, {
+        metadata: assign({}, layer.metadata || {}, { group: basicGroupId }),
+      });
+      layersGroup.layers.push(layer);
+      layersGroupIds.layersIds.push(layer.id);
+      // 记录数据源的图层
+      if (layer.source) {
+        const currentSource = map.getSource(layer.source);
+        !currentSource._layersIds && (currentSource._layersIds = []);
+        currentSource._layersIds.indexOf(layer.id) === -1 && currentSource._layersIds.push(layer.id);
+      }
+    });
+
+  this._mapLayers[basicGroupId] = layersGroup;
+  this._mapLayersIds.push(layersGroupIds);
+};
+
 const PJtoolsMap = (function() {
   let _exports = Symbol('exports');
   let _options = Symbol('options');
@@ -199,7 +263,7 @@ const PJtoolsMap = (function() {
         return;
       }
       this[_exports] = exports;
-      const { GeoGlobe } = exports;
+      const { GeoGlobe, mapboxgl } = exports;
 
       // 绑定PJtoolsMap.Providers对象
       this[_Providers] = new Providers(this);
@@ -231,6 +295,7 @@ const PJtoolsMap = (function() {
       }
 
       // 初始化地图
+      let isStyledataStart = false;
       const initPJtoolsMap = () => {
         // 转换内置MapCRS属性
         if (opts.mapCRS && typeof opts.mapCRS === 'string' && constantMapCRS[opts.mapCRS]) {
@@ -260,14 +325,31 @@ const PJtoolsMap = (function() {
           }
         }
 
-        // 增加地图的回调事件监控
-        map.once('styledata', () => {
-          // 设置当前地图的基础底图数据
-          this.setMapBasicLayers(this.options.mapBaseType);
-          // 判断是否触发回调地图的样式数据渲染的回调事件
-          isFunction(cb.onRender) && cb.onRender.call(this, this);
-        });
+        const handleMapStyledataEvent = styledata => {
+          // 首次渲染Style样式数据时，执行触发回调事件
+          if (!isStyledataStart) {
+            isStyledataStart = true;
+            // 判断是否触发回调地图的样式数据渲染的回调事件
+            isFunction(cb.onRender) && cb.onRender.call(this, this);
+          }
+          // 判断是否Style样式渲染完毕
+          const isLoaded = checkMapStyleCompleted(styledata);
+          if (isLoaded) {
+            map.off('styledata', handleMapStyledataEvent);
+            // 判断是否为内置Mapbox服务源，则初始化时跳过底图服务源
+            if (!(isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers))) {
+              // 设置当前地图的基础底图数据
+              this.setMapBasicLayers(this.options.mapBaseType);
+            }
+          }
+        };
+        map.on('styledata', handleMapStyledataEvent);
         map.once('load', () => {
+          // 判断是否为内置Mapbox服务源，则初始化时跳过底图服务源
+          if (isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers)) {
+            setMapboxProvidersLayersGroup.call(this);
+          }
+          // 判断是否触发回调地图的数据加载完成回调事件
           isFunction(cb.onLoad) && cb.onLoad.call(this, this);
         });
 
@@ -282,7 +364,21 @@ const PJtoolsMap = (function() {
         opts = assign(opts, providerOptions);
         // 获取内置服务源的基础地图底图数据
         this.Providers.getProvidersLayers(providerKey, opts.mapBasicLayers.options || {}).then(data => {
-          this[_providersBasicLayers] = data || null;
+          // 判断内置服务源是否为Mapbox服务
+          if (providerKey === 'mapbox') {
+            const accessToken = (opts.mapBasicLayers && opts.mapBasicLayers.options && opts.mapBasicLayers.options.accessToken) || null;
+            accessToken && (mapboxgl.accessToken = accessToken);
+            opts.mapBaseType = 'vec';
+            if (data) {
+              opts.style = data.style;
+              this[_providersBasicLayers] = data.layers;
+            } else {
+              this[_providersBasicLayers] = null;
+            }
+          } else {
+            // 获取的内置服务源数据图层进行缓存
+            this[_providersBasicLayers] = data || null;
+          }
           // 实例化地图
           initPJtoolsMap();
         });

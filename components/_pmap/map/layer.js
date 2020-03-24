@@ -56,11 +56,14 @@ const layer = {
 
     // 添加图层的数据源
     let currentSource = null;
-    if (typeof layer.source !== 'string') {
-      currentSource = this.addSource(layer.id, layer.source);
-      layer.source = currentSource.id;
-    } else {
-      currentSource = this.getSource(layer.source);
+    if (layer.source) {
+      if (typeof layer.source !== 'string') {
+        const sourceId = layer.source && layer.source.id ? layer.source.id : layer.id;
+        currentSource = this.addSource(sourceId, layer.source);
+        layer.source = currentSource.id;
+      } else {
+        currentSource = this.getSource(layer.source);
+      }
     }
     // 添加到地图Map中
     if (beforeId) {
@@ -74,8 +77,10 @@ const layer = {
     this._mapLayers[layer.id] = currentLayer;
     this._mapLayersIds.push(layer.id);
     // 存储数据源的所属图层Id
-    currentSource._layersIds.indexOf(layer.id) === -1 && currentSource._layersIds.push(layer.id);
-
+    if (currentSource) {
+      !currentSource._layersIds && (currentSource._layersIds = []);
+      currentSource._layersIds.indexOf(layer.id) === -1 && currentSource._layersIds.push(layer.id);
+    }
     return currentLayer;
   },
 

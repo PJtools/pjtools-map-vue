@@ -147,7 +147,7 @@ class Providers extends BasicMapApi {
    * 获取MapboxGL在线服务源的图层数据集合
    * @param {Object} options 服务源的参数选项
    */
-  getMapbox(options = {}) {
+  async getMapbox(options = {}) {
     let mapbox = new Mapbox(this.iMapApi);
     const layers = mapbox.getLayers(options);
     mapbox = null;
@@ -176,7 +176,7 @@ class Providers extends BasicMapApi {
       case 'qqmap':
         return this.getQQMap(options);
       case 'mapbox':
-        return this.getMapbox(options);
+        return await this.getMapbox(options);
       default:
         return null;
     }
