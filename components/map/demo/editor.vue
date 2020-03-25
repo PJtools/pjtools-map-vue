@@ -23,7 +23,6 @@
 				this.iMapApi = iMapApi;
 				console.log('loaded');
 				console.log(iMapApi);
-
 			}
 		}
 	}

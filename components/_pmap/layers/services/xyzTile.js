@@ -31,7 +31,6 @@ class XYZTile {
     // 获取图层对象
     const layer = getServicesBaseLayer(opts);
     layer.id = id;
-    layer.name = name;
     // 获取图层数据源
     const layerSource = getServicesLayerSource(opts);
     !layerSource.tileSize && (layerSource.tileSize = layerSource.defaultTileSize);
@@ -42,7 +41,7 @@ class XYZTile {
     layer.source = layerSource;
     // 存储图层的服务类型
     layer.metadata.serviceType = 'XYZTile';
-    layer.metadata.serviceName = name;
+    layer.metadata.serviceName = name || '';
     return layer;
   }
 }

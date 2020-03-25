@@ -5,13 +5,8 @@
  */
 
 import assign from 'lodash/assign';
-import { isBooleanFlase, isEmpty } from '../../../_util/methods-util';
+import { isBooleanFlase } from '../../../_util/methods-util';
 import { defaultServicesSourceOptions, defaultServicesLayerOptions, getServicesLayerSource, getServicesBaseLayer } from './index';
-
-const defaultServicesOptions = {
-  // 版本号
-  version: null,
-};
 
 /**
  * 解析GeoTile类型的服务地址获取图层服务数据信息
@@ -44,8 +39,7 @@ const fetchGeoTileCapabilities = (own, url, options) => {
             // 图层标识
             opts.layerName = capabilities.querySelector('Name').textContent;
             // 版本号
-            const version = capabilities.querySelector('Version').textContent;
-            opts.version = !isEmpty(options.version) ? options.version : version;
+            opts.version = capabilities.querySelector('Version').textContent;
             // 瓦片大小
             const tileSize = tileData.querySelector('TilePixelsX').textContent;
             opts.tileSize = tileSize || 256;
@@ -61,7 +55,7 @@ const fetchGeoTileCapabilities = (own, url, options) => {
             ].join(',');
             // 层级
             opts.minZoom = parseInt(tileData.querySelector('TopLevel').textContent, 10);
-            opts.maxZoom = parseInt(tileData.querySelector('BottomLevel').textContent, 10) + 1;
+            opts.maxZoom = parseInt(tileData.querySelector('BottomLevel').textContent, 10);
             // 金字塔顶级范围
             const topTile = tileData.querySelector('Pyramid').querySelector('TopTile');
             opts.topTileExtent = [
@@ -108,9 +102,9 @@ const fetchGeoTileLayerStyles = (own, id, url, layerOptions, options) => {
   layer.id = id;
   layer.source = source;
   layer.minzoom = !layer.minzoom || layer.minzoom < layerOptions.minZoom ? layerOptions.minZoom : layer.minzoom;
-  layer.maxzoom = !layer.maxzoom || layer.maxzoom > layerOptions.maxZoom ? layerOptions.maxZoom : layer.maxzoom;
+  layer.maxzoom = !layer.maxzoom || layer.maxzoom > layerOptions.maxZoom + 1 ? layerOptions.maxZoom + 1 : layer.maxzoom;
   layer.metadata = assign({}, layer.metadata, {
-    serviceType: 'VTS',
+    serviceType: 'GeoTile',
     serviceName: options.name || '',
     ...layerOptions,
   });
@@ -132,7 +126,6 @@ class GeoTile {
     this.options = {
       ...defaultServicesSourceOptions,
       ...defaultServicesLayerOptions,
-      ...defaultServicesOptions,
     };
   }
 

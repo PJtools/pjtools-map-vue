@@ -11,9 +11,10 @@ import isPlainObject from 'lodash/isPlainObject';
 import XYZTile from './xyzTile';
 import VTS from './vts';
 import GeoTile from './geoTile';
+import WMTS from './wmts';
 
 // 内置地图Web GIS服务的服务类型枚举名
-export const mapServicesTypeKeys = ['XYZTile', 'WMTS', 'WMS', 'GeoTile', 'GeoExport', 'VTS', 'ArcgisWMTS', 'ArcgisWMS', 'ArcgisExport'];
+export const mapServicesTypeKeys = ['XYZTile', 'GeoTile', 'VTS', 'WMTS', 'WMS', 'GeoExport', 'ArcgisWMTS', 'ArcgisWMS', 'ArcgisExport'];
 
 // 服务数据源的默认参数选项
 export const defaultServicesSourceOptions = {
@@ -188,6 +189,23 @@ class Services extends BasicMapApi {
   }
 
   /**
+   * 获取WMTS类型服务的图层对象
+   * @param {String} id 图层Id名称
+   * @param {String} url 服务地址
+   * @param {Object} options 解析服务的参数选项
+   */
+  async getWMTSLayer(id, url, options = {}) {
+    const result = validateServicesOptions(id, url, options);
+    if (!result) {
+      return null;
+    }
+    let wmts = new WMTS(this.iMapApi);
+    const layer = wmts.getLayer(result.id, result.name, result.url, result.options);
+    wmts = null;
+    return layer;
+  }
+
+  /**
    * 根据对应内置的Web GIS Service服务类型获取解析的服务图层
    * @param {String} type 内置Web GIS Service服务类型
    * @param {String} id 图层Id名称
@@ -202,6 +220,8 @@ class Services extends BasicMapApi {
         return this.getVTSLayer(id, url, options);
       case 'GeoTile':
         return this.getGeoTileLayer(id, url, options);
+      case 'WMTS':
+        return this.getWMTSLayer(id, url, options);
       default:
         return null;
     }
@@ -241,6 +261,45 @@ class Services extends BasicMapApi {
             layer && layers.push(layer);
           });
         return layers.length ? layers : null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 根据对应内置的Web GIS Service服务类型添加图层到地图
+   * @param {String} type 内置Web GIS Service服务类型
+   * @param {String} id 图层Id名称
+   * @param {String} url 服务地址
+   * @param {Object} options 解析服务的参数选项
+   * @param {String} beforeId 待添加到指定图层(组)Id之前
+   * @param {String} layerGroupId 图层组的Id名称
+   */
+  async addServicesLayer(type, id, url, options = {}, beforeId, layerGroupId) {
+    const layer = await this.getServicesLayer(type, id, url, options);
+    if (layer) {
+      if (layerGroupId) {
+        return this.iMapApi.addLayerToGroup(layerGroupId, layer, beforeId);
+      } else {
+        return this.iMapApi.addLayer(layer, beforeId);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * 根据对应内置的Web GIS Service服务类型自定义数据集合批量添加图层到地图
+   * @param {Array} arrayList 内置Web GIS Service服务类型数据集合数组
+   * @param {String} beforeId 待添加到指定图层(组)Id之前
+   * @param {String} layerGroupId 图层组的Id名称
+   */
+  async addServicesLayers(arrayList, beforeId, layerGroupId) {
+    const layers = await this.getServicesLayers(arrayList);
+    if (layers && layers.length) {
+      if (layerGroupId) {
+        return this.iMapApi.addLayersToGroup(layerGroupId, layers, beforeId);
+      } else {
+        return this.iMapApi.addLayers(layers, beforeId);
       }
     }
     return null;
