@@ -6,6 +6,7 @@
 
 import assign from 'lodash/assign';
 import hat from 'hat';
+import proj4 from 'proj4';
 import validateConfig from './util/validateMapConfig';
 import { isFunction, isEmpty, isBooleanFlase, isBooleanTrue, isNotEmptyArray } from '../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
@@ -180,13 +181,16 @@ const setMapboxProvidersLayersGroup = function() {
 };
 
 const PJtoolsMap = (function() {
-  let _exports = Symbol('exports');
-  let _options = Symbol('options');
-  let _map = Symbol('map');
-  let _currentMapBaseType = Symbol('currentMapBaseType');
-  let _providersBasicLayers = Symbol('providersBasicLayers');
-  let _Providers = Symbol('Providers');
-  let _Services = Symbol('Services');
+  const _exports = Symbol('exports');
+  const _options = Symbol('options');
+  const _proxyURL = Symbol('proxyURL');
+  const _map = Symbol('map');
+  const _currentMapBaseType = Symbol('currentMapBaseType');
+  const _providersBasicLayers = Symbol('providersBasicLayers');
+  const _customBasicLayers = Symbol('customBasicLayers');
+  const _proj4 = Symbol('proj4');
+  const _Providers = Symbol('Providers');
+  const _Services = Symbol('Services');
 
   class PJtoolsMap {
     /**
@@ -214,11 +218,27 @@ const PJtoolsMap = (function() {
     }
 
     /**
+     * 当前地图的的Proj4对象
+     * @readonly
+     */
+    get proj4() {
+      return this[_proj4];
+    }
+
+    /**
      * 当前地图底图的类型
      * @readonly
      */
     get currentMapBaseType() {
       return this[_currentMapBaseType];
+    }
+
+    /**
+     * 当前地图的代理服务地址
+     * @readonly
+     */
+    get proxyURL() {
+      return this[_proxyURL];
     }
 
     /**
@@ -262,6 +282,8 @@ const PJtoolsMap = (function() {
         console.error('前置必需依赖库[mapboxgl]或[GeoGlobe]缺失，无法有效实例化地图.');
         return;
       }
+      this[_proj4] = proj4;
+      this[_proxyURL] = (options && options.proxyURL) || '';
       this[_exports] = exports;
       const { GeoGlobe, mapboxgl } = exports;
 
@@ -279,6 +301,11 @@ const PJtoolsMap = (function() {
       const cb = assign({}, defaultMapCallback, callback);
       // 覆盖地图容器Id值
       opts.container = id;
+      // 设置地图的字体库
+      if (opts.glyphs) {
+        opts.style.glyphs = opts.glyphs;
+        delete opts.glyphs;
+      }
 
       // 添加渲染前的干预回调事件
       if (isFunction(cb.onBeforeRender)) {
@@ -306,8 +333,13 @@ const PJtoolsMap = (function() {
           opts.mapCRS.units && (opts.units = opts.mapCRS.units);
           opts.mapCRS.epsg && (opts.epsg = opts.mapCRS.epsg);
         }
+        // 判断是否设定Proj4的投影转换
+        if (opts.mapCRS && opts.mapCRS.proj4 && opts.mapCRS.epsg) {
+          this[_proj4].defs(opts.mapCRS.epsg, opts.mapCRS.proj4);
+        }
         // 赋值地图的Options参数属性项
         this[_options] = opts;
+        this[_proxyURL] = opts.proxyURL || '';
 
         // 实例化GeoGlobe地图
         const map = new GeoGlobe.Map(opts);
@@ -383,7 +415,17 @@ const PJtoolsMap = (function() {
           initPJtoolsMap();
         });
       } else {
-        initPJtoolsMap();
+        // 自定义初始底图数据源，则初始首次提前获取对应异步图层数据
+        const basicLayers = opts.mapBasicLayers && opts.mapBasicLayers[opts.mapBaseType];
+        if (isNotEmptyArray(basicLayers)) {
+          this.Services.getServicesLayers(basicLayers).then(layers => {
+            this[_customBasicLayers] = layers || [];
+            initPJtoolsMap();
+          });
+        } else {
+          this[_customBasicLayers] = [];
+          initPJtoolsMap();
+        }
       }
 
       return this;
@@ -401,30 +443,6 @@ const PJtoolsMap = (function() {
 
       // 移除旧地图底图图层
       this.removeMapBasicLayers();
-      // 获取待更新的底图服务源
-      const mapBasicLayers = this.options.mapBasicLayers;
-      let layers = null;
-      // 判断地图的基础底图服务源是否为内置服务源
-      if (isMapProviders(mapBasicLayers)) {
-        const providersLayers = this[_providersBasicLayers];
-        layers = providersLayers && providersLayers[type];
-      } else {
-        // 自定义底图服务源数据集合
-        const basicLayers = mapBasicLayers && mapBasicLayers[type];
-        const blayers = [];
-        basicLayers &&
-          basicLayers.length &&
-          basicLayers.map(basicItem => {
-            const basicOptions = basicItem.options || {};
-            basicOptions.name = basicItem.name || '';
-            const layer = this.Services.getServicesLayer(basicItem.type, basicItem.id, basicItem.url, basicOptions);
-            layer && blayers.push(layer);
-          });
-        if (blayers && blayers.length) {
-          layers = blayers;
-        }
-      }
-
       // 获取待插入的最底部的非底图图层组的前置图层Id，保证更新时底图永远在底部，不被其他图层覆盖.
       let beforeId = null;
       const mapLayers = this.getMapboxLayers();
@@ -432,10 +450,39 @@ const PJtoolsMap = (function() {
         beforeId = mapLayers[0].id;
       }
 
-      // 判断是否有底图的服务源图层对象，则添加到地图Map中
-      if (layers && isNotEmptyArray(layers)) {
-        this.addLayersToGroup('pjtoolsmap_basic_layers_group', layers, beforeId);
-        this[_currentMapBaseType] = type;
+      // 获取待更新的底图服务源
+      const mapBasicLayers = this.options.mapBasicLayers;
+      // 判断地图的基础底图服务源是否为内置服务源
+      if (isMapProviders(mapBasicLayers)) {
+        const providersLayers = this[_providersBasicLayers];
+        const layers = providersLayers && providersLayers[type];
+        // 判断是否有底图的服务源图层对象，则添加到地图Map中
+        if (isNotEmptyArray(layers)) {
+          this.addLayersToGroup('pjtoolsmap_basic_layers_group', layers, beforeId);
+          this[_currentMapBaseType] = type;
+        }
+      } else {
+        // 判断自定义底图服务源数据集合是否已初始缓存过，则直接使用
+        if (this[_customBasicLayers]) {
+          const basicLayers = this[_customBasicLayers];
+          if (isNotEmptyArray(basicLayers)) {
+            // this.addLayersToGroup('pjtoolsmap_basic_layers_group', basicLayers, beforeId);
+            this.addLayers(basicLayers, beforeId);
+
+            this[_currentMapBaseType] = type;
+          }
+          this[_customBasicLayers] = null;
+        } else {
+          const basicLayers = mapBasicLayers && mapBasicLayers[type];
+          if (isNotEmptyArray(basicLayers)) {
+            this.Services.getServicesLayers(basicLayers).then(layers => {
+              if (isNotEmptyArray(layers)) {
+                this.addLayersToGroup('pjtoolsmap_basic_layers_group', layers, beforeId);
+                this[_currentMapBaseType] = type;
+              }
+            });
+          }
+        }
       }
     }
 

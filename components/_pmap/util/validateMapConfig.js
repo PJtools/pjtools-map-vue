@@ -189,6 +189,13 @@ const validateMapCRS = mapCRS => {
       if (!isEmpty(mapCRS.tileSize) && isInteger(mapCRS.tileSize)) {
         CRS.tileSize = mapCRS.tileSize;
       }
+      // 判断是否有proj4属性
+      if (!isEmpty(mapCRS.proj4)) {
+        if (isEmpty(mapCRS.epsg)) {
+          console.error('地图Map的投影[mapCRS]属性设定[proj4]属性时必须同时设定[epsg]属性.');
+          return null;
+        }
+      }
       // 判断是否有必须属性
       if (has(CRS, 'topTileExtent') && has(CRS, 'coordtransform')) {
         CRS = Object.assign({}, CRS, omit(mapCRS, ['topTileExtent', 'coordtransform', 'resolutions', 'tileSize']));

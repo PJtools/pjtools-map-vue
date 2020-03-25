@@ -184,6 +184,8 @@ const Map = {
 
       this.description = '地图初始化配置';
       this.loadMapConfig().then(config => {
+        // 设定Map地图样式的默认字体库
+        config.glyphs = `${getUrlToLink('glyphs/', this.baseUrl)}{fontstack}/{range}.pbf`;
         // 实例化地图
         new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
           onRender: iMapApi => {

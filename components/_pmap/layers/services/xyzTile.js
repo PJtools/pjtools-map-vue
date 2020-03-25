@@ -12,7 +12,7 @@ class XYZTile {
   constructor(iMapApi) {
     this.iMapApi = iMapApi;
     this.exports = iMapApi && iMapApi.exports ? iMapApi.exports : {};
-    this.proxyUrl = iMapApi.options.proxyURL || '';
+    this.proxyURL = iMapApi.proxyURL || '';
     this.options = {
       ...defaultServicesSourceOptions,
       ...defaultServicesLayerOptions,
@@ -37,12 +37,11 @@ class XYZTile {
     // 实际服务源地址
     const isProxyUrl = isBooleanFlase(opts.proxy) ? false : true;
     const urls = isArray(url) ? url : [url];
-    layerSource.tiles = urls.map(item => (isProxyUrl ? `${this.proxyUrl}${item}` : item));
+    layerSource.tiles = urls.map(item => (isProxyUrl ? `${this.proxyURL}${item}` : item));
     layer.source = layerSource;
     // 存储图层的服务类型
     layer.metadata.serviceType = 'XYZTile';
     layer.metadata.serviceName = name;
-
     return layer;
   }
 }

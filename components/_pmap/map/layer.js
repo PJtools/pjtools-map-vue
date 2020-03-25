@@ -54,34 +54,39 @@ const layer = {
       return;
     }
 
-    // 添加图层的数据源
-    let currentSource = null;
-    if (layer.source) {
-      if (typeof layer.source !== 'string') {
-        const sourceId = layer.source && layer.source.id ? layer.source.id : layer.id;
-        currentSource = this.addSource(sourceId, layer.source);
-        layer.source = currentSource.id;
-      } else {
-        currentSource = this.getSource(layer.source);
-      }
-    }
-    // 添加到地图Map中
-    if (beforeId) {
-      this.map.addLayer(layer, beforeId);
+    // 特殊处理矢量瓦片VTS服务图层
+    if (layer.type && layer.type === 'VTS') {
+      return this.addLayerToGroup(layer.id, layer, beforeId);
     } else {
-      this.map.addLayer(layer);
+      // 添加图层的数据源
+      let currentSource = null;
+      if (layer.source) {
+        if (typeof layer.source !== 'string') {
+          const sourceId = layer.source && layer.source.id ? layer.source.id : layer.id;
+          currentSource = this.addSource(sourceId, layer.source);
+          layer.source = currentSource.id;
+        } else {
+          currentSource = this.getSource(layer.source);
+        }
+      }
+      // 添加到地图Map中
+      if (beforeId) {
+        this.map.addLayer(layer, beforeId);
+      } else {
+        this.map.addLayer(layer);
+      }
+      const currentLayer = this.map.getLayer(layer.id);
+      currentLayer.isLayerGroup = false;
+      // 存储当前图层对象
+      this._mapLayers[layer.id] = currentLayer;
+      this._mapLayersIds.push(layer.id);
+      // 存储数据源的所属图层Id
+      if (currentSource) {
+        !currentSource._layersIds && (currentSource._layersIds = []);
+        currentSource._layersIds.indexOf(layer.id) === -1 && currentSource._layersIds.push(layer.id);
+      }
+      return currentLayer;
     }
-    const currentLayer = this.map.getLayer(layer.id);
-    currentLayer.isLayerGroup = false;
-    // 存储当前图层对象
-    this._mapLayers[layer.id] = currentLayer;
-    this._mapLayersIds.push(layer.id);
-    // 存储数据源的所属图层Id
-    if (currentSource) {
-      !currentSource._layersIds && (currentSource._layersIds = []);
-      currentSource._layersIds.indexOf(layer.id) === -1 && currentSource._layersIds.push(layer.id);
-    }
-    return currentLayer;
   },
 
   /**

@@ -28,78 +28,91 @@ const layerGroup = {
   addLayerToGroup(id, layer, beforeId = null) {
     const map = this.map;
 
-    // 添加图层
-    const addMapLayer = (currentLayer, currentBeforeId) => {
-      // 添加数据源
-      let currentSource = null;
-      if (currentLayer.source) {
-        if (typeof currentLayer.source !== 'string') {
-          const currentSourceId = currentLayer.source && currentLayer.source.id ? currentLayer.source.id : currentLayer.id;
-          currentSource = this.addSource(currentSourceId, currentLayer.source);
-          currentLayer.source = currentSource.id;
-        } else {
-          currentSource = this.getSource(currentLayer.source);
-        }
+    // 特殊处理矢量瓦片VTS服务图层
+    if (layer.type && layer.type === 'VTS') {
+      if (layer.layers && layer.layers.length) {
+        this.addSource(layer.id, layer.source);
+        // 添加矢量瓦片VTS图层Sprite属性
+        this.loadSprite(layer.layers[0].metadata.sprite);
+        // 添加矢量瓦片VTS图层Glyphs属性
+        this.loadGlyphs(layer.layers[0].metadata.glyphs);
+        return this.addLayersToGroup(id, layer.layers, beforeId);
       }
-      // 添加图层
-      if (currentBeforeId) {
-        map.addLayer(currentLayer, currentBeforeId);
-      } else {
-        map.addLayer(currentLayer);
-      }
-      if (currentSource) {
-        // 存储数据源的所属图层Id
-        !currentSource._layersIds && (currentSource._layersIds = []);
-        currentSource._layersIds.indexOf(currentLayer.id) === -1 && currentSource._layersIds.push(currentLayer.id);
-      }
-      return map.getLayer(currentLayer.id);
-    };
-
-    const groupLayer = assign({}, layer, {
-      metadata: assign({}, layer.metadata || {}, { group: id }),
-    });
-    const layerGroup = this.getLayer(id);
-    // 判断是否未创建图层组对象集合
-    if (!layerGroup) {
-      const currentLayer = addMapLayer(groupLayer, beforeId);
-      const currentLayersGroup = {
-        id,
-        isLayerGroup: true,
-        layers: [currentLayer],
-      };
-      // 存储当前图层对象
-      this._mapLayers[id] = currentLayersGroup;
-      this._mapLayersIds.push({
-        layerGroupId: id,
-        layersIds: [currentLayer.id],
-      });
-      return this._mapLayers[id];
+      return null;
     } else {
-      // 判断待追加的图层是否还未创建到地图Map对象中，则追加到图层组
-      if (!this.getLayer(groupLayer.id, id) && !map.getLayer(groupLayer.id)) {
-        // 判断指定图层(组)Id之前是否为该图层组的图层Id，否则只能追加图层组最后
-        const beforeLayer = this.getLayer(beforeId, id);
-        if (beforeLayer) {
-          const currentLayer = addMapLayer(groupLayer, beforeId);
-          // 存储当前图层对象
-          const mapLayersIdsItem = find(this._mapLayersIds, { layerGroupId: id });
-          const index = mapLayersIdsItem.layersIds.indexOf(beforeId);
-          mapLayersIdsItem.layersIds.splice(index, 0, currentLayer.id);
-          this._mapLayers[id].layers.splice(index, 0, currentLayer);
-        } else {
-          // 获取图层组的下一个图层，重新计算beforeId
-          const newBeforeId = this.getNextLayerId(id);
-          // 添加图层到地图
-          const currentLayer = addMapLayer(groupLayer, newBeforeId);
-          // 存储当前图层对象
-          this._mapLayers[id].layers.push(currentLayer);
-          const mapLayersIdsItem = find(this._mapLayersIds, { layerGroupId: id });
-          mapLayersIdsItem.layersIds.push(currentLayer.id);
+      // 添加图层
+      const addMapLayer = (currentLayer, currentBeforeId) => {
+        // 添加数据源
+        let currentSource = null;
+        if (currentLayer.source) {
+          if (typeof currentLayer.source !== 'string') {
+            const currentSourceId = currentLayer.source && currentLayer.source.id ? currentLayer.source.id : currentLayer.id;
+            currentSource = this.addSource(currentSourceId, currentLayer.source);
+            currentLayer.source = currentSource.id;
+          } else {
+            currentSource = this.getSource(currentLayer.source);
+          }
         }
+        // 添加图层
+        if (currentBeforeId) {
+          map.addLayer(currentLayer, currentBeforeId);
+        } else {
+          map.addLayer(currentLayer);
+        }
+        if (currentSource) {
+          // 存储数据源的所属图层Id
+          !currentSource._layersIds && (currentSource._layersIds = []);
+          currentSource._layersIds.indexOf(currentLayer.id) === -1 && currentSource._layersIds.push(currentLayer.id);
+        }
+        return map.getLayer(currentLayer.id);
+      };
+
+      const groupLayer = assign({}, layer, {
+        metadata: assign({}, layer.metadata || {}, { group: id }),
+      });
+      const layerGroup = this.getLayer(id);
+      // 判断是否未创建图层组对象集合
+      if (!layerGroup) {
+        const currentLayer = addMapLayer(groupLayer, beforeId);
+        const currentLayersGroup = {
+          id,
+          isLayerGroup: true,
+          layers: [currentLayer],
+        };
+        // 存储当前图层对象
+        this._mapLayers[id] = currentLayersGroup;
+        this._mapLayersIds.push({
+          layerGroupId: id,
+          layersIds: [currentLayer.id],
+        });
         return this._mapLayers[id];
       } else {
-        console.error(`图层[${layer.id}]已存在，无法追加到图层组对象集合.`);
-        return null;
+        // 判断待追加的图层是否还未创建到地图Map对象中，则追加到图层组
+        if (!this.getLayer(groupLayer.id, id) && !map.getLayer(groupLayer.id)) {
+          // 判断指定图层(组)Id之前是否为该图层组的图层Id，否则只能追加图层组最后
+          const beforeLayer = this.getLayer(beforeId, id);
+          if (beforeLayer) {
+            const currentLayer = addMapLayer(groupLayer, beforeId);
+            // 存储当前图层对象
+            const mapLayersIdsItem = find(this._mapLayersIds, { layerGroupId: id });
+            const index = mapLayersIdsItem.layersIds.indexOf(beforeId);
+            mapLayersIdsItem.layersIds.splice(index, 0, currentLayer.id);
+            this._mapLayers[id].layers.splice(index, 0, currentLayer);
+          } else {
+            // 获取图层组的下一个图层，重新计算beforeId
+            const newBeforeId = this.getNextLayerId(id);
+            // 添加图层到地图
+            const currentLayer = addMapLayer(groupLayer, newBeforeId);
+            // 存储当前图层对象
+            this._mapLayers[id].layers.push(currentLayer);
+            const mapLayersIdsItem = find(this._mapLayersIds, { layerGroupId: id });
+            mapLayersIdsItem.layersIds.push(currentLayer.id);
+          }
+          return this._mapLayers[id];
+        } else {
+          console.error(`图层[${layer.id}]已存在，无法追加到图层组对象集合.`);
+          return null;
+        }
       }
     }
   },

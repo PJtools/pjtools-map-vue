@@ -6,8 +6,10 @@
 
 import BasicMapApi from '../../util/basicMapApiClass';
 import omit from 'omit.js';
-import { isHttpUrl, isArray, isEmpty, isNumeric } from '../../../_util/methods-util';
+import { isHttpUrl, isArray, isEmpty, isNumeric, isNotEmptyArray } from '../../../_util/methods-util';
+import isPlainObject from 'lodash/isPlainObject';
 import XYZTile from './xyzTile';
+import VTS from './vts';
 
 // 内置地图Web GIS服务的服务类型枚举名
 export const mapServicesTypeKeys = ['XYZTile', 'WMTS', 'WMS', 'GeoTile', 'GeoExport', 'VTS', 'ArcgisWMTS', 'ArcgisWMS', 'ArcgisExport'];
@@ -64,7 +66,7 @@ export const getServicesLayerSource = options => {
   options.minzoom && (source.minzoom = options.minzoom);
   options.maxzoom && (source.maxzoom = options.maxzoom);
   if (!isEmpty(options.zoomOffset) && isNumeric(options.zoomOffset)) {
-    source.zoomOffset = parseInt(options.zoomOffset) || 0;
+    source.zoomOffset = parseInt(options.zoomOffset, 10) || 0;
   }
   return source;
 };
@@ -150,19 +152,77 @@ class Services extends BasicMapApi {
   }
 
   /**
-   * 根据对应内置的Web GIS Service服务类型获取解析的服务类型
+   * 获取VTS类型服务的图层对象
+   * @param {String} id 图层Id名称
+   * @param {String} url 服务地址
+   * @param {Object} options 解析服务的参数选项
+   */
+  getVTSLayer(id, url, options = {}) {
+    const result = validateServicesOptions(id, url, options);
+    if (!result) {
+      return null;
+    }
+    let vts = new VTS(this.iMapApi);
+    const layer = vts.getLayer(result.id, result.name, result.url, result.options);
+    vts = null;
+    return layer;
+  }
+
+  /**
+   * 根据对应内置的Web GIS Service服务类型获取解析的服务图层
    * @param {String} type 内置Web GIS Service服务类型
    * @param {String} id 图层Id名称
    * @param {String} url 服务地址
    * @param {Object} options 解析服务的参数选项
    */
-  getServicesLayer(type, id, url, options = {}) {
+  async getServicesLayer(type, id, url, options = {}) {
     switch (type) {
       case 'XYZTile':
         return this.getXYZTileLayer(id, url, options);
+      case 'VTS':
+        return this.getVTSLayer(id, url, options);
       default:
         return null;
     }
+  }
+
+  /**
+   * 根据对应内置的Web GIS Service服务类型自定义数据集合批量获取解析服务图层
+   * @param {Array} arrayList 内置Web GIS Service服务类型数据集合数组
+   */
+  async getServicesLayers(arrayList) {
+    if (isNotEmptyArray(arrayList)) {
+      const promiseList = [];
+      arrayList.map(item => {
+        if (isPlainObject(item) && item.id && item.url) {
+          const options = item.options || {};
+          options.name = item.name || '';
+          const promise = new Promise(resolve => {
+            this.getServicesLayer(item.type, item.id, item.url, options)
+              .then(data => {
+                resolve(data);
+              })
+              .catch(() => {
+                resolve(null);
+              });
+          });
+          promiseList.push(promise);
+        }
+      });
+      if (promiseList.length) {
+        const result = await Promise.all(promiseList).then(result => {
+          return result;
+        });
+        const layers = [];
+        result &&
+          result.length &&
+          result.map(layer => {
+            layer && layers.push(layer);
+          });
+        return layers.length ? layers : null;
+      }
+    }
+    return null;
   }
 }
 
