@@ -286,6 +286,7 @@ const PJtoolsMap = (function() {
       this[_proxyURL] = (options && options.proxyURL) || '';
       this[_exports] = exports;
       const { GeoGlobe, mapboxgl } = exports;
+      GeoGlobe.Request.setTimeout(2000);
 
       // 绑定PJtoolsMap.Providers对象
       this[_Providers] = new Providers(this);
@@ -466,9 +467,7 @@ const PJtoolsMap = (function() {
         if (this[_customBasicLayers]) {
           const basicLayers = this[_customBasicLayers];
           if (isNotEmptyArray(basicLayers)) {
-            // this.addLayersToGroup('pjtoolsmap_basic_layers_group', basicLayers, beforeId);
-            this.addLayers(basicLayers, beforeId);
-
+            this.addLayersToGroup('pjtoolsmap_basic_layers_group', basicLayers, beforeId);
             this[_currentMapBaseType] = type;
           }
           this[_customBasicLayers] = null;

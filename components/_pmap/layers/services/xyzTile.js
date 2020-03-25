@@ -34,6 +34,7 @@ class XYZTile {
     layer.name = name;
     // 获取图层数据源
     const layerSource = getServicesLayerSource(opts);
+    !layerSource.tileSize && (layerSource.tileSize = layerSource.defaultTileSize);
     // 实际服务源地址
     const isProxyUrl = isBooleanFlase(opts.proxy) ? false : true;
     const urls = isArray(url) ? url : [url];

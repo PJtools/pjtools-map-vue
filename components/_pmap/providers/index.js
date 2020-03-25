@@ -149,7 +149,7 @@ class Providers extends BasicMapApi {
    */
   async getMapbox(options = {}) {
     let mapbox = new Mapbox(this.iMapApi);
-    const layers = mapbox.getLayers(options);
+    const layers = await mapbox.getLayers(options);
     mapbox = null;
     return layers;
   }
@@ -176,7 +176,7 @@ class Providers extends BasicMapApi {
       case 'qqmap':
         return this.getQQMap(options);
       case 'mapbox':
-        return await this.getMapbox(options);
+        return this.getMapbox(options);
       default:
         return null;
     }

@@ -10,6 +10,7 @@ import { isHttpUrl, isArray, isEmpty, isNumeric, isNotEmptyArray } from '../../.
 import isPlainObject from 'lodash/isPlainObject';
 import XYZTile from './xyzTile';
 import VTS from './vts';
+import GeoTile from './geoTile';
 
 // 内置地图Web GIS服务的服务类型枚举名
 export const mapServicesTypeKeys = ['XYZTile', 'WMTS', 'WMS', 'GeoTile', 'GeoExport', 'VTS', 'ArcgisWMTS', 'ArcgisWMS', 'ArcgisExport'];
@@ -56,7 +57,8 @@ export const defaultServicesLayerOptions = {
 export const getServicesLayerSource = options => {
   const source = {};
   source.type = 'raster';
-  source.tileSize = options.tileSize;
+  source.defaultTileSize = 256;
+  source.tileSize && (source.tileSize = options.tileSize);
   if (!isEmpty(options.scheme)) {
     source.scheme = options.scheme === 'tms' ? 'tms' : 'xyz';
   }
@@ -157,7 +159,7 @@ class Services extends BasicMapApi {
    * @param {String} url 服务地址
    * @param {Object} options 解析服务的参数选项
    */
-  getVTSLayer(id, url, options = {}) {
+  async getVTSLayer(id, url, options = {}) {
     const result = validateServicesOptions(id, url, options);
     if (!result) {
       return null;
@@ -165,6 +167,23 @@ class Services extends BasicMapApi {
     let vts = new VTS(this.iMapApi);
     const layer = vts.getLayer(result.id, result.name, result.url, result.options);
     vts = null;
+    return layer;
+  }
+
+  /**
+   * 获取GeoTile类型服务的图层对象
+   * @param {String} id 图层Id名称
+   * @param {String} url 服务地址
+   * @param {Object} options 解析服务的参数选项
+   */
+  async getGeoTileLayer(id, url, options = {}) {
+    const result = validateServicesOptions(id, url, options);
+    if (!result) {
+      return null;
+    }
+    let geoTile = new GeoTile(this.iMapApi);
+    const layer = geoTile.getLayer(result.id, result.name, result.url, result.options);
+    geoTile = null;
     return layer;
   }
 
@@ -181,6 +200,8 @@ class Services extends BasicMapApi {
         return this.getXYZTileLayer(id, url, options);
       case 'VTS':
         return this.getVTSLayer(id, url, options);
+      case 'GeoTile':
+        return this.getGeoTileLayer(id, url, options);
       default:
         return null;
     }

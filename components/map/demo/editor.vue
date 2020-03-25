@@ -22,10 +22,8 @@
 			handleMapLoaded(iMapApi) {
 				this.iMapApi = iMapApi;
 				console.log('loaded');
+				console.log(iMapApi);
 
-				// window.setTimeout(() => {
-				// 	console.log('start');
-				// }, 3000);
 			}
 		}
 	}

@@ -146,7 +146,7 @@ const fetchVTSLayerStyles = (own, id, url, layerOptions, options) => {
         source.id = id;
         source.type = 'vector';
         source.tiles = [vectorUrl];
-        source.defaultTileSize = 256;
+        source.tileSize = options.tileSize || layerOptions.tileSize || options.defaultTileSize;
         // Metadata信息
         const metadata = {
           ...layerOptions,
@@ -214,8 +214,7 @@ class VTS {
     // 获取服务信息
     const layerOptions = await fetchVTSCapabilities(this, url, opts);
     // 获取矢量瓦片图层
-    const layer = await fetchVTSLayerStyles(this, id, url, layerOptions, { ...opts, name });
-    return layer;
+    return await fetchVTSLayerStyles(this, id, url, layerOptions, { ...opts, name });
   }
 }
 
