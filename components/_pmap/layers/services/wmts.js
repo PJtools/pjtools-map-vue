@@ -33,6 +33,7 @@ const fetchWMTSCapabilities = (own, url, options) => {
     isProxyUrl && (capabilitiesUrl = `${own.proxyURL}${capabilitiesUrl}`);
 
     // 请求图层数据信息
+    const errorMsg = `WMTS服务地址[ ${url} ]数据解析失败.`;
     GeoGlobe.Request.GET({
       url: capabilitiesUrl,
       success: data => {
@@ -101,13 +102,13 @@ const fetchWMTSCapabilities = (own, url, options) => {
           const topTileToY = topTileFromY - maxResolution * 256;
           opts.topTileExtent = [topTileFromX, topTileToY, topTileToX, topTileFromY];
         } catch (e) {
-          console.error(e);
+          console.error(errorMsg);
           reject();
         }
         resolve(opts);
       },
       failure: () => {
-        console.error(`WMTS服务地址[${url}]数据解析失败.`);
+        console.error(errorMsg);
         reject();
       },
     });

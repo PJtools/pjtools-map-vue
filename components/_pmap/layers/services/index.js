@@ -80,7 +80,11 @@ export const getServicesBaseLayer = options => {
   layer.type = 'raster';
   layer.layout = options.layout || {};
   layer.paint = options.paint || {};
-  layer.metadata = options.metadata || {};
+  if (options.metadata) {
+    layer.metadata = { 'layer:meta': options.metadata };
+  } else {
+    layer.metadata = {};
+  }
   options.minzoom && (layer.minzoom = options.minzoom);
   options.maxzoom && (layer.maxzoom = options.maxzoom);
   options.sourceLayer && (layer['source-layer'] = options.sourceLayer);

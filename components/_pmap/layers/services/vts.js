@@ -35,6 +35,7 @@ const fetchVTSCapabilities = (own, url, options) => {
 
     const opts = { url };
     // 请求图层数据信息
+    const errorMsg = `矢量瓦片VTS服务地址[ ${url} ]数据解析失败.`;
     GeoGlobe.Request.GET({
       url: capabilitiesUrl,
       success: data => {
@@ -92,13 +93,13 @@ const fetchVTSCapabilities = (own, url, options) => {
             opts.maxZoom = zoom[zoom.length - 1];
           }
         } catch (e) {
-          console.error(e);
+          console.error(errorMsg);
           reject();
         }
         resolve(opts);
       },
       failure: () => {
-        console.error(`矢量瓦片VTS服务地址[${url}]数据解析失败.`);
+        console.error(errorMsg);
         reject();
       },
     });
@@ -159,6 +160,7 @@ const fetchVTSLayerStyles = (own, id, url, layerOptions, options) => {
         metadata.serviceType = 'VTS';
         metadata.serviceName = options.name || '';
         metadata['vts:group'] = id;
+        options.metadata && (metadata['layer:meta'] = options.metadata);
         if (metadata.tileBBox) {
           const bbox = metadata.tileBBox.split(',');
           metadata.tileBBox = [

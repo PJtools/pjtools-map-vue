@@ -28,6 +28,7 @@ const fetchGeoTileCapabilities = (own, url, options) => {
     urlParams && (capabilitiesUrl = `${capabilitiesUrl}?${urlParams}`);
 
     // 请求图层数据信息
+    const errorMsg = `吉奥瓦片GeoTile服务地址[ ${url} ]数据解析失败.`;
     GeoGlobe.Request.GET({
       url: capabilitiesUrl,
       success: data => {
@@ -66,13 +67,13 @@ const fetchGeoTileCapabilities = (own, url, options) => {
             ];
           }
         } catch (e) {
-          console.error(e);
+          console.error(errorMsg);
           reject();
         }
         resolve(opts);
       },
       failure: () => {
-        console.error(`吉奥瓦片GeoTile服务地址[${url}]数据解析失败.`);
+        console.error(errorMsg);
         reject();
       },
     });
