@@ -36,7 +36,7 @@ export const getWMTSCapabilities = (capabilities, options, GeoGlobe) => {
     opts.layerName = !isEmpty(options.layerName) ? options.layerName : defaultLayerName;
     // 图片格式
     opts.formats = defaultLayer.formats;
-    opts.format = opts.formats[0] || 'image/tile';
+    opts.format = !isEmpty(options.format) && opts.formats.indexOf(options.format) !== -1 ? options.format : 'image/png';
     // 矩阵集名称
     const matrixSet = capabilities.contents.tileMatrixSets;
     const defaultMatrixSet = matrixSet[defaultLayer.tileMatrixSetLinks[0].tileMatrixSet];
@@ -46,7 +46,7 @@ export const getWMTSCapabilities = (capabilities, options, GeoGlobe) => {
     opts.styleName = !isEmpty(options.styleName) ? options.styleName : defaultStyleName;
     // 版本号
     const version = capabilities.serviceIdentification.serviceTypeVersion;
-    opts.version = !isEmpty(options.version) ? options.version : version;
+    opts.version = !isEmpty(options.version) && options.version === '1.0.0' ? options.version : version;
     // 瓦片层级信息
     const tileMatrix = defaultMatrixSet.matrixIds;
     const zoom = [];
@@ -101,7 +101,7 @@ const fetchWMTSCapabilities = (own, url, options) => {
   const isProxyUrl = isBooleanFlase(options.proxy) ? false : true;
 
   return new Promise((resolve, reject) => {
-    let capabilitiesUrl = `${url}${url.indexOf('?') === -1 ? '?' : '&'}SERVICE=WMTS&VERSION=1.0.0&REQUEST=GetCapabilities`;
+    let capabilitiesUrl = `${url}${url.indexOf('?') === -1 ? '?' : '&'}SERVICE=WMTS&REQUEST=GetCapabilities`;
     isProxyUrl && (capabilitiesUrl = `${own.proxyURL}${capabilitiesUrl}`);
 
     // 请求图层数据信息
@@ -125,7 +125,6 @@ const fetchWMTSCapabilities = (own, url, options) => {
               [Number(bounding._ne.lng), Number(bounding._ne.lat)],
             ];
             opts.tileBBox = defaultBounds;
-            console.log(opts);
           } else {
             console.error(errorMsg);
             reject();
@@ -149,7 +148,7 @@ const fetchWMTSCapabilities = (own, url, options) => {
  */
 export const fetchWMTSLayerStyles = (own, id, url, layerOptions, options) => {
   const isProxyUrl = isBooleanFlase(options.proxy) ? false : true;
-  // 拼接数据源的矢量瓦片服务地址
+  // 拼接数据源的WMTS服务地址
   const params = {};
   params.SERVICE = 'WMTS';
   params.REQUEST = 'GetTile';
@@ -179,8 +178,8 @@ export const fetchWMTSLayerStyles = (own, id, url, layerOptions, options) => {
   const layer = getServicesBaseLayer(options);
   layer.id = id;
   layer.source = source;
-  layer.minzoom = !layer.minzoom || layer.minzoom < layerOptions.minZoom ? layerOptions.minZoom : layer.minzoom;
-  layer.maxzoom = !layer.maxzoom || layer.maxzoom > layerOptions.maxZoom + 1 ? layerOptions.maxZoom + 1 : layer.maxzoom;
+  layer.minzoom = isEmpty(layer.minzoom) || layer.minzoom < layerOptions.minZoom ? layerOptions.minZoom : layer.minzoom;
+  layer.maxzoom = isEmpty(layer.maxzoom) || layer.maxzoom > layerOptions.maxZoom + 1 ? layerOptions.maxZoom + 1 : layer.maxzoom;
   layer.metadata = assign({}, layer.metadata, {
     serviceType: 'WMTS',
     serviceName: options.name || '',

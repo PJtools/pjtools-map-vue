@@ -7,7 +7,8 @@
 import assign from 'lodash/assign';
 import find from 'lodash/find';
 import remove from 'lodash/remove';
-import { isNotEmptyArray, isArray, isBooleanTrue } from '../../_util/methods-util';
+import { isNotEmptyArray, isArray, isBooleanTrue, isBooleanFlase } from '../../_util/methods-util';
+import { getCurrentWMSUrlAndCoordinates } from './layer';
 
 const layerGroup = {
   /**

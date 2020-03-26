@@ -56,6 +56,7 @@ const fetchVTSCapabilities = (own, url, options) => {
               });
             }
             opts.format = options.format && formatList.indexOf(options.format) !== -1 ? options.format : 'protobuf';
+            opts.formats = formatList;
             // 矩阵集名称
             const matrixSet = capabilities.querySelector('Contents').querySelectorAll('Layer + TileMatrixSet');
             const defaultMatrixSet = matrixSet[0].querySelector('Identifier').textContent;

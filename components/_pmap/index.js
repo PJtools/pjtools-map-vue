@@ -11,6 +11,7 @@ import validateConfig from './util/validateMapConfig';
 import { isFunction, isEmpty, isBooleanFlase, isBooleanTrue, isNotEmptyArray } from '../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
 import { bindPrototypeMethods } from './util/basicMapApiClass';
+import transform from './util/transform';
 import { providersMapOptions } from './providers';
 import constantMapCRS from './util/constantCRS';
 import { default as mapPrototypes } from './map';
@@ -189,6 +190,7 @@ const PJtoolsMap = (function() {
   const _providersBasicLayers = Symbol('providersBasicLayers');
   const _customBasicLayers = Symbol('customBasicLayers');
   const _proj4 = Symbol('proj4');
+  const _transform = Symbol('transform');
   const _Providers = Symbol('Providers');
   const _Services = Symbol('Services');
 
@@ -223,6 +225,14 @@ const PJtoolsMap = (function() {
      */
     get proj4() {
       return this[_proj4];
+    }
+
+    /**
+     * 当前地图的的transform对象
+     * @readonly
+     */
+    get transform() {
+      return this[_transform];
     }
 
     /**
@@ -283,6 +293,7 @@ const PJtoolsMap = (function() {
         return;
       }
       this[_proj4] = proj4;
+      this[_transform] = transform;
       this[_proxyURL] = (options && options.proxyURL) || '';
       this[_exports] = exports;
       const { GeoGlobe, mapboxgl } = exports;
