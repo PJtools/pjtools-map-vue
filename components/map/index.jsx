@@ -32,6 +32,7 @@ import {
   fetchJsFile,
 } from '../_util/methods-util';
 import { topTileExtentToGauss, topTileExtentToWMTS, topTileExtentToResolution } from '../_pmap/util/topTileExtent';
+import transform from '../_pmap/util/transform';
 import PJtoolsMap from '../_pmap';
 import mapProps from './mapProps';
 
@@ -267,5 +268,7 @@ Map.$methods = {
   removeClass,
   getUrlToLink,
 };
+// 对外挂接互联网坐标转换静态方法
+Map.$transform = transform;
 
 export default Map;
