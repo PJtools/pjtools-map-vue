@@ -7,8 +7,9 @@
 import assign from 'lodash/assign';
 import { isBooleanFlase, isEmpty } from '../../../_util/methods-util';
 import { defaultServicesSourceOptions, defaultServicesLayerOptions, getServicesLayerSource, getServicesBaseLayer } from './index';
+import { topTileExtentToWMTS } from '../../util/topTileExtent';
 
-const defaultServicesOptions = {
+export const defaultServicesOptions = {
   // 版本号
   version: null,
   // 图层名标识
@@ -19,6 +20,77 @@ const defaultServicesOptions = {
   styleName: null,
   // 图片格式，可选值：[ image/tile | image/png | image/jpeg ]
   format: null,
+  // 顶级金字塔内部计算方式
+  units: null,
+};
+
+/**
+ * 解析标准WMTS类型服务Capabilities信息
+ */
+export const getWMTSCapabilities = (capabilities, options, GeoGlobe) => {
+  try {
+    const opts = {};
+    // 图层标识
+    const defaultLayer = capabilities.contents.layers && capabilities.contents.layers[0];
+    const defaultLayerName = defaultLayer.identifier;
+    opts.layerName = !isEmpty(options.layerName) ? options.layerName : defaultLayerName;
+    // 图片格式
+    opts.formats = defaultLayer.formats;
+    opts.format = opts.formats[0] || 'image/tile';
+    // 矩阵集名称
+    const matrixSet = capabilities.contents.tileMatrixSets;
+    const defaultMatrixSet = matrixSet[defaultLayer.tileMatrixSetLinks[0].tileMatrixSet];
+    opts.matrixSet = !isEmpty(options.layerMatrixSet) ? options.layerMatrixSet : defaultMatrixSet.identifier;
+    // 图层样式名称
+    const defaultStyleName = defaultLayer.styles[0].identifier;
+    opts.styleName = !isEmpty(options.styleName) ? options.styleName : defaultStyleName;
+    // 版本号
+    const version = capabilities.serviceIdentification.serviceTypeVersion;
+    opts.version = !isEmpty(options.version) ? options.version : version;
+    // 瓦片层级信息
+    const tileMatrix = defaultMatrixSet.matrixIds;
+    const zoom = [];
+    const tileMatrixs = [];
+    tileMatrix.forEach(item => {
+      const currentZoom = parseInt(item.identifier, 10);
+      zoom.push(currentZoom);
+      tileMatrixs.push({
+        identifier: currentZoom,
+        scale: Number(item.scaleDenominator),
+        tileWidth: Number(item.tileWidth),
+        tileHeight: Number(item.tileHeight),
+        matrixWidth: Number(item.matrixWidth),
+        matrixHeight: Number(item.matrixHeight),
+      });
+    });
+    opts.tileSize = tileMatrixs[0].tileWidth || 256;
+    opts.tileMatrixs = tileMatrixs;
+    opts.zoom = zoom;
+    // CRS
+    opts.crs = defaultMatrixSet.supportedCRS.replace(/urn:ogc:def:crs:(\w+):(.*:)?(\w+)$/, '$1:$3');
+    // 金字塔顶级范围
+    const topLeftCorner =
+      tileMatrix[0].topLeftCorner.lng < 0
+        ? [tileMatrix[0].topLeftCorner.lng, tileMatrix[0].topLeftCorner.lat]
+        : [tileMatrix[0].topLeftCorner.lat, tileMatrix[0].topLeftCorner.lng];
+    const result = topTileExtentToWMTS(GeoGlobe, {
+      identifier: Number(tileMatrix[0].identifier),
+      scaleDenominator: tileMatrix[0].scaleDenominator,
+      topLeftCorner,
+      tileSize: opts.tileSize,
+      matrixWidth: tileMatrix[0].matrixWidth,
+      matrixHeight: tileMatrix[0].matrixHeight,
+      units: !isEmpty(options.units) && ['degrees', 'm'].indexOf(options.units) !== -1 ? options.units : 'm',
+    });
+    opts.topTileExtent = result.topTileExtent;
+    opts.zoomOffset = result.zoomOffset;
+    opts.zoom = opts.zoom.map(zoom => zoom + opts.zoomOffset);
+    opts.minZoom = opts.zoom[0];
+    opts.maxZoom = opts.zoom[opts.zoom.length - 1];
+    return opts;
+  } catch (e) {
+    return null;
+  }
 };
 
 /**
@@ -37,70 +109,27 @@ const fetchWMTSCapabilities = (own, url, options) => {
     GeoGlobe.Request.GET({
       url: capabilitiesUrl,
       success: data => {
-        const opts = {};
+        let opts = {};
         try {
           // 获取WMTS服务的Capabilities信息
           let capabilities = !data.responseXML || !data.responseXML.documentElement ? data.responseText : data.responseXML;
           capabilities = new GeoGlobe.Format.WMTSCapabilities.v1_0_0().read(capabilities);
-          // 图层标识
-          const defaultLayer = capabilities.contents.layers && capabilities.contents.layers[0];
-          const defaultLayerName = defaultLayer.identifier;
-          opts.layerName = !isEmpty(options.layerName) ? options.layerName : defaultLayerName;
-          // 图片格式
-          opts.formats = defaultLayer.formats;
-          opts.format = opts.formats[0] || 'image/tile';
-          // 矩阵集名称
-          const matrixSet = capabilities.contents.tileMatrixSets;
-          const defaultMatrixSet = matrixSet[defaultLayer.tileMatrixSetLinks[0].tileMatrixSet];
-          opts.matrixSet = !isEmpty(options.layerMatrixSet) ? options.layerMatrixSet : defaultMatrixSet.identifier;
-          // 图层样式名称
-          const defaultStyleName = defaultLayer.styles[0].identifier;
-          opts.styleName = !isEmpty(options.styleName) ? options.styleName : defaultStyleName;
-          // 版本号
-          const version = capabilities.serviceIdentification.serviceTypeVersion;
-          opts.version = !isEmpty(options.version) ? options.version : version;
-          // 矩形范围
-          const bounding = defaultLayer.bounds;
-          const defaultBounds = [
-            [Number(bounding._sw.lng), Number(bounding._sw.lat)],
-            [Number(bounding._ne.lng), Number(bounding._ne.lat)],
-          ];
-          opts.tileBBox = defaultBounds;
-          // 层级
-          const tileMatrix = defaultMatrixSet.matrixIds;
-          const zoom = [];
-          const scales = [];
-          let tileSize = 256;
-          tileMatrix.forEach((item, idx) => {
-            const currentZoom = parseInt(item.identifier, 10);
-            zoom.push(currentZoom);
-            scales.push({ zoom: currentZoom, scale: Number(item.scaleDenominator) });
-            if (idx === 0) {
-              tileSize = Number(item.tileWidth);
-            }
-          });
-          opts.tileSize = tileSize;
-          opts.scales = scales;
-          opts.zoom = zoom;
-          opts.minZoom = zoom[0];
-          opts.maxZoom = zoom[zoom.length - 1];
-          // CRS
-          opts.crs = defaultMatrixSet.supportedCRS.replace(/urn:ogc:def:crs:(\w+):(.*:)?(\w+)$/, '$1:$3');
-          // 金字塔顶级范围
-          const origin = [tileMatrix[0].topLeftCorner.lat, tileMatrix[0].topLeftCorner.lng];
-          // 根据图层的最小比例尺获取分辨率
-          const resolution = GeoGlobe.Util.getResolutionFromScale(scales[0].scale, 'm');
-          // 计算最大分辨率
-          const maxResolution = resolution * Math.pow(2, opts.minZoom);
-          // 金字塔顶层左上角第一个瓦片的左上角X轴
-          const topTileFromX = Number(origin[0]);
-          // 金字塔顶层左上角第一个瓦片的左上角Y轴
-          const topTileFromY = Number(origin[1]);
-          // 金字塔顶层左上角第一个瓦片的右下角X轴
-          const topTileToX = topTileFromX + maxResolution * 256;
-          // 金字塔顶层左上角第一个瓦片的右下角Y轴
-          const topTileToY = topTileFromY - maxResolution * 256;
-          opts.topTileExtent = [topTileFromX, topTileToY, topTileToX, topTileFromY];
+          const wmtsOpts = getWMTSCapabilities(capabilities, options, GeoGlobe);
+          if (wmtsOpts) {
+            opts = assign({}, opts, wmtsOpts);
+            const defaultLayer = capabilities.contents.layers && capabilities.contents.layers[0];
+            // 矩形范围
+            const bounding = defaultLayer.bounds;
+            const defaultBounds = [
+              [Number(bounding._sw.lng), Number(bounding._sw.lat)],
+              [Number(bounding._ne.lng), Number(bounding._ne.lat)],
+            ];
+            opts.tileBBox = defaultBounds;
+            console.log(opts);
+          } else {
+            console.error(errorMsg);
+            reject();
+          }
         } catch (e) {
           console.error(errorMsg);
           reject();
@@ -118,7 +147,7 @@ const fetchWMTSCapabilities = (own, url, options) => {
 /**
  * 解析WMTS类型的服务地址获取图层样式信息
  */
-const fetchGeoTileLayerStyles = (own, id, url, layerOptions, options) => {
+export const fetchWMTSLayerStyles = (own, id, url, layerOptions, options) => {
   const isProxyUrl = isBooleanFlase(options.proxy) ? false : true;
   // 拼接数据源的矢量瓦片服务地址
   const params = {};
@@ -145,7 +174,7 @@ const fetchGeoTileLayerStyles = (own, id, url, layerOptions, options) => {
   const source = getServicesLayerSource(options);
   source.tileSize = options.tileSize || layerOptions.tileSize || options.defaultTileSize;
   source.tiles = [wmtsUrl];
-  source.zoomOffset = !isEmpty(options.zoomOffset) ? options.zoomOffset : 0;
+  source.zoomOffset = !isEmpty(options.zoomOffset) ? options.zoomOffset : !isEmpty(layerOptions.zoomOffset) ? layerOptions.zoomOffset : 0;
   // 构建图层
   const layer = getServicesBaseLayer(options);
   layer.id = id;
@@ -185,7 +214,7 @@ class WMTS {
     // 获取服务信息
     const layerOptions = await fetchWMTSCapabilities(this, url, opts);
     // 获取WMTS图层
-    return fetchGeoTileLayerStyles(this, id, url, layerOptions, { ...opts, name });
+    return fetchWMTSLayerStyles(this, id, url, layerOptions, { ...opts, name });
   }
 }
 

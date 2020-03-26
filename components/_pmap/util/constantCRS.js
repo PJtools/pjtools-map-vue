@@ -10,8 +10,6 @@ const constantMapCRS = {
     key: 'wgs84',
     // EPSG坐标号
     epsg: 'EPSG:4326',
-    // 地图单位
-    units: 'degrees',
     // 是否需转换经纬度
     transform: false,
     // Proj4定义参数
@@ -25,7 +23,6 @@ const constantMapCRS = {
   mercator: {
     key: 'mercator',
     epsg: 'EPSG:3857',
-    units: 'm',
     transform: true,
     proj4: null,
     topTileExtent: [-20037508.35, -20037508.35, 20037508.35, 20037508.35],
@@ -35,7 +32,6 @@ const constantMapCRS = {
   baidu: {
     key: 'baidu',
     epsg: 'bd09',
-    units: 'm',
     transform: true,
     proj4: '+proj=merc +lon_0=0 +units=m +ellps=clrk66 +no_defs',
     topTileExtent: [-33554432, -33554432, 33554432, 33554432],

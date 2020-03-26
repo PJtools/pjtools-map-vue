@@ -11,7 +11,27 @@ import hat from 'hat';
 import isPlainObject from 'lodash/isPlainObject';
 import { PreLoading, Message } from './components';
 import { initDefaultProps } from '../_util/antdv';
-import { getPrefixCls, isNumeric, isHttpUrl, getUrlToLink, fetchJsFile } from '../_util/methods-util';
+import {
+  getPrefixCls,
+  isString,
+  isNumeric,
+  isFunction,
+  isArray,
+  isNotEmptyArray,
+  isBoolean,
+  isBooleanTrue,
+  isBooleanFlase,
+  isInteger,
+  isEmpty,
+  has,
+  isHttpUrl,
+  isCoordinate,
+  addClass,
+  removeClass,
+  getUrlToLink,
+  fetchJsFile,
+} from '../_util/methods-util';
+import { topTileExtentToGauss, topTileExtentToWMTS, topTileExtentToResolution } from '../_pmap/util/topTileExtent';
 import PJtoolsMap from '../_pmap';
 import mapProps from './mapProps';
 
@@ -223,6 +243,29 @@ const Map = {
 Map.install = function(Vue) {
   Vue.use(Base);
   Vue.component(Map.name, Map);
+};
+
+// 对外挂接静态方法
+Map.$methods = {
+  topTileExtentToGauss,
+  topTileExtentToWMTS,
+  topTileExtentToResolution,
+  isString,
+  isNumeric,
+  isFunction,
+  isArray,
+  isNotEmptyArray,
+  isBoolean,
+  isBooleanTrue,
+  isBooleanFlase,
+  isInteger,
+  isEmpty,
+  has,
+  isHttpUrl,
+  isCoordinate,
+  addClass,
+  removeClass,
+  getUrlToLink,
 };
 
 export default Map;

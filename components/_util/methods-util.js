@@ -23,6 +23,14 @@ export const getPrefixCls = (suffixCls, customizePrefixCls) => {
 };
 
 /**
+ * 判断是否为字符串类型
+ * @param {string} value 待判断的值
+ */
+export const isString = value => {
+  return !!(typeof value === 'string');
+};
+
+/**
  * 判断是否为数值（包括：字符串型数值）
  * @param {number} value 待判断的数值
  */

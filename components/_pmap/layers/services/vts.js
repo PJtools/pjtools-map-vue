@@ -73,21 +73,26 @@ const fetchVTSCapabilities = (own, url, options) => {
             const maxbound = bounding.querySelector('UpperCorner').textContent.split(' ');
             const defaultBounds = [...minbound, ...maxbound].join(',');
             opts.tileBBox = defaultBounds;
-            // 层级
+            // 瓦片层级信息
             const tileMatrix = matrixSet[0].querySelectorAll('TileMatrix');
             const zoom = [];
-            const scales = [];
+            const tileMatrixs = [];
             let tileSize = 256;
             tileMatrix.forEach((item, idx) => {
               const currentZoom = parseInt(item.querySelector('Identifier').textContent, 10);
               zoom.push(currentZoom);
-              scales.push({ zoom: currentZoom, scale: Number(item.querySelector('ScaleDenominator').textContent) });
+              tileMatrixs.push({
+                identifier: currentZoom,
+                scale: Number(item.querySelector('ScaleDenominator').textContent),
+                matrixWidth: Number(item.querySelector('MatrixWidth').textContent),
+                matrixHeight: Number(item.querySelector('MatrixHeight').textContent),
+              });
               if (idx === 0) {
                 tileSize = Number(item.querySelector('TileWidth').textContent);
               }
             });
             opts.tileSize = tileSize;
-            opts.scales = scales;
+            opts.tileMatrixs = tileMatrixs;
             opts.zoom = zoom;
             opts.minZoom = zoom[0];
             opts.maxZoom = zoom[zoom.length - 1];

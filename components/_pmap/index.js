@@ -331,7 +331,6 @@ const PJtoolsMap = (function() {
         }
         // 转换地图的设定投影坐标的各属性参数
         if (opts.mapCRS && isPlainObject(opts.mapCRS)) {
-          opts.mapCRS.units && (opts.units = opts.mapCRS.units);
           opts.mapCRS.epsg && (opts.epsg = opts.mapCRS.epsg);
         }
         // 判断是否设定Proj4的投影转换
