@@ -124,6 +124,10 @@ const fetchVTSLayerStyles = (own, id, url, layerOptions, options) => {
 
     fetchGetJson(stylesUrl)
       .then(data => {
+        // 构建数据源
+        const source = getServicesLayerSource(options);
+        source.id = id;
+        source.type = 'vector';
         // 拼接数据源的矢量瓦片服务地址
         const params = {};
         params.service = 'WMTS';
@@ -148,12 +152,9 @@ const fetchVTSLayerStyles = (own, id, url, layerOptions, options) => {
         });
         vectorUrl = `${url}${url.indexOf('?') === -1 ? '?' : '&'}${vectorUrl}`;
         isProxyUrl && (vectorUrl = `${own.proxyURL}${vectorUrl}`);
-        // 数据源
-        const source = getServicesLayerSource(options);
-        source.id = id;
-        source.type = 'vector';
+        // 设定服务源
         source.tiles = [vectorUrl];
-        source.tileSize = options.tileSize || layerOptions.tileSize || options.defaultTileSize;
+        source.tileSize = options.tileSize || layerOptions.tileSize || source.defaultTileSize;
         // Metadata信息
         const metadata = {
           ...layerOptions,

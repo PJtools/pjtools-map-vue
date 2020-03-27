@@ -148,6 +148,8 @@ const fetchWMTSCapabilities = (own, url, options) => {
  */
 export const fetchWMTSLayerStyles = (own, id, url, layerOptions, options) => {
   const isProxyUrl = isBooleanFlase(options.proxy) ? false : true;
+  // 构建数据源
+  const source = getServicesLayerSource(options);
   // 拼接数据源的WMTS服务地址
   const params = {};
   params.SERVICE = 'WMTS';
@@ -169,9 +171,8 @@ export const fetchWMTSLayerStyles = (own, id, url, layerOptions, options) => {
   });
   wmtsUrl = `${url}${url.indexOf('?') === -1 ? '?' : '&'}${wmtsUrl}`;
   isProxyUrl && (wmtsUrl = `${own.proxyURL}${wmtsUrl}`);
-  // 构建数据源
-  const source = getServicesLayerSource(options);
-  source.tileSize = options.tileSize || layerOptions.tileSize || options.defaultTileSize;
+  // 设定服务源
+  source.tileSize = options.tileSize || layerOptions.tileSize || source.defaultTileSize;
   source.tiles = [wmtsUrl];
   source.zoomOffset = !isEmpty(options.zoomOffset) ? options.zoomOffset : !isEmpty(layerOptions.zoomOffset) ? layerOptions.zoomOffset : 0;
   // 构建图层

@@ -87,7 +87,7 @@ const fetchGeoTileLayerStyles = (own, id, url, layerOptions, options) => {
   const isProxyUrl = isBooleanFlase(options.proxy) ? false : true;
   // 构建数据源
   const source = getServicesLayerSource(options);
-  source.tileSize = options.tileSize || layerOptions.tileSize || options.defaultTileSize;
+  source.tileSize = options.tileSize || layerOptions.tileSize || source.defaultTileSize;
   // 拼接数据源瓦片地址
   const urlParams = url.indexOf('?') !== -1 ? url.split('?')[1] : '';
   let tileUrl = url;

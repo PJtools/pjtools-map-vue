@@ -152,6 +152,8 @@ const fetchWMSCapabilities = (own, url, options) => {
  */
 export const fetchWMSLayerStyles = (own, id, url, layerOptions, options) => {
   const isProxyUrl = isBooleanFlase(options.proxy) ? false : true;
+  // 构建数据源
+  const source = getServicesLayerSource(options);
   // 拼接数据源的WMS服务地址
   const params = {};
   params.SERVICE = 'WMS';
@@ -161,8 +163,8 @@ export const fetchWMSLayerStyles = (own, id, url, layerOptions, options) => {
   params.STYLES = layerOptions.styleName;
   params.FORMAT = layerOptions.format;
   params.BBOX = '{bbox-epsg-3857}';
-  params.WIDTH = options.tileSize || options.defaultTileSize;
-  params.HEIGHT = options.tileSize || options.defaultTileSize;
+  params.WIDTH = options.tileSize || source.defaultTileSize;
+  params.HEIGHT = options.tileSize || source.defaultTileSize;
   params[layerOptions.version === '1.3.0' ? 'CRS' : 'SRS'] = layerOptions.srs;
   params.TRANSPARENT = layerOptions.transparent;
   let wmsUrl = '';
@@ -174,9 +176,8 @@ export const fetchWMSLayerStyles = (own, id, url, layerOptions, options) => {
   });
   wmsUrl = `${url}${url.indexOf('?') === -1 ? '?' : '&'}${wmsUrl}`;
   isProxyUrl && (wmsUrl = `${own.proxyURL}${wmsUrl}`);
-  // 构建数据源
-  const source = getServicesLayerSource(options);
-  source.tileSize = options.tileSize || options.defaultTileSize;
+  // 设定服务源
+  source.tileSize = options.tileSize || source.defaultTileSize;
   source.tiles = [wmsUrl];
   // 构建图层
   const layer = getServicesBaseLayer(options);
