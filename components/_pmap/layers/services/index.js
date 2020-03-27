@@ -15,6 +15,7 @@ import WMTS from './wmts';
 import ArcgisWMTS from './arcgisWMTS';
 import WMS from './wms';
 import ArcgisWMS from './arcgisWMS';
+import GeoExport from './geoExport';
 import ArcgisExport from './arcgisExport';
 
 // 内置地图Web GIS服务的服务类型枚举名
@@ -265,6 +266,23 @@ class Services extends BasicMapApi {
   }
 
   /**
+   * 获取GeoExport类型服务的图层对象
+   * @param {String} id 图层Id名称
+   * @param {String} url 服务地址
+   * @param {Object} options 解析服务的参数选项
+   */
+  async getGeoExportLayer(id, url, options = {}) {
+    const result = validateServicesOptions(id, url, options);
+    if (!result) {
+      return null;
+    }
+    let geoExport = new GeoExport(this.iMapApi);
+    const layer = geoExport.getLayer(result.id, result.name, result.url, result.options);
+    geoExport = null;
+    return layer;
+  }
+
+  /**
    * 获取Arcgis Export类型服务的图层对象
    * @param {String} id 图层Id名称
    * @param {String} url 服务地址
@@ -304,6 +322,8 @@ class Services extends BasicMapApi {
         return this.getWMSLayer(id, url, options);
       case 'ArcgisWMS':
         return this.getArcgisWMSLayer(id, url, options);
+      case 'GeoExport':
+        return this.getGeoExportLayer(id, url, options);
       case 'ArcgisExport':
         return this.getArcgisExportLayer(id, url, options);
       default:
