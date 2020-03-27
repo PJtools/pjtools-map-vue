@@ -15,6 +15,7 @@ import WMTS from './wmts';
 import ArcgisWMTS from './arcgisWMTS';
 import WMS from './wms';
 import ArcgisWMS from './arcgisWMS';
+import ArcgisExport from './arcgisExport';
 
 // 内置地图Web GIS服务的服务类型枚举名
 export const mapServicesTypeKeys = ['XYZTile', 'GeoTile', 'VTS', 'WMTS', 'WMS', 'GeoExport', 'ArcgisWMTS', 'ArcgisWMS', 'ArcgisExport'];
@@ -264,6 +265,23 @@ class Services extends BasicMapApi {
   }
 
   /**
+   * 获取Arcgis Export类型服务的图层对象
+   * @param {String} id 图层Id名称
+   * @param {String} url 服务地址
+   * @param {Object} options 解析服务的参数选项
+   */
+  async getArcgisExportLayer(id, url, options = {}) {
+    const result = validateServicesOptions(id, url, options);
+    if (!result) {
+      return null;
+    }
+    let arcgisExport = new ArcgisExport(this.iMapApi);
+    const layer = arcgisExport.getLayer(result.id, result.name, result.url, result.options);
+    arcgisExport = null;
+    return layer;
+  }
+
+  /**
    * 根据对应内置的Web GIS Service服务类型获取解析的服务图层
    * @param {String} type 内置Web GIS Service服务类型
    * @param {String} id 图层Id名称
@@ -286,6 +304,8 @@ class Services extends BasicMapApi {
         return this.getWMSLayer(id, url, options);
       case 'ArcgisWMS':
         return this.getArcgisWMSLayer(id, url, options);
+      case 'ArcgisExport':
+        return this.getArcgisExportLayer(id, url, options);
       default:
         return null;
     }
