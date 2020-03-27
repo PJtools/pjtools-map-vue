@@ -17,6 +17,8 @@ export const defaultServicesOptions = {
   styleName: null,
   // 图片格式，可选值：[ image/png | image/jpeg | image/gif ]
   format: null,
+  // 空间坐标系统
+  srs: null,
   // 是否支持透明
   transparent: true,
 };
@@ -24,11 +26,11 @@ export const defaultServicesOptions = {
 /**
  * 解析标准WMS类型服务Capabilities信息
  */
-export const getWMSCapabilities = (capabilities, options, GeoGlobe) => {
+export const getWMSCapabilities = (capabilities, root, options, GeoGlobe) => {
   try {
     const opts = {};
     // 获取版本号
-    const version = capabilities.querySelector('WMT_MS_Capabilities').getAttribute('version');
+    const version = capabilities.querySelector(root).getAttribute('version');
     if (version === '1.3.0') {
       capabilities = new GeoGlobe.Format.WMSCapabilities.v1_3_0().read(capabilities);
     } else {
@@ -38,7 +40,17 @@ export const getWMSCapabilities = (capabilities, options, GeoGlobe) => {
     // 图层标识
     const layers = capabilities.capability.layers;
     const defaultLayer = layers[0];
-    const layersName = layers.map(layer => layer.name);
+    const layersName = [];
+    const wmslayers = {};
+    layers.map(layer => {
+      wmslayers[layer.name] = {
+        minScale: layer.minScale ? Number(layer.minScale) : null,
+        maxScale: layer.maxScale ? Number(layer.maxScale) : null,
+        styles: (layer.styles && layer.styles[0] && layer.styles[0].name) || '',
+      };
+      layersName.push(layer.name);
+    });
+    opts.layers = wmslayers;
     opts.layersName = layersName;
     opts.layerName = !isEmpty(options.layerName) ? options.layerName : layersName.join(',');
     // 图片格式
@@ -46,25 +58,45 @@ export const getWMSCapabilities = (capabilities, options, GeoGlobe) => {
     opts.format = !isEmpty(options.format) && opts.formats.indexOf(options.format) !== -1 ? options.format : 'image/png';
     // 图层样式名称
     const defaultStyleName = (defaultLayer.styles && defaultLayer.styles[0] && defaultLayer.styles[0].name) || 'default';
-    opts.styleName = !isEmpty(options.styleName) ? options.styleName : defaultStyleName;
+    if (!isEmpty(options.styleName)) {
+      opts.styleName = options.styleName;
+    } else {
+      const stylesName = opts.layerName.split(',').map(item => {
+        return (opts.layers[item] && opts.layers[item].styles) || defaultStyleName;
+      });
+      opts.styleName = stylesName.join(',');
+    }
     // SRS
     const srsKeys = Object.keys(defaultLayer.srs) || [];
     let defaultSRS = null;
+    const srsList = [];
     for (let i = 0, len = srsKeys.length; i < len; i++) {
-      if (isBooleanTrue(defaultLayer.srs[srsKeys[i]])) {
+      if (isBooleanTrue(defaultLayer.srs[srsKeys[i]]) && srsKeys[i] !== 'CRS:84') {
         defaultSRS = srsKeys[i];
-        break;
       }
+      srsList.push(srsKeys[i]);
     }
     defaultSRS = !defaultSRS ? srsKeys[0] || '' : defaultSRS;
-    opts.srs = defaultSRS;
+    opts.srs = !isEmpty(options.srs) ? options.srs : defaultSRS;
+    opts.srsList = srsList;
     // 矩形范围
-    const bounding = defaultLayer.bbox[opts.srs];
-    const defaultBounds = [
-      [Number(bounding.bbox[0]), Number(bounding.bbox[1])],
-      [Number(bounding.bbox[2]), Number(bounding.bbox[3])],
-    ];
-    opts.tileBBox = defaultBounds;
+    const bbox = {};
+    Object.keys(defaultLayer.bbox).map(key => {
+      const item = defaultLayer.bbox[key].bbox;
+      if (key === 'CRS:84' || opts.version !== '1.3.0') {
+        bbox[key] = [
+          [Number(item[0]), Number(item[1])],
+          [Number(item[2]), Number(item[3])],
+        ];
+      } else {
+        bbox[key] = [
+          [Number(item[1]), Number(item[0])],
+          [Number(item[3]), Number(item[2])],
+        ];
+      }
+    });
+    opts.bbox = bbox;
+    opts.tileBBox = bbox[opts.srs];
     // 透明度
     opts.transparent = isBooleanFlase(options.transparent) ? false : true;
     opts.isTile = true;
@@ -94,7 +126,7 @@ const fetchWMSCapabilities = (own, url, options) => {
         try {
           // 获取WMS服务的Capabilities信息
           let capabilities = !data.responseXML || !data.responseXML.documentElement ? data.responseText : data.responseXML;
-          const wmsOpts = getWMSCapabilities(capabilities, options, GeoGlobe);
+          const wmsOpts = getWMSCapabilities(capabilities, 'WMT_MS_Capabilities', options, GeoGlobe);
           if (wmsOpts) {
             opts = assign({}, opts, wmsOpts);
           } else {
@@ -131,7 +163,7 @@ export const fetchWMSLayerStyles = (own, id, url, layerOptions, options) => {
   params.BBOX = '{bbox-epsg-3857}';
   params.WIDTH = options.tileSize || options.defaultTileSize;
   params.HEIGHT = options.tileSize || options.defaultTileSize;
-  params.SRS = layerOptions.srs;
+  params[layerOptions.version === '1.3.0' ? 'CRS' : 'SRS'] = layerOptions.srs;
   params.TRANSPARENT = layerOptions.transparent;
   let wmsUrl = '';
   Object.keys(params).map((key, idx) => {
@@ -156,7 +188,6 @@ export const fetchWMSLayerStyles = (own, id, url, layerOptions, options) => {
     template: wmsUrl,
     ...layerOptions,
   });
-  console.log(layer);
   return layer;
 };
 
@@ -183,7 +214,7 @@ class WMS {
     const opts = assign(this.options, options);
     // 获取服务信息
     const layerOptions = await fetchWMSCapabilities(this, url, opts);
-    // // 获取WMS图层
+    // 获取WMS图层
     return fetchWMSLayerStyles(this, id, url, layerOptions, { ...opts, name });
   }
 }

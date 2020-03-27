@@ -50,7 +50,7 @@ const defaultMapOptions = {
   // Mapbox 是否启用地图拖拽旋转倾斜交互
   pitchWithRotate: true,
   // Mapbox 地图是否可导出为PNG
-  preserveDrawingBuffer: false,
+  preserveDrawingBuffer: true,
   // Mapbox 地图瓦片资源请求失败时，是否会尝试重新请求瓦片
   refreshExpiredTiles: true,
   // Mapbox 绘制地图副本
@@ -132,19 +132,6 @@ const isMapboxProviders = function(mapBasicLayers) {
 };
 
 /**
- * 检测地图的初始样式资源是否加载完毕
- */
-const checkMapStyleCompleted = function(styledata) {
-  const style = styledata.style;
-  // 检查图片资源是否加载完毕
-  const isSpriteLoaded = style.imageManager && isBooleanTrue(style.imageManager.loaded);
-  // 检查请求资源是否为空
-  const isRequestNull = isEmpty(style._request);
-
-  return isSpriteLoaded && isRequestNull && isBooleanTrue(style._loaded);
-};
-
-/**
  * 设置初始当前Mapbox服务源的缓存信息
  */
 const setMapboxProvidersLayersGroup = function() {
@@ -180,6 +167,9 @@ const setMapboxProvidersLayersGroup = function() {
   this._mapLayers[basicGroupId] = layersGroup;
   this._mapLayersIds.push(layersGroupIds);
 };
+
+// 地图Load事件的判断心跳间隔（单位：秒数）
+const MAP_TIMESTAMP_SECOND = 2;
 
 const PJtoolsMap = (function() {
   const _exports = Symbol('exports');
@@ -334,7 +324,7 @@ const PJtoolsMap = (function() {
       }
 
       // 初始化地图
-      let isStyledataStart = false;
+      let isMapLoaded = false;
       const initPJtoolsMap = () => {
         // 转换内置MapCRS属性
         if (opts.mapCRS && typeof opts.mapCRS === 'string' && constantMapCRS[opts.mapCRS]) {
@@ -348,6 +338,27 @@ const PJtoolsMap = (function() {
         if (opts.mapCRS && opts.mapCRS.proj4 && opts.mapCRS.epsg) {
           this[_proj4].defs(opts.mapCRS.epsg, opts.mapCRS.proj4);
         }
+        // 判断是否有transformRequest属性设置，合并内置处理方法
+        let transformRequest = null;
+        if (isFunction(opts.transformRequest)) {
+          transformRequest = opts.transformRequest;
+        }
+        opts.transformRequest = function(url, resourceType) {
+          // 判断是否为WMS服务，且版本为1.3.0，则需要特殊处理坐标范围，进行反转
+          if (resourceType === 'Tile' && url.indexOf('SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0') !== -1) {
+            const reg = new RegExp('(^|&)BBOX=([^&]*)(&|$)');
+            let bbox = url.substr(1).match(reg)[2];
+            bbox = bbox.split(',');
+            bbox = [bbox[1], bbox[0], bbox[3], bbox[2]];
+            return {
+              url: url.replace(new RegExp('(BBOX=)([^&]*)', 'gi'), 'BBOX=' + bbox.join(',')),
+            };
+          } else if (transformRequest) {
+            return transformRequest(url, resourceType);
+          }
+        };
+        transformRequest = null;
+
         // 赋值地图的Options参数属性项
         this[_options] = opts;
         this[_proxyURL] = opts.proxyURL || '';
@@ -368,33 +379,62 @@ const PJtoolsMap = (function() {
           }
         }
 
-        const handleMapStyledataEvent = styledata => {
-          // 首次渲染Style样式数据时，执行触发回调事件
-          if (!isStyledataStart) {
-            isStyledataStart = true;
-            // 判断是否触发回调地图的样式数据渲染的回调事件
-            isFunction(cb.onRender) && cb.onRender.call(this, this);
+        // 执行回调地图Style属性数据加载完毕的回调
+        map.once('style.load', () => {
+          // 判断是否触发回调地图的样式数据渲染的回调事件
+          isFunction(cb.onRender) && cb.onRender.call(this, this);
+          // 判断是否为内置Mapbox服务源，则初始化时跳过底图服务源
+          if (!(isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers))) {
+            // 设置当前地图的基础底图数据
+            this.setMapBasicLayers(this.options.mapBaseType);
           }
-          // 判断是否Style样式渲染完毕
-          const isLoaded = checkMapStyleCompleted(styledata);
-          if (isLoaded) {
-            map.off('styledata', handleMapStyledataEvent);
-            // 判断是否为内置Mapbox服务源，则初始化时跳过底图服务源
-            if (!(isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers))) {
-              // 设置当前地图的基础底图数据
-              this.setMapBasicLayers(this.options.mapBaseType);
-            }
+        });
+        // 定义地图Map的初始数据加载完成的心跳监控
+        let timer = null;
+        let timestamp = null;
+        const clearMapTimer = () => {
+          if (timer) {
+            window.clearTimeout(timer);
+            timer = null;
           }
         };
-        map.on('styledata', handleMapStyledataEvent);
-        map.once('load', () => {
-          // 判断是否为内置Mapbox服务源，则初始化时跳过底图服务源
-          if (isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers)) {
-            setMapboxProvidersLayersGroup.call(this);
+        // 执行地图初始化数据加载完成时的回调事件
+        const handleMapLoadCompleted = () => {
+          if (!isMapLoaded) {
+            isMapLoaded = true;
+            // 判断是否为内置Mapbox服务源，则初始化时跳过底图服务源
+            if (isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers)) {
+              setMapboxProvidersLayersGroup.call(this);
+            }
+            // 判断是否触发回调地图的数据加载完成回调事件
+            isFunction(cb.onLoad) && cb.onLoad.call(this, this);
           }
-          // 判断是否触发回调地图的数据加载完成回调事件
-          isFunction(cb.onLoad) && cb.onLoad.call(this, this);
-        });
+        };
+        // 判断是否初始化的数据源加载完毕，防止Map的Load事件在瓦片挂起时不触发的可能；
+        const handleMapLoadDataEvent = () => {
+          const currentTimeStamp = new Date().valueOf();
+          !timestamp && (timestamp = currentTimeStamp);
+          // 判断当前时间是否小于验证间隔时间，则重新计时
+          if (currentTimeStamp - timestamp < MAP_TIMESTAMP_SECOND * 1000) {
+            clearMapTimer();
+          }
+          if (!isMapLoaded) {
+            timer = window.setTimeout(() => {
+              clearMapTimer();
+              map.off('data', handleMapLoadDataEvent);
+              // 执行地图的完成回调事件
+              handleMapLoadCompleted();
+            }, MAP_TIMESTAMP_SECOND * 1000);
+          } else {
+            clearMapTimer();
+            map.off('data', handleMapLoadDataEvent);
+          }
+        };
+        // 判断是否为内置Mapbox服务源，则不执行自定义心跳判断地图Load事件
+        if (!(isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers))) {
+          map.on('data', handleMapLoadDataEvent);
+        }
+        map.once('load', handleMapLoadCompleted);
 
         // 缓存地图Map实例化对象
         this[_map] = map;
