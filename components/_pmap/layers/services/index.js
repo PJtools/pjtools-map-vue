@@ -105,7 +105,7 @@ export const getServicesBaseLayer = options => {
 // 效验Services服务的基础属性的有效性
 const validateServicesOptions = (id, url, options) => {
   if (!id || !url) {
-    console.error(`WebGIS Services服务[id]、[url]必须属性必需设定`);
+    console.error(`WebGIS Services服务[id]、[url]属性必需设定.`);
     return;
   }
   const errorUrlMsg = 'WebGIS Services服务[url]属性格式不是一个有效的链接地址.';

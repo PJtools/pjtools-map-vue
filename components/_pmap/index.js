@@ -8,7 +8,7 @@ import assign from 'lodash/assign';
 import hat from 'hat';
 import proj4 from 'proj4';
 import validateConfig from './util/validateMapConfig';
-import { isFunction, isEmpty, isBooleanFlase, isBooleanTrue, isNotEmptyArray } from '../_util/methods-util';
+import { isFunction, isBooleanFlase, isNotEmptyArray } from '../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
 import { bindPrototypeMethods } from './util/basicMapApiClass';
 import transform from './util/transform';
@@ -17,6 +17,7 @@ import constantMapCRS from './util/constantCRS';
 import { default as mapPrototypes } from './map';
 import Providers from './providers';
 import Services from './layers/services';
+import Query from './query';
 
 // 默认Mapbox地图的Style对象
 const defaultMapStyle = {
@@ -183,6 +184,7 @@ const PJtoolsMap = (function() {
   const _transform = Symbol('transform');
   const _Providers = Symbol('Providers');
   const _Services = Symbol('Services');
+  const _Query = Symbol('Query');
 
   class PJtoolsMap {
     /**
@@ -267,6 +269,14 @@ const PJtoolsMap = (function() {
      */
     get Services() {
       return this[_Services];
+    }
+
+    /**
+     * PJtoolsMap的二级属性 - Query地图的Web GIS Service服务查询对象
+     * @readonly
+     */
+    get Query() {
+      return this[_Query];
     }
 
     /**
@@ -438,6 +448,8 @@ const PJtoolsMap = (function() {
 
         // 缓存地图Map实例化对象
         this[_map] = map;
+        // 绑定PJtoolsMap.Query对象
+        this[_Query] = new Query(this);
       };
 
       // 判断内置初始底图服务源，则强制覆盖地图的属性
