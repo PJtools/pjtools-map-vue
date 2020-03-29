@@ -6,18 +6,7 @@
 
 import omit from 'omit.js';
 import constantMapCRS from './constantCRS';
-import {
-  isHttpUrl,
-  isArray,
-  isEmpty,
-  isCoordinate,
-  isNumeric,
-  isBooleanFlase,
-  isFunction,
-  isInteger,
-  has,
-  isNotEmptyArray,
-} from '../../_util/methods-util';
+import { isHttpUrl, isArray, isEmpty, isCoordinate, isNumeric, isBooleanFlase, isFunction, isInteger, has } from '../../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
 import { providersLayersTypes } from '../providers';
 import { mapServicesTypeKeys } from '../layers/services';
