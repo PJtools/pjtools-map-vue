@@ -21,6 +21,7 @@ import {
 import isPlainObject from 'lodash/isPlainObject';
 import { providersLayersTypes } from '../providers';
 import { mapServicesTypeKeys } from '../layers/services';
+import { mapQueryTypeKeys } from '../query';
 
 /**
  * 验证地图的proxyURL代理服务地址属性
@@ -311,7 +312,6 @@ const validateMapBasicLayers = options => {
             const serviceItem = validateServiceLayerItem(item, `地图Map的基础底图[mapBasicLayers]自定义[${key}]名的索引'${index}'服务源对象`);
             serviceItem && basicLayers[key].push(serviceItem);
           });
-          !basicLayers[key].length && (basicLayers[key] = null);
         } else {
           console.error(`地图Map的基础底图[mapBasicLayers]自定义格式的[${key}]名的格式有误，类型必须为"Array"数组.`);
         }
@@ -319,7 +319,7 @@ const validateMapBasicLayers = options => {
       // 移除为空值的服务源对象
       const bLayers = {};
       Object.keys(basicLayers).map(key => {
-        if (basicLayers[key] && isNotEmptyArray(basicLayers[key])) {
+        if (basicLayers[key] && isArray(basicLayers[key])) {
           bLayers[key] = basicLayers[key];
         }
       });
@@ -337,6 +337,64 @@ const validateMapBasicLayers = options => {
 };
 
 /**
+ * 验证地图的QueryService服务源对象的必填项是否符合规则
+ * @param {Object} serviceItem 待检查的服务源对象
+ * @param {String} prefixMsg 错误提示语的前缀信息文本
+ */
+const validateQueryServiceLayerItem = (serviceItem, prefixMsg) => {
+  // 验证自定义服务源的必须属性字段
+  if (serviceItem.url && serviceItem.type && serviceItem.featureType) {
+    if (typeof serviceItem.url !== 'string' || !isHttpUrl(serviceItem.url)) {
+      console.error(`${prefixMsg}属性[url]格式有误.`);
+      return null;
+    }
+    if (mapQueryTypeKeys.indexOf(serviceItem.type) === -1) {
+      console.error(`${prefixMsg}属性[type]不属于内置的服务类型名.`);
+      return null;
+    }
+    if (isEmpty(serviceItem.featureType)) {
+      console.error(`${prefixMsg}属性[featureType]必须设定.`);
+      return null;
+    }
+    return serviceItem;
+  } else {
+    console.error(`${prefixMsg}缺少必填项[url]、[type]、[featureType]属性.`);
+    return null;
+  }
+};
+
+/**
+ * 验证地图的mapBaseType和mapBasicLayers地图基础底图属性
+ */
+const validateMapQueryServicesMapping = options => {
+  const queryServicesMapping = options.queryServicesMapping;
+  if (queryServicesMapping && isPlainObject(queryServicesMapping)) {
+    const keys = Object.keys(queryServicesMapping);
+    const mapping = {};
+    keys.map(key => {
+      if (isPlainObject(queryServicesMapping[key])) {
+        // 验证自定义服务源的必须属性字段
+        const serviceItem = validateQueryServiceLayerItem(
+          queryServicesMapping[key],
+          `地图Map的查询分析服务映射[queryServicesMapping]的[${key}]服务源对象`,
+        );
+        serviceItem && (mapping[key] = serviceItem);
+      } else {
+        console.error(`地图Map的查询分析服务映射[queryServicesMapping]的[${key}]名的格式有误，类型必须为"Object".`);
+      }
+    });
+    options.queryServicesMapping = mapping;
+  } else {
+    if (queryServicesMapping) {
+      console.error('地图Map的查询分析服务映射[queryServicesMapping]必须为"Object"类型.');
+    }
+    options.queryServicesMapping = {};
+  }
+
+  return options;
+};
+
+/**
  * 对地图Map的核心参数选项属性进行效验
  * @param {Object} options 待验证的地图Map参数选项
  */
@@ -349,6 +407,8 @@ const validate = (options = {}) => {
   options.mapCRS = validateMapCRS(options.mapCRS);
   // 验证地图的基础底图属性结构
   options = validateMapBasicLayers(options);
+  // 验证地图的查询分析服务映射的属性结构
+  options = validateMapQueryServicesMapping(options);
 
   return options;
 };
