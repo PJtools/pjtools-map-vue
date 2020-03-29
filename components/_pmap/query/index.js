@@ -8,6 +8,7 @@ import BasicMapApi from '../util/basicMapApiClass';
 import assign from 'lodash/assign';
 import { isHttpUrl, isBooleanFlase } from '../../_util/methods-util';
 import WFS from './wfs';
+import ArcgisWFS from './arcgisWFS';
 
 // 内置地图Web GIS服务查询类型枚举名
 export const mapQueryTypeKeys = ['WFS', 'ArcgisWFS', 'GeoQuery', 'ArcgisQuery'];
@@ -94,9 +95,23 @@ class Query extends BasicMapApi {
    * @param {Object} options 查询服务的参数选项
    */
   async fetchArcgisWFSTask(url, typeName, options = {}) {
-    console.log(url);
-    console.log(typeName);
-    console.log(options);
+    const result = validateQueryOptions(url, typeName, options, this.proxyURL);
+    if (!result) {
+      return null;
+    }
+    // 判断是否有GeoGlobe对象
+    let GeoGlobe = (this.iMapApi && this.iMapApi.exports && this.iMapApi.exports.GeoGlobe) || null;
+    if (!GeoGlobe) {
+      options.GeoGlobe && (GeoGlobe = options.GeoGlobe);
+    }
+    if (!GeoGlobe) {
+      console.error('Arcgis WFS服务缺少前置GeoGlobe对象，请在[options.GeoGlobe]属性中赋值.');
+      return null;
+    }
+    let query = new ArcgisWFS(GeoGlobe);
+    const promise = query.queryTask(result.url, result.typeName, result.options);
+    query = null;
+    return promise;
   }
 
   /**

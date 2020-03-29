@@ -11,7 +11,7 @@ import hat from 'hat';
 export const defaultQueryOptions = {
   // 版本号，可选值：[ 1.0.0 | 1.1.0 ]
   version: '1.0.0',
-  // 返回结果模式，可选值：[ result | pagination | count ]
+  // 返回结果模式，可选值：[ result | pagination | count ]，其中：pagination 模式只在GeoGlobe WFS下特有
   mode: 'result',
   // 要素命名空间
   featureNS: null,
@@ -224,7 +224,7 @@ export const getQueryFilters = (GeoGlobe, options, wfsQuery) => {
 /**
  * 指定图层名查询要素的统计总数
  */
-const fetchTotalTask = (GeoGlobe, wfsQuery) => {
+export const fetchTotalTask = (GeoGlobe, wfsQuery) => {
   return new Promise((resolve, reject) => {
     GeoGlobe.Request.GET({
       url: `${wfsQuery.url}?VERSION=${wfsQuery.version}&REQUEST=GetFeature&SERVICE=WFS&TYPENAME=${wfsQuery.featureType}&RESULTTYPE=hits`,
@@ -250,10 +250,9 @@ class WFS {
   }
 
   /**
-   * 获取解析WMS服务的图层对象
-   * @param {String} id 图层Id名称
-   * @param {String} name 图层Name名
+   * 发送WFS服务任务，获取指定过滤条件的GeoJSON要素数据集合
    * @param {String} url 服务地址
+   * @param {String} typeName 要素图层标识名
    * @param {Object} options 解析服务的参数选项
    */
   async queryTask(url, typeName = '', options = {}) {
@@ -272,7 +271,7 @@ class WFS {
       const successFun = data => {
         if (opts.mode !== 'count') {
           const geojson = data && data.features && data.features.length > 0 ? data.geojson : { type: 'FeatureCollection', features: [] };
-          geojson.features.map((f, idx) => {
+          geojson.features.map(f => {
             f.id = opts.idField ? f.properties[opts.idField].toString() : hat();
           });
           resolve(geojson);
