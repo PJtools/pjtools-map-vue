@@ -5,10 +5,11 @@
  */
 
 import assign from 'lodash/assign';
+import omit from 'omit.js';
 import hat from 'hat';
 import proj4 from 'proj4';
 import validateConfig from './util/validateMapConfig';
-import { isFunction, isBooleanFlase, isNotEmptyArray } from '../_util/methods-util';
+import { isFunction, isBooleanFlase, isNotEmptyArray, isCoordinate, isEmpty } from '../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
 import { bindPrototypeMethods } from './util/basicMapApiClass';
 import transform from './util/transform';
@@ -564,6 +565,300 @@ const PJtoolsMap = (function() {
      */
     getMapBasicLayers() {
       return this.getLayer('pjtoolsmap_basic_layers_group');
+    }
+
+    /**
+     * 获取实例化地图的Canvas对象
+     */
+    getMapCanvas() {
+      return this.map && this.map.getCanvas();
+    }
+
+    /**
+     * 获取实例化地图的Canvas的父级对象
+     */
+    getMapCanvasConatainer() {
+      return this.map && this.map.getCanvasContainer();
+    }
+
+    /**
+     * 获取实例化地图的MapboxGL的DOM对象
+     */
+    getMapContainer() {
+      return this.map && this.map.getContainer();
+    }
+
+    /**
+     * 获取实例化地图组件的视图容器对象（即MapboxGL DOM容器的父级对象）
+     */
+    getMapViewContainer() {
+      const container = this.map && this.map.getContainer();
+      return container && container.parentNode;
+    }
+
+    /**
+     * 获取当前地图的地理中心点
+     */
+    getCenter() {
+      const center = this.map && this.map.getCenter();
+      if (center) {
+        return center.toArray();
+      }
+      return null;
+    }
+
+    /**
+     * 设置当前地图的中心点
+     * @param {Array} center 中心点坐标，格式：[x, y]
+     */
+    setCenter(center) {
+      if (this.map && center && isCoordinate(center)) {
+        this.map.setCenter(center);
+      }
+    }
+
+    /**
+     * 获取当前地图的层级
+     */
+    getZoom() {
+      return this.map && this.map.getZoom();
+    }
+
+    /**
+     * 设置当前地图的层级
+     * @param {Number} zoom 地图层级
+     */
+    setZoom(zoom) {
+      if (this.map && !isEmpty(zoom)) {
+        zoom = Number(zoom) || 0;
+        if (zoom < 0) {
+          zoom = 0;
+        } else if (zoom > 24) {
+          zoom = 24;
+        }
+        this.map.setZoom(zoom);
+      }
+    }
+
+    /**
+     * 以过渡动画的形式，设置当前地图的层级
+     * @param {Number} zoom 地图层级
+     * @param {Number} duration 过渡动画时间，单位毫秒，默认500
+     * @param {Object} options 动画的选项
+     */
+    zoomTo(zoom, duration = 500, options = {}) {
+      options.duration = duration || 500;
+      zoom = Number(zoom) || 0;
+      if (zoom < 0) {
+        zoom = 0;
+      } else if (zoom > 24) {
+        zoom = 24;
+      }
+      return new Promise(resolve => {
+        if (this.map) {
+          this.map.zoomTo(zoom);
+          this.map.once('zoomend', function() {
+            resolve();
+          });
+        }
+      });
+    }
+
+    /**
+     * 获取当前地图的旋转角度值
+     */
+    getRotate() {
+      const rotate = this.map && this.map.getBearing();
+      if (!isEmpty(rotate)) {
+        return Math.abs(rotate) === 0 ? 0 : Number(rotate);
+      }
+      return null;
+    }
+
+    /**
+     * 设置当前地图的旋转角度
+     * @param {Number} rotate 待旋转角度值
+     */
+    setRotate(rotate) {
+      if (this.map && !isEmpty(rotate)) {
+        this.map.setBearing(Number(rotate));
+      }
+    }
+
+    /**
+     * 以过渡动画的形式，设置当前地图的旋转角度
+     * @param {Number} rotate 待旋转角度值
+     * @param {Number} duration 过渡动画时间，单位毫秒，默认500
+     * @param {Object} options 动画的选项
+     */
+    rotateTo(rotate, duration = 500, options = {}) {
+      options.duration = duration || 500;
+      return new Promise(resolve => {
+        if (this.map && !isEmpty(rotate)) {
+          this.map.rotateTo(rotate, options);
+          this.map.once('rotateend', function() {
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      });
+    }
+
+    /**
+     * 获取当前地图的倾斜值
+     */
+    getPitch() {
+      return this.map && this.map.getPitch();
+    }
+
+    /**
+     * 设置当前地图的倾斜值
+     * @param {Number} pitch 待倾斜值，有效范围：0-60
+     */
+    setPitch(pitch) {
+      if (this.map && !isEmpty(pitch)) {
+        pitch = Number(pitch) || 0;
+        if (pitch < 0) {
+          pitch = 0;
+        } else if (pitch > 60) {
+          pitch = 60;
+        }
+        this.map.setPitch(pitch);
+      }
+    }
+
+    /**
+     * 以过渡动画的形式，设置当前地图的倾斜值
+     * @param {Number} pitch 待倾斜值，有效范围：0-60
+     * @param {Number} duration 过渡动画时间，单位毫秒，默认500
+     * @param {Object} options 动画的选项
+     */
+    pitchTo(pitch, duration = 500, options = {}) {
+      options.duration = duration || 500;
+      pitch = Number(pitch) || 0;
+      if (pitch < 0) {
+        pitch = 0;
+      } else if (pitch > 60) {
+        pitch = 60;
+      }
+      options.pitch = pitch;
+      return this.easeTo(options, duration);
+    }
+
+    /**
+     * 以过渡动画的形式，将地图移动到指定的地理坐标位置
+     * @param {Number} xy 待移动的坐标，格式：[x, y]
+     * @param {Number} duration 过渡动画时间，单位毫秒，默认500
+     * @param {Object} options 动画的选项
+     */
+    panTo(xy, duration = 500, options = {}) {
+      return new Promise(resolve => {
+        if (this.map && xy && isCoordinate(xy)) {
+          options.duration = duration;
+          this.map.panTo(xy, options);
+          this.map.once('moveend', function() {
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      });
+    }
+
+    /**
+     * 获取当前地图的地理矩形范围
+     */
+    getBounds() {
+      const bounds = this.map && this.map.getBounds();
+      if (bounds) {
+        return bounds.toArray();
+      }
+      return null;
+    }
+
+    /**
+     * 将地图缩放到指定的地理范围
+     * @param {Array} bounds 待设定的地理范围，格式：[[minx, miny], [maxx, maxy]]
+     * @param {Object} options 缩放范围的选项
+     */
+    setBounds(bounds, options = {}) {
+      if (this.map && isNotEmptyArray(bounds) && bounds.length === 2 && isCoordinate(bounds[0]) && isCoordinate(bounds[1])) {
+        options.animate = false;
+        this.map.fitBounds(bounds, options);
+      }
+    }
+
+    /**
+     * 以过渡动画的形式，将地图缩放到指定的地理范围
+     * @param {Array} bounds 待设定的地理范围，格式：[[minx, miny], [maxx, maxy]]
+     * @param {Number} maxZoom 缩放指定的地理范围时，指定最大层级
+     * @param {Number} duration 过渡动画时间，单位毫秒，默认1000
+     */
+    boundsTo(bounds, duration = 500, options = {}) {
+      return new Promise(resolve => {
+        if (this.map && isNotEmptyArray(bounds) && bounds.length === 2 && isCoordinate(bounds[0]) && isCoordinate(bounds[1])) {
+          options.duration = duration;
+          this.map.fitBounds(bounds, options);
+          this.map.once('moveend', function() {
+            resolve();
+          });
+        } else {
+          resolve();
+        }
+      });
+    }
+
+    /**
+     * 以过渡动画的形式，统一管理设置当前地图的中心点、旋转角度、倾斜值、层级
+     * @param {Object} options 地图待设置对象，参数： { center: [], rotate, pitch, zoom }
+     * @param {Number} duration 过渡动画时间，单位毫秒，默认500
+     */
+    easeTo(options = {}, duration = 500) {
+      options.duration = duration;
+      options.essential = true;
+      return new Promise(resolve => {
+        this.map.easeTo(options);
+        this.map.once('moveend', function() {
+          resolve();
+        });
+      });
+    }
+
+    /**
+     * 执行地图飞行动画
+     * @param {Object} options 地图待设置对象
+     */
+    flyTo(options = {}) {
+      return new Promise(resolve => {
+        !isEmpty(options.curve) && (options.curve = 1.42);
+        !isEmpty(options.speed) && (options.speed = 0.5);
+        !isEmpty(options.easing) && (options.easing = t => t);
+        options.essential = true;
+        this.map.flyTo(options);
+        this.map.once('moveend', function() {
+          resolve();
+        });
+      });
+    }
+
+    /**
+     * 根据标识Key获取查询分析服务对象
+     * @param {String} key 唯一标识Key名
+     */
+    getMapQueryServiceByKey(key) {
+      if (this.map && this.options && this.options.queryServicesMapping) {
+        if (this.options.queryServicesMapping[key]) {
+          const service = assign({}, this.options.queryServicesMapping[key]);
+          service.id = key;
+          !service.options && (service.options = {});
+          service.options.name = service.name || '';
+          service.options.idField = service.propertyFieldId || null;
+          service.options.labelField = service.propertyFieldLabel || null;
+          return omit(service, ['name', 'propertyFieldId', 'propertyFieldLabel']);
+        }
+      }
+      return null;
     }
   }
 

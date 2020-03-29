@@ -45,8 +45,6 @@ export const defaultQueryOptions = {
   units: 'm',
   // 空间查询时，Polygon分析时，是包含还是相交
   contain: false,
-  // 主键字段，返回要素作为Feature的ID，若为空，则以随机值替代
-  idField: null,
 };
 
 /**

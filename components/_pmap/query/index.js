@@ -18,6 +18,8 @@ export const defaultServicesQueryOptions = {
   proxy: true,
   // 查询过滤条件，规则：['==', 'key', 'value'] 或 ['AND | OR | NOT', [], [], ...]
   filters: null,
+  // 主键字段，返回要素作为Feature的ID，若为空，则以随机值替代
+  idField: null,
 };
 
 // 效验Query查询服务的基础属性的有效性
@@ -141,6 +143,24 @@ class Query extends BasicMapApi {
       default:
         return null;
     }
+  }
+
+  /**
+   * 根据配置方案的查询分析服务Key名获取Web GIS Service服务查询对象，并发送请求获取要素数据
+   * @param {String} key 配置方案的查询服务项Key名
+   * @param {Object} options 查询服务的参数选项
+   */
+  async fetchServicesTaskByKey(key, options = {}) {
+    if (this.iMapApi && key) {
+      const service = this.iMapApi.getMapQueryServiceByKey(key);
+      if (service) {
+        const opts = assign({}, service.options, options);
+        return this.fetchServicesTask(service.type, service.url, service.featureType, opts);
+      }
+    } else {
+      console.error('地图的静态Query对象暂不支持该函数接口.');
+    }
+    return null;
   }
 }
 
