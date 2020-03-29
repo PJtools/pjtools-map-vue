@@ -212,7 +212,7 @@ export const fetchJsFile = url => {
 };
 
 /**
- * 通过异步Fetch请求JSON数据
+ * 通过GET异步Fetch请求JSON数据
  * @param {string} url 待请求的地址
  */
 export const fetchGetJson = url => {
@@ -222,9 +222,52 @@ export const fetchGetJson = url => {
     })
       .then(response => {
         response &&
-          response.json().then(data => {
-            resolve(data);
-          });
+          response
+            .json()
+            .then(data => {
+              resolve(data);
+            })
+            .catch(error => {
+              reject(error);
+            });
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+};
+
+/**
+ * 通过POST异步Fetch请求JSON数据
+ * @param {string} url 待请求的地址
+ */
+export const fetchPostJson = (url, data = {}) => {
+  return new Promise((resolve, reject) => {
+    let formdata = '';
+    Object.keys(data).map((key, idx) => {
+      if (idx !== 0) {
+        formdata += '&';
+      }
+      formdata += `${encodeURIComponent(key)}=${typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key]}`;
+    });
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      },
+      body: formdata,
+    })
+      .then(response => {
+        response &&
+          response
+            .json()
+            .then(data => {
+              resolve(data);
+            })
+            .catch(error => {
+              reject(error);
+            });
       })
       .catch(error => {
         reject(error);
