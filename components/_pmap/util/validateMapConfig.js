@@ -6,7 +6,18 @@
 
 import omit from 'omit.js';
 import constantMapCRS from './constantCRS';
-import { isHttpUrl, isArray, isEmpty, isCoordinate, isNumeric, isBooleanFlase, isFunction, isInteger, has } from '../../_util/methods-util';
+import {
+  isHttpUrl,
+  isArray,
+  isEmpty,
+  isCoordinate,
+  isNumeric,
+  isBooleanFlase,
+  isFunction,
+  isInteger,
+  has,
+  getUrlToLink,
+} from '../../_util/methods-util';
 import isPlainObject from 'lodash/isPlainObject';
 import { providersLayersTypes } from '../providers';
 import { mapServicesTypeKeys } from '../layers/services';
@@ -20,7 +31,7 @@ const validateProxyURL = proxyURL => {
     console.error('地图Map的代理服务地址[proxyURL]属性未设定，可能导致请求服务时出现跨域等问题.');
     return '';
   }
-  if (typeof proxyURL !== 'string' || !isHttpUrl(proxyURL)) {
+  if (typeof proxyURL !== 'string' || !isHttpUrl(getUrlToLink(proxyURL))) {
     console.error('地图Map的代理服务地址[proxyURL]属性不是一个有效的HTTP服务链接地址.');
     return '';
   }

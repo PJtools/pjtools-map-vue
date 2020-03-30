@@ -46,6 +46,13 @@ module.exports = merge(baseWebpackConfig, {
     },
     disableHostCheck: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
+    proxy: {
+      '/esri/*': {
+        target: 'http://localhost:3200',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   performance: {
     hints: false,
