@@ -9,6 +9,7 @@ import assign from 'lodash/assign';
 import { isHttpUrl, isBooleanFlase } from '../../_util/methods-util';
 import WFS from './wfs';
 import ArcgisWFS from './arcgisWFS';
+import GeoQuery from './geoQuery';
 import ArcgisQuery from './arcgisQuery';
 
 // 内置地图Web GIS服务查询类型枚举名
@@ -122,9 +123,14 @@ class Query extends BasicMapApi {
    * @param {Object} options 查询服务的参数选项
    */
   async fetchGeoQueryTask(url, typeName, options = {}) {
-    console.log(url);
-    console.log(typeName);
-    console.log(options);
+    const result = validateQueryOptions(url, typeName, options, this.proxyURL);
+    if (!result) {
+      return null;
+    }
+    let query = new GeoQuery();
+    const promise = query.queryTask(result.url, result.typeName, result.options);
+    query = null;
+    return promise;
   }
 
   /**
@@ -139,7 +145,7 @@ class Query extends BasicMapApi {
       return null;
     }
     let query = new ArcgisQuery();
-    // Arcgis Query接口无效代理服务地址
+    // Arcgis Query接口无需代理服务
     const promise = query.queryTask(result.url.replace(this.proxyURL || '', ''), result.typeName, result.options);
     query = null;
     return promise;

@@ -1,13 +1,14 @@
 /**
- * @文件说明: Query.ArcgisQuery - Arcgis Query服务
+ * @文件说明: Query.GeoQuery - GeoQuery服务
  * @创建人: pjtools@vip.qq.com
- * @创建时间: 2020-03-29 18:14:00
+ * @创建时间: 2020-03-30 10:40:52
  */
 
 import assign from 'lodash/assign';
 import hat from 'hat';
-import { isEmpty, isBooleanFlase, isBooleanTrue, isArray, isNotEmptyArray, isString, fetchPostJson } from '../../_util/methods-util';
+import { isEmpty, isBooleanFlase, isNotEmptyArray, fetchPostJson } from '../../_util/methods-util';
 import { arcgisToGeoJSON } from '@esri/arcgis-to-geojson-utils';
+import { toArcgisFilterValue } from './arcgisQuery';
 
 const defaultQueryOptions = {
   // 返回结果模式，可选值：[ result | count | ids ]
@@ -21,116 +22,35 @@ const defaultQueryOptions = {
   // 输出空间参考
   outSRS: null,
   // 输出的属性字段
-  outFields: '*',
+  outFields: null,
   // 几何空间关系
-  spatialRel: 'esriSpatialRelIntersects',
+  spatialRel: 'SpatialRelIntersects',
   // 是否返回空间Geometry数据
   returnGeometry: true,
-  // 排序条件，规则：['name', 'DESC'] 或 [['name', 'ASC'], ['name', 'DESC'], ...]
-  sort: null,
-  // Arcgis Query的关系参数
-  relationParam: null,
-  // 针对多时态，时间戳
-  time: null,
   // 指定允许最大偏差范围
   maxAllowableOffset: null,
-  // 指定Geometry的空间数据的精度位数
-  geometryPrecision: null,
-  // 作用于分组统计分析计算的条件
-  outStatistics: null,
-  // Group分组的字段
-  groupByFieldsForStatistics: null,
-  // 是否返回几何数据的Z值
-  returnZ: false,
-  // 是否返回几何数据的M值
-  returnM: false,
-  // 地理数据库版本
-  gdbVersion: null,
-  // 返回数据去重
-  returnDistinctValues: false,
-  // 返回Curves曲线（10.3版本的新特性）
-  returnTrueCurves: false,
-  // 开始条目数（10.3版本的新特性）
-  resultOffset: null,
-  // 返回结果条目数（10.3版本的新特性）
-  resultRecordCount: null,
+  // GeoQuery的关系参数
+  relationParam: null,
 };
 
 /**
- * 获取Arcgis Query的选项
+ * 获取GeoQuery的选项
  */
-const getArcgisQueryParams = options => {
+const getGeoQueryParams = options => {
   const params = {};
   !isEmpty(options.text) && (params.text = options.text);
   params.inSR = !isEmpty(options.srs) ? options.srs : '';
   params.outSR = !isEmpty(options.outSRS) ? options.outSRS : params.inSR;
-  params.outFields = !isEmpty(options.outFields) ? options.outFields : '*';
+  params.outFields = !isEmpty(options.outFields) ? options.outFields : '';
   params.spatialRel = options.spatialRel || defaultQueryOptions.spatialRel;
   params.returnGeometry = isBooleanFlase(options.returnGeometry) ? false : true;
   !isEmpty(options.relationParam) && (params.relationParam = options.relationParam);
   !isEmpty(options.objectIds) && (params.objectIds = options.objectIds);
-  !isEmpty(options.time) && (params.time = options.time);
   !isEmpty(options.maxAllowableOffset) && (params.maxAllowableOffset = options.maxAllowableOffset);
-  !isEmpty(options.geometryPrecision) && (params.geometryPrecision = options.geometryPrecision);
   params.mode = !isEmpty(options.mode) && ['count', 'ids', 'result'].indexOf(options.mode) !== -1 ? options.mode : 'result';
-  params.returnCountOnly = params.mode === 'count' ? true : false;
-  params.returnIdsOnly = params.mode === 'ids' ? true : false;
-  !isEmpty(options.outStatistics) && (params.outStatistics = options.outStatistics);
-  !isEmpty(options.groupByFieldsForStatistics) && (params.groupByFieldsForStatistics = options.groupByFieldsForStatistics);
-  isBooleanTrue(options.returnZ) && (params.returnZ = true);
-  isBooleanTrue(options.returnM) && (params.returnM = true);
-  !isEmpty(options.gdbVersion) && (params.gdbVersion = options.gdbVersion);
-  isBooleanTrue(options.returnDistinctValues) && (params.returnDistinctValues = true);
-  isBooleanTrue(options.returnTrueCurves) && (params.returnTrueCurves = true);
-  !isEmpty(options.resultOffset) && (params.resultOffset = options.resultOffset);
-  !isEmpty(options.resultRecordCount) && (params.resultRecordCount = options.resultRecordCount);
-  // 排序
-  let sortBy = null;
-  if (isArray(options.sort)) {
-    sortBy = [];
-    // 判断是否为多字段排序
-    if (isArray(options.sort[0])) {
-      options.sort.map(item => {
-        sortBy.push(`${item[0]} ${item[1] && ['ASC', 'DESC'].indexOf(item[1].toUpperCase()) !== -1 ? item[1].toUpperCase() : 'ASC'}`);
-      });
-    } else {
-      sortBy.push(
-        `${options.sort[0]} ${
-          options.sort[1] && ['ASC', 'DESC'].indexOf(options.sort[1].toUpperCase()) !== -1 ? options.sort[1].toUpperCase() : 'ASC'
-        }`,
-      );
-    }
-  }
-  sortBy && (params.orderByFields = sortBy.join(','));
-  params.f = 'pjson';
+  params.returnIdsOnly = params.mode === 'ids' || params.mode === 'count' ? true : false;
+  params.f = 'json';
   return params;
-};
-
-/**
- * 处理Value值是否增加字符串单引号
- * @param {Number|String} value 待转换的值
- * @param {Boolean} string 是否强制转换成字符串格式
- */
-export const toArcgisFilterValue = (value, string = false) => {
-  // 判断是否强制处理为字符串
-  if (isBooleanTrue(string)) {
-    return `'${value}'`;
-  } else {
-    if (isString(value)) {
-      value = value.replace(/"/g, `'`);
-      // 判断首尾是否已增加单引号
-      const splitString = value.split('');
-      if (splitString[0] === "'" && splitString[splitString.length - 1] === "'") {
-        return value;
-      } else {
-        return `'${value}'`;
-      }
-    } else if (typeof value === 'number') {
-      return value;
-    } else {
-      return String(value);
-    }
-  }
 };
 
 /**
@@ -202,26 +122,26 @@ const getQueryFilters = options => {
           switch (logical) {
             case 'BBOX':
               geometryWhere = {
-                geometryType: 'esriGeometryEnvelope',
+                geometryType: 'GeometryEnvelope',
                 geometry: { xmin: filters[1][0][0], ymin: filters[1][0][1], xmax: filters[1][1][0], ymax: filters[1][1][1] },
               };
               break;
             case 'POINT':
               geometryWhere = {
-                geometryType: 'esriGeometryPoint',
+                geometryType: 'GeometryPoint',
                 geometry: { x: filters[1][0], y: filters[1][1] },
               };
               break;
             case 'LINE':
             case 'PATH':
               geometryWhere = {
-                geometryType: 'esriGeometryPolyline',
+                geometryType: 'GeometryPolyline',
                 geometry: { paths: [filters[1]] },
               };
               break;
             case 'POLYGON':
               geometryWhere = {
-                geometryType: 'esriGeometryPolygon',
+                geometryType: 'GeometryPolygon',
                 geometry: { rings: filters[1] },
               };
               break;
@@ -235,9 +155,9 @@ const getQueryFilters = options => {
   return null;
 };
 
-class ArcgisQuery {
+class GeoQuery {
   /**
-   * 发送ArcgisQuery服务任务，获取指定过滤条件的GeoJSON要素数据集合
+   * 发送GeoQuery服务任务，获取指定过滤条件的GeoJSON要素数据集合
    * @param {String} url 服务地址
    * @param {String} typeName 要素图层标识名
    * @param {Object} options 解析服务的参数选项
@@ -246,7 +166,7 @@ class ArcgisQuery {
     const opts = assign({}, defaultQueryOptions, options);
     return new Promise((resolve, reject) => {
       // 获取查询服务的参数选项
-      const params = getArcgisQueryParams(opts);
+      const params = getGeoQueryParams(opts);
       // 获取查询过滤条件
       const filters = getQueryFilters(opts, params);
       if (filters) {
@@ -256,21 +176,21 @@ class ArcgisQuery {
           params.geometryType = filters.geometryWhere.geometryType || 'esriGeometryEnvelope';
         }
       } else {
-        params.where = '1=1';
+        params.where = 'OID<=10';
+      }
+      // 判断是否为统计模式
+      if (params.mode === 'count') {
+        params.where = 'OID>=0';
+        params.geometry = '';
+        params.returnGeometry = false;
       }
       // 发送查询请求任务
-      const errorMsg = `Arcgis Query查询服务[ ${url} ]要素数据解析失败，请检查[filters]过滤条件或属性信息等是否有误.`;
-      let queryUrl = '';
-      if (url.indexOf('/FeatureServer') !== -1) {
-        queryUrl = url.replace(/\/FeatureServer/g, `/FeatureServer/${typeName}/query`);
-      } else {
-        queryUrl = url.replace(/\/MapServer/g, `/MapServer/${typeName}/query`);
-      }
-      fetchPostJson(queryUrl, params)
+      const errorMsg = `GeoQuery查询服务[ ${url} ]要素数据解析失败，请检查[filters]过滤条件或属性信息等是否有误.`;
+      fetchPostJson(url.replace(/\/MapServer/g, `/MapServer/${typeName}/query`), params)
         .then(data => {
           switch (params.mode) {
             case 'count': {
-              resolve((data && data.count) || 0);
+              resolve((data && data.objectIds && data.objectIds.length) || 0);
               break;
             }
             case 'ids': {
@@ -294,7 +214,7 @@ class ArcgisQuery {
             }
           }
         })
-        .catch(() => {
+        .catch(e => {
           console.error(errorMsg);
           reject();
         });
@@ -302,4 +222,4 @@ class ArcgisQuery {
   }
 }
 
-export default ArcgisQuery;
+export default GeoQuery;
