@@ -260,7 +260,13 @@ class ArcgisQuery {
       }
       // 发送查询请求任务
       const errorMsg = `Arcgis Query查询服务[ ${url} ]要素数据解析失败，请检查[filters]过滤条件或属性信息等是否有误.`;
-      fetchPostJson(url.replace(/\/MapServer/g, `/MapServer/${typeName}/query`), params)
+      let queryUrl = '';
+      if (url.indexOf('/FeatureServer') !== -1) {
+        queryUrl = url.replace(/\/FeatureServer/g, `/FeatureServer/${typeName}/query`);
+      } else {
+        queryUrl = url.replace(/\/MapServer/g, `/MapServer/${typeName}/query`);
+      }
+      fetchPostJson(queryUrl, params)
         .then(data => {
           switch (params.mode) {
             case 'count': {
