@@ -9,6 +9,7 @@ import constantMapCRS from './constantCRS';
 import {
   isHttpUrl,
   isArray,
+  isNotEmptyArray,
   isEmpty,
   isCoordinate,
   isNumeric,
@@ -22,6 +23,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import { providersLayersTypes } from '../providers';
 import { mapServicesTypeKeys } from '../layers/services';
 import { mapQueryTypeKeys } from '../query';
+import { mapControlsTypeKeys, mapControlsPosition } from '../../map/controls';
 
 /**
  * 验证地图的proxyURL代理服务地址属性
@@ -395,6 +397,44 @@ const validateMapQueryServicesMapping = options => {
 };
 
 /**
+ * 验证地图的mapControls地图控件属性
+ */
+const validateMapControls = options => {
+  const controls = [];
+  if (options.mapControls) {
+    if (!isArray(options.mapControls)) {
+      console.error('地图Map的基础控件[mapControls]必须为“Array”类型.');
+    } else if (isNotEmptyArray(options.mapControls)) {
+      options.mapControls.map((item, index) => {
+        if (item.id && item.type) {
+          if (mapControlsTypeKeys.indexOf(item.type) === -1) {
+            console.error(`地图Map的基础控件[mapControls]的索引'${index}'控件属性[type]不属于内置控件类型名.`);
+            return;
+          }
+          if (item.position) {
+            if (mapControlsPosition.indexOf(item.position) === -1) {
+              console.error(`地图Map的基础控件[mapControls]的索引'${index}'控件属性[position]值不属于[${mapControlsPosition.join(', ')}]其中一项.`);
+              item.position = null;
+            }
+          }
+          if (item.offset) {
+            if (!isNotEmptyArray(item.offset) || item.offset.length !== 2) {
+              console.error(`地图Map的基础控件[mapControls]的索引'${index}'控件属性[offset]必须为<number[x, y]>数组格式类型.`);
+              item.offset = [0, 0];
+            }
+          }
+          !item.options && (item.options = {});
+          controls.push(item);
+        } else {
+          console.error(`'地图Map的基础控件[mapControls]的索引'${index}'缺少必填项[id]、[type]属性.`);
+        }
+      });
+    }
+  }
+  return options;
+};
+
+/**
  * 对地图Map的核心参数选项属性进行效验
  * @param {Object} options 待验证的地图Map参数选项
  */
@@ -407,6 +447,8 @@ const validate = (options = {}) => {
   options.mapCRS = validateMapCRS(options.mapCRS);
   // 验证地图的基础底图属性结构
   options = validateMapBasicLayers(options);
+  // 验证地图的控件属性结果
+  options = validateMapControls(options);
   // 验证地图的查询分析服务映射的属性结构
   options = validateMapQueryServicesMapping(options);
 
