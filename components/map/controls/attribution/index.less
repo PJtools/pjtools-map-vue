@@ -1,0 +1,49 @@
+/** 
+ * @文件说明: 定义地图Attribution控件样式
+ * @创建人: pjtools@vip.qq.com 
+ * @创建时间: 2020-03-31 23:05:10 
+ */
+
+@import '../../../style/themes/default';
+
+@attribution-prefix-cls: ~'@{map-prefix-cls}-control-attribution';
+@shadow-color: rgba(255, 255, 255, 0.6);
+
+.@{attribution-prefix-cls} {
+  padding: 2px 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+  text-shadow: @shadow-color 0.2px 0 1px, @shadow-color 0 0.2px 1px, @shadow-color -0.2px 0 1px, @shadow-color 0 -0.2px 1px;
+
+  & > a {
+    color: @text-color;
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+}
+
+.linear-gradient(@direction) {
+  background: linear-gradient(to @direction, rgba(255, 255, 255, 0.5) 20%, rgba(255, 255, 255, 0.2) 100%);
+}
+
+.position-top-left .@{attribution-prefix-cls} {
+  padding-right: 8px;
+  border-bottom-right-radius: @border-radius-base;
+  .linear-gradient(right);
+}
+.position-top-right .@{attribution-prefix-cls} {
+  padding-left: 8px;
+  border-bottom-left-radius: @border-radius-base;
+  .linear-gradient(left);
+}
+.position-bottom-left .@{attribution-prefix-cls} {
+  padding-right: 8px;
+  border-top-right-radius: @border-radius-base;
+  .linear-gradient(right);
+}
+.position-bottom-right .@{attribution-prefix-cls} {
+  padding-left: 8px;
+  border-top-left-radius: @border-radius-base;
+  .linear-gradient(left);
+}
