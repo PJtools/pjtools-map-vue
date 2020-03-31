@@ -10,14 +10,14 @@
   animation-fill-mode: both;
 }
 
-.make-motion(@className, @keyframeName, @duration: @map-animation-duration-base) {
+.make-motion(@className, @keyframeName, @duration-enter: @map-animation-duration-base, @duration-leave: @map-animation-duration-base) {
   .@{className}-enter,
   .@{className}-appear {
-    .motion-common(@duration);
+    .motion-common(@duration-enter);
     animation-play-state: paused;
   }
   .@{className}-leave {
-    .motion-common-leave(@duration);
+    .motion-common-leave(@duration-leave);
     animation-play-state: paused;
   }
   .@{className}-enter.@{className}-enter-active,
