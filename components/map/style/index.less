@@ -6,6 +6,71 @@
 
 @import '../../style/themes/default';
 
+// -------- Mixins -----------
+.position-direction() {
+  &.position-top-left {
+    top: 0;
+    left: 0;
+  }
+
+  &.position-top-right {
+    top: 0;
+    right: 0;
+  }
+
+  &.position-bottom-left {
+    bottom: 0;
+    left: 0;
+  }
+
+  &.position-bottom-right {
+    bottom: 0;
+    right: 0;
+  }
+}
+.position-direction(@center) when (@center) {
+  .position-direction();
+  &.position-top-center {
+    display: flex;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  &.position-bottom-center {
+    display: flex;
+    justify-content: center;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  &.position-left-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    left: 0;
+    top: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  &.position-right-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    right: 0;
+    top: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+}
+
+// -------- Map -----------
 .@{map-prefix-cls} {
   position: relative;
   transition: all 0.3s;
@@ -45,72 +110,28 @@
     height: 0;
   }
 
-  &-extended-component-wrapper {
+  // 地图控件组件
+  &-controls-wrapper {
+    position: absolute;
+    z-index: @zindex-map-control;
+    transition: all 0.5s ease;
+
+    .position-direction();
+  }
+
+  // 地图交互组件
+  &-interfaces-wrapper {
+    position: absolute;
+    z-index: @zindex-map-interface;
+    transition: all 0.5s ease;
+  }
+
+  // 扩展组件
+  &-components-wrapper {
     position: absolute;
     z-index: @zindex-map-component;
     transition: all 0.5s ease;
 
-    &.map-component-top-left {
-      top: 0;
-      left: 0;
-      pointer-events: none;
-    }
-
-    &.map-component-top-right {
-      top: 0;
-      right: 0;
-      pointer-events: none;
-    }
-
-    &.map-component-bottom-left {
-      bottom: 0;
-      left: 0;
-      pointer-events: none;
-    }
-
-    &.map-component-bottom-right {
-      bottom: 0;
-      right: 0;
-      pointer-events: none;
-    }
-
-    &.map-component-top-center {
-      display: flex;
-      justify-content: center;
-      left: 0;
-      top: 0;
-      width: 100%;
-      pointer-events: none;
-    }
-
-    &.map-component-bottom-center {
-      display: flex;
-      justify-content: center;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      pointer-events: none;
-    }
-
-    &.map-component-left-center {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      left: 0;
-      top: 0;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    &.map-component-right-center {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-end;
-      right: 0;
-      top: 0;
-      height: 100%;
-      pointer-events: none;
-    }
+    .position-direction(true);
   }
 }
