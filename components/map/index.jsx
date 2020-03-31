@@ -10,6 +10,7 @@ import Base from '../base';
 import hat from 'hat';
 import isPlainObject from 'lodash/isPlainObject';
 import { PreLoading, Message } from './components';
+import Controls from './controls';
 import { initDefaultProps } from '../_util/antdv';
 import {
   getPrefixCls,
@@ -41,6 +42,7 @@ const Map = {
   name: 'PjMap',
   components: {
     PreLoading,
+    Controls,
   },
   inheritAttrs: false,
   props: initDefaultProps(mapProps(), {
@@ -60,25 +62,36 @@ const Map = {
       message,
       // 地图Map的实例化对象
       iMapApi: null,
+      // 地图控件数据集合
+      mapControls: null,
     };
   },
   provide() {
     const _vm = this;
-    this._proxyVm = new Vue({
+    // 定义Class类名前缀
+    const { prefixCls: customizePrefixCls } = _vm;
+    const prefixCls = getPrefixCls('map', customizePrefixCls);
+    // 定义传递属性的代理对象
+    this.proxyVm = new Vue({
       data() {
         return {
+          prefixCls,
           message: _vm.message,
+          iMapApi: _vm.iMapApi,
+          $slots: _vm.$slots,
         };
       },
     });
     return {
-      mapProvider: this._proxyVm._data,
+      mapProvider: this.proxyVm._data,
     };
   },
   computed: {
     classes() {
-      const { prefixCls: customizePrefixCls, bordered } = this;
-      const prefixCls = getPrefixCls('map', customizePrefixCls);
+      const {
+        bordered,
+        proxyVm: { prefixCls },
+      } = this;
       return {
         [`${prefixCls}`]: true,
         [`${prefixCls}-bordered`]: bordered,
@@ -146,8 +159,10 @@ const Map = {
 
     // 渲染地图的容器区域
     renderMapContainer() {
-      const { prefixCls: customizePrefixCls } = this;
-      const prefixCls = getPrefixCls('map', customizePrefixCls);
+      const {
+        proxyVm: { prefixCls },
+        mapControls,
+      } = this;
       const mapCls = `${prefixCls}-container`;
 
       return (
@@ -157,7 +172,14 @@ const Map = {
             <div ref="PJMapViewWrapper" class={`${mapCls}-view-wrapper`}></div>
           </div>
           {/* 扩展交互组件 */}
-          <div class={`${prefixCls}-extended-components`}></div>
+          <div class={`${prefixCls}-extended-components`}>
+            {/* 地图控件 */}
+            {mapControls && mapControls.length ? <Controls dataList={mapControls} /> : null}
+            {/* 地图交互组件 */}
+            <section data-type="interface"></section>
+            {/* 地图扩展组件 */}
+            <section data-type="component"></section>
+          </div>
         </div>
       );
     },
@@ -212,7 +234,13 @@ const Map = {
         new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
           onRender: iMapApi => {
             this.iMapApi = iMapApi;
+            this.proxyVm._data.iMapApi = iMapApi;
+            // 更新Pre-Loading的提示语
             this.description = '地图正在加载图层源数据';
+            // 更新地图控件数据
+            this.mapControls =
+              iMapApi && iMapApi.options && iMapApi.options.mapControls && iMapApi.options.mapControls.length ? iMapApi.options.mapControls : [];
+            // 触发设定存在的[render]回调事件
             this.$emit('render', this.iMapApi);
           },
           onLoad: () => {
