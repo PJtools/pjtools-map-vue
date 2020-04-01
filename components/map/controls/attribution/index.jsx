@@ -6,10 +6,15 @@
 
 import { filterEmpty, initDefaultProps, PropTypes } from '../../../_util/antdv';
 import baseProps from '../baseProps';
+import baseMixin from '../baseMixin';
+
+// 默认Attribution控件的位置
+export const defaultAttributionPosition = 'bottom-right';
 
 const Attribution = {
   name: 'PjMap.Controls.Attribution',
   inheritAttrs: false,
+  mixins: [baseMixin],
   props: initDefaultProps(
     {
       ...baseProps(),
@@ -17,13 +22,15 @@ const Attribution = {
       content: PropTypes.string,
     },
     {
-      position: 'bottom-right',
+      position: defaultAttributionPosition,
       offset: [0, 0],
       content: `版权所有：© PJtools <a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox</a> <a href="http://www.geostar.com.cn/" target="_blank">© GeoStar</a>`,
     },
   ),
   data() {
-    return {};
+    return {
+      currentContent: this.content,
+    };
   },
   inject: {
     mapProvider: { default: () => {} },
@@ -33,37 +40,32 @@ const Attribution = {
       const { $slots } = this.mapProvider;
       return $slots && $slots['controls.attribution'] ? filterEmpty($slots['controls.attribution']) : null;
     },
-    className() {
-      const { prefixCls } = this.mapProvider;
-      return {
-        [`${prefixCls}-controls-wrapper`]: true,
-        [`position-${this.position}`]: true,
-      };
+  },
+  watch: {
+    content(val) {
+      this.currentContent = val;
     },
-    translate() {
-      const { offset, position } = this;
-      let x = offset[0] || 0;
-      let y = offset[1] || 0;
-      const pos = position.split('-');
-      x = pos[1] === 'left' ? x : 0 - x;
-      y = pos[0] === 'top' ? y : 0 - y;
-      return {
-        transform: `translate(${x}px, ${y}px)`,
-      };
+  },
+  methods: {
+    /**
+     * 更新当前Content内容，不包括Slots插槽模式的更新；
+     * @param {string} content 待更新的内容
+     */
+    setContent(content) {
+      if (!this.slotsVNode) {
+        this.currentContent = content;
+      }
     },
   },
   render() {
-    const { className, mapProvider, slotsVNode, translate } = this;
-    const { prefixCls } = mapProvider;
+    const { id, classes, slotsVNode, translate } = this;
 
-    return (
-      <div class={className} style={translate}>
-        {slotsVNode ? (
-          <div class={`${prefixCls}-control-attribution`}>{slotsVNode}</div>
-        ) : (
-          <div class={`${prefixCls}-control-attribution`} domPropsInnerHTML={this.content}></div>
-        )}
+    return slotsVNode ? (
+      <div data-id={id} class={classes} style={translate}>
+        {slotsVNode}
       </div>
+    ) : (
+      <div data-id={id} class={classes} style={translate} domPropsInnerHTML={this.currentContent}></div>
     );
   },
 };

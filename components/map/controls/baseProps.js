@@ -7,7 +7,10 @@
 import { PropTypes } from '../../_util/antdv';
 
 export default () => ({
+  // 地图控件Id属性
   id: PropTypes.string.isRequired,
+  // 地图控件Class样式名
+  className: PropTypes.string,
   // 地图控件的位置
   position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
   // 地图控件的偏移量
