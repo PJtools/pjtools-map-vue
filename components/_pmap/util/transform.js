@@ -20,7 +20,7 @@ const transform = {
   ll2bd: lonlat => projzh.datum.bd09.fromWGS84(lonlat),
 
   // WGS84经纬度-转-百度墨卡托
-  ll2bdmerc: lonlat => projzh.ll2smerc(projzh.datum.bd09.fromWGS84(lonlat)),
+  ll2bdmerc: lonlat => projzh.ll2bmerc(lonlat),
 
   // 百度经纬度-转-标准墨卡托
   bd2merc: lonlat => projzh.ll2smerc(projzh.datum.bd09.toWGS84(lonlat)),
@@ -38,7 +38,7 @@ const transform = {
   gcj2merc: lonlat => projzh.ll2smerc(projzh.datum.gcj02.toWGS84(lonlat)),
 
   // 百度墨卡托-转-WGS84经纬度
-  bdmerc2ll: merc => projzh.datum.bd09.toWGS84(projzh.smerc2ll(merc)),
+  bdmerc2ll: merc => projzh.bmerc2ll(merc),
 
   // GCJ02墨卡托-转-WGS84经纬度
   gcjmerc2ll: merc => projzh.datum.gcj02.toWGS84(projzh.smerc2ll(merc)),
