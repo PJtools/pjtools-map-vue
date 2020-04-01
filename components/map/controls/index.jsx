@@ -5,6 +5,7 @@
  */
 
 import assign from 'lodash/assign';
+import find from 'lodash/find';
 import { PropTypes } from '../../_util/antdv';
 import Attribution, { defaultAttributionPosition } from './attribution';
 
@@ -86,12 +87,23 @@ const Controls = {
           };
           item.position && (props.position = item.position);
           item.offset && (props.offset = item.offset);
+          const on = {
+            'update:offset': val => {
+              const control = this.getDataControlById(item.id);
+              control && this.$set(control, 'offset', val);
+            },
+          };
           // 根据控件类型加载对应的地图控件
           let component = null;
           switch (item.type) {
-            case 'Attribution':
-              component = <Attribution {...{ props }} />;
+            case 'Attribution': {
+              on['update:content'] = val => {
+                const control = this.getDataControlById(item.id);
+                control && this.$set(control.options, 'content', val);
+              };
+              component = <Attribution {...{ props }} {...{ on }} />;
               break;
+            }
             default:
               break;
           }
@@ -99,6 +111,12 @@ const Controls = {
           return component;
         })
       );
+    },
+
+    // 根据Id获取原始控件数据集的控件项
+    getDataControlById(id) {
+      const control = find(this.dataList, { id });
+      return control || null;
     },
 
     // 获取指定Id的地图控件组件Component对象

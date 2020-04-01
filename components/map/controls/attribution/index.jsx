@@ -27,11 +27,6 @@ const Attribution = {
       content: `版权所有：© PJtools <a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox</a> <a href="http://www.geostar.com.cn/" target="_blank">© GeoStar</a>`,
     },
   ),
-  data() {
-    return {
-      currentContent: this.content,
-    };
-  },
   inject: {
     mapProvider: { default: () => {} },
   },
@@ -41,11 +36,6 @@ const Attribution = {
       return $slots && $slots['controls.attribution'] ? filterEmpty($slots['controls.attribution']) : null;
     },
   },
-  watch: {
-    content(val) {
-      this.currentContent = val;
-    },
-  },
   methods: {
     /**
      * 更新当前Content内容，不包括Slots插槽模式的更新；
@@ -53,7 +43,7 @@ const Attribution = {
      */
     setContent(content) {
       if (!this.slotsVNode) {
-        this.currentContent = content;
+        this.$emit('update:content', content);
       }
     },
   },
@@ -65,7 +55,7 @@ const Attribution = {
         {slotsVNode}
       </div>
     ) : (
-      <div data-id={id} class={classes} style={translate} domPropsInnerHTML={this.currentContent}></div>
+      <div data-id={id} class={classes} style={translate} domPropsInnerHTML={this.content}></div>
     );
   },
 };
