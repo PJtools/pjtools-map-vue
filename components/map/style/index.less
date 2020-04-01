@@ -119,6 +119,20 @@
     transition: all 0.5s ease;
 
     .position-direction();
+
+    &.position-top-left,
+    &.position-top-right,
+    &.position-bottom-left,
+    &.position-bottom-right {
+      display: flex;
+
+      & > * {
+        transition: all 0.5s ease;
+        &:not(:first-child) {
+          margin-left: 6px;
+        }
+      }
+    }
   }
 
   // 地图交互组件
