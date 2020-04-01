@@ -111,6 +111,9 @@ const layer = {
     if (layer) {
       // 移除图层和数据源
       const deleteLayer = currentLayer => {
+        // 移除图层的绑定事件
+        currentLayer.eventIds && this.off(currentLayer.eventIds);
+        // 移除图层对象
         this.map.removeLayer(currentLayer.id);
         // 移除图层数据源
         this.removeSource(currentLayer.source);

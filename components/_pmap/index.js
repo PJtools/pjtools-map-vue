@@ -308,6 +308,7 @@ const PJtoolsMap = (function() {
       // 记录当前Map实例的已添加的地图图层对象
       this._mapLayers = {};
       this._mapLayersIds = [];
+      this._mapEvents = {};
 
       // 处理地图的配置项
       let opts = assign({}, defaultMapOptions, validateConfig(options));

@@ -144,6 +144,8 @@ const layerGroup = {
     if (this.isLayerGroup(id)) {
       const layer = this.getLayer(layerId, id);
       if (layer) {
+        // 移除图层的绑定事件
+        layer.eventIds && this.off(layer.eventIds);
         // 移除图层和数据源
         this.map.removeLayer(layer.id);
         this.removeSource(layer.source);
