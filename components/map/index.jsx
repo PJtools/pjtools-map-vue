@@ -174,7 +174,7 @@ const Map = {
           {/* 扩展交互组件 */}
           <div class={`${prefixCls}-extended-components`}>
             {/* 地图控件 */}
-            {mapControls && mapControls.length ? <Controls dataList={mapControls} /> : null}
+            {mapControls && mapControls.length ? <Controls ref="mapControls" dataList={mapControls} /> : null}
             {/* 地图交互组件 */}
             <section data-type="interface"></section>
             {/* 地图扩展组件 */}
@@ -234,12 +234,15 @@ const Map = {
         new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
           onRender: iMapApi => {
             this.iMapApi = iMapApi;
-            this.proxyVm._data.iMapApi = iMapApi;
+            this.iMapApi.vComponent = this;
+            this.proxyVm._data.iMapApi = this.iMapApi;
             // 更新Pre-Loading的提示语
             this.description = '地图正在加载图层源数据';
             // 更新地图控件数据
             this.mapControls =
-              iMapApi && iMapApi.options && iMapApi.options.mapControls && iMapApi.options.mapControls.length ? iMapApi.options.mapControls : [];
+              this.iMapApi && this.iMapApi.options && this.iMapApi.options.mapControls && this.iMapApi.options.mapControls.length
+                ? this.iMapApi.options.mapControls
+                : [];
             // 触发设定存在的[render]回调事件
             this.$emit('render', this.iMapApi);
           },
