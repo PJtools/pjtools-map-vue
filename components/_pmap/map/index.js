@@ -9,6 +9,7 @@ import layer from './layer';
 import layerGroup from './layerGroup';
 import resource from './resource';
 import event from './event';
+import proj4 from './proj4';
 import control from './control';
 
 export default {
@@ -22,6 +23,8 @@ export default {
   ...resource,
   // 地图“事件”管理相关功能方法
   ...event,
+  // 地图“Proj4”管理相关功能方法
+  ...proj4,
   // 地图“控件”管理相关功能方法
   ...control,
 };
