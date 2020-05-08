@@ -11,6 +11,8 @@ export default () => ({
   id: PropTypes.string.isRequired,
   // 地图控件Class样式名
   className: PropTypes.string,
+  // 地图控件Style样式s
+  styles: PropTypes.object,
   // 地图控件的位置
   position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']),
   // 地图控件的偏移量

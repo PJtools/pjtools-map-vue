@@ -5,6 +5,9 @@
  */
 
 export default {
+  inject: {
+    mapProvider: { default: () => {} },
+  },
   computed: {
     classes() {
       const {
@@ -16,18 +19,26 @@ export default {
         cls = className.split(',');
         cls = (cls && cls.length && cls.map(item => item.trim())) || [];
       }
-      return [`${prefixCls}-control-attribution`, ...cls];
+      const componentName = this.$options.name.replace('PjMap.Controls.', '').toLowerCase();
+      return [`${prefixCls}-control-${componentName}`, ...cls];
     },
-    translate() {
-      const { offset, position } = this;
+    ctrlStyles() {
+      const { offset, position, styles } = this;
       let x = offset[0] || 0;
       let y = offset[1] || 0;
       const pos = position.split('-');
       x = pos[1] === 'left' ? x : 0 - x;
       y = pos[0] === 'top' ? y : 0 - y;
       return {
+        ...styles,
         transform: `translate(${x}px, ${y}px)`,
       };
+    },
+    iMapApi() {
+      const {
+        mapProvider: { iMapApi },
+      } = this;
+      return iMapApi;
     },
   },
   methods: {

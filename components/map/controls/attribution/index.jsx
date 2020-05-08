@@ -27,12 +27,11 @@ const Attribution = {
       content: `版权所有：© PJtools <a href="https://www.mapbox.com/about/maps/" target="_blank">© Mapbox</a> <a href="http://www.geostar.com.cn/" target="_blank">© GeoStar</a>`,
     },
   ),
-  inject: {
-    mapProvider: { default: () => {} },
-  },
   computed: {
     slotsVNode() {
-      const { $slots } = this.mapProvider;
+      const {
+        mapProvider: { $slots },
+      } = this;
       return $slots && $slots['controls.attribution'] ? filterEmpty($slots['controls.attribution']) : null;
     },
   },
@@ -48,14 +47,14 @@ const Attribution = {
     },
   },
   render() {
-    const { id, classes, slotsVNode, translate } = this;
+    const { id, classes, ctrlStyles, slotsVNode } = this;
 
     return slotsVNode ? (
-      <div data-id={id} class={classes} style={translate}>
+      <div data-id={id} class={classes} style={ctrlStyles}>
         {slotsVNode}
       </div>
     ) : (
-      <div data-id={id} class={classes} style={translate} domPropsInnerHTML={this.content}></div>
+      <div data-id={id} class={classes} style={ctrlStyles} domPropsInnerHTML={this.content}></div>
     );
   },
 };
