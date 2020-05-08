@@ -8,16 +8,18 @@ import assign from 'lodash/assign';
 import find from 'lodash/find';
 import { PropTypes } from '../../_util/antdv';
 import Attribution, { defaultAttributionPosition } from './attribution';
+import Navigation, { defaultNavigationPosition } from './navigation';
 
 // 地图控件的类型枚举名
-export const mapControlsTypeKeys = ['Attribution'];
+export const mapControlsTypeKeys = ['Attribution', 'Navigation'];
 // 地图控件的位置枚举
 export const mapControlsPosition = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
 
 const Controls = {
   name: 'PjMap.Controls',
   components: {
-    Attribution: () => resolve => require(['./attribution'], resolve),
+    Attribution,
+    Navigation,
   },
   props: {
     dataList: PropTypes.array,
@@ -56,6 +58,8 @@ const Controls = {
       switch (key) {
         case 'Attribution':
           return defaultAttributionPosition;
+        case 'Navigation':
+          return defaultNavigationPosition;
       }
     },
 
@@ -102,6 +106,10 @@ const Controls = {
                 control && this.$set(control.options, 'content', val);
               };
               component = <Attribution {...{ props }} {...{ on }} />;
+              break;
+            }
+            case 'Navigation': {
+              component = <Navigation {...{ props }} {...{ on }} />;
               break;
             }
             default:
