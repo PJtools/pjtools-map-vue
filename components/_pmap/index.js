@@ -298,7 +298,6 @@ const PJtoolsMap = (function() {
       this[_proxyURL] = (options && options.proxyURL) || '';
       this[_exports] = exports;
       const { GeoGlobe, mapboxgl } = exports;
-      GeoGlobe.Request.setTimeout(2000);
 
       // 绑定PJtoolsMap.Providers对象
       this[_Providers] = new Providers(this);
@@ -458,6 +457,8 @@ const PJtoolsMap = (function() {
       if (isMapProviders(opts.mapBasicLayers)) {
         const providerKey = opts.mapBasicLayers.key || opts.mapBasicLayers;
         const providerOptions = providersMapOptions[providerKey] || {};
+        !isEmpty(providerOptions.minZoom) && opts.minZoom > providerOptions.minZoom && (providerOptions.minZoom = opts.minZoom);
+        !isEmpty(providerOptions.maxZoom) && opts.maxZoom < providerOptions.maxZoom && (providerOptions.maxZoom = opts.maxZoom);
         opts = assign(opts, providerOptions);
         // 获取内置服务源的基础地图底图数据
         this.Providers.getProvidersLayers(providerKey, opts.mapBasicLayers.options || {}).then(data => {
@@ -666,6 +667,36 @@ const PJtoolsMap = (function() {
     }
 
     /**
+     * 获取当前地图的最小层级
+     */
+    getMinZoom() {
+      return this.map && this.map.getMinZoom();
+    }
+
+    /**
+     * 设置当前地图的最小层级
+     * @param {Number} zoom 地图最小层级
+     */
+    setMinZoom(zoom) {
+      return this.map && this.map.setMinZoom(zoom);
+    }
+
+    /**
+     * 获取当前地图的最大层级
+     */
+    getMaxZoom() {
+      return this.map && this.map.getMaxZoom();
+    }
+
+    /**
+     * 设置当前地图的最大层级
+     * @param {Number} zoom 地图最大层级
+     */
+    setMaxZoom(zoom) {
+      return this.map && this.map.setMaxZoom(zoom);
+    }
+
+    /**
      * 获取当前地图的旋转角度值
      */
     getRotate() {
@@ -707,6 +738,20 @@ const PJtoolsMap = (function() {
     }
 
     /**
+     * 重置地图以正北方向的旋转角度
+     */
+    resetRotate() {
+      this.map && this.map.resetNorth();
+    }
+
+    /**
+     * 重置地图以正北方向的旋转角度及倾斜
+     */
+    resetRotatePitch() {
+      this.map && this.map.resetNorthPitch();
+    }
+
+    /**
      * 获取当前地图的倾斜值
      */
     getPitch() {
@@ -745,6 +790,36 @@ const PJtoolsMap = (function() {
       }
       options.pitch = pitch;
       return this.easeTo(options, duration);
+    }
+
+    /**
+     * 获取当前地图的最小倾斜值
+     */
+    getMinPitch() {
+      return this.map && this.map.getMinPitch();
+    }
+
+    /**
+     * 设置当前地图的最小倾斜值
+     * @param {Number} pitch 地图最小倾斜值
+     */
+    setMinPitch(pitch) {
+      return this.map && this.map.setMinPitch(pitch);
+    }
+
+    /**
+     * 获取当前地图的最大倾斜值
+     */
+    getMaxPitch() {
+      return this.map && this.map.getMaxPitch();
+    }
+
+    /**
+     * 设置当前地图的最大倾斜值
+     * @param {Number} pitch 地图最大倾斜值
+     */
+    setMaxPitch(pitch) {
+      return this.map && this.map.setMaxPitch(pitch);
     }
 
     /**
@@ -811,6 +886,28 @@ const PJtoolsMap = (function() {
     }
 
     /**
+     * 获取当前地图的最大地理矩形范围
+     */
+    getMaxBounds() {
+      const bounds = this.map && this.map.getMaxBounds();
+      if (bounds) {
+        return bounds.toArray();
+      }
+      return null;
+    }
+
+    /**
+     * 设置当前地图的最大地理矩形范围
+     * @param {Array} bounds 待设定的最大地理范围，格式：[[minx, miny], [maxx, maxy]]
+     */
+    setMaxBounds(bounds) {
+      if (!(isNotEmptyArray(bounds) && bounds.length === 2 && isCoordinate(bounds[0]) && isCoordinate(bounds[1]))) {
+        bounds = null;
+      }
+      this.map && this.map.setMaxBounds(bounds);
+    }
+
+    /**
      * 以过渡动画的形式，统一管理设置当前地图的中心点、旋转角度、倾斜值、层级
      * @param {Object} options 地图待设置对象，参数： { center: [], rotate, pitch, zoom }
      * @param {Number} duration 过渡动画时间，单位毫秒，默认500
@@ -841,6 +938,30 @@ const PJtoolsMap = (function() {
           resolve();
         });
       });
+    }
+
+    /**
+     * 重新渲染地图的容器尺寸大小
+     */
+    resize() {
+      this.map && this.map.resize();
+    }
+
+    /**
+     * 移除渲染地图（包括：地图容器DOM、图层数据、地图事件等）
+     */
+    remove() {
+      if (this.map) {
+        // 移除绑定事件
+        const mapEventIds = Object.keys(this._mapEvents);
+        this.off(mapEventIds);
+        // 移除地图MapboxGL Map
+        this.map.remove();
+        this._mapLayers = {};
+        this._mapLayersIds = [];
+        // 移除Map实例对象
+        this[_map] = null;
+      }
     }
 
     /**

@@ -64,6 +64,8 @@ const Map = {
       iMapApi: null,
       // 地图控件数据集合
       mapControls: null,
+      // 地图移除销毁状态
+      mapRemoved: false,
     };
   },
   provide() {
@@ -109,6 +111,9 @@ const Map = {
   },
   mounted() {
     this.preloadMapPluginsDll();
+  },
+  beforeDestroy() {
+    this.destroyPJtoolsMap();
   },
   methods: {
     // 实例化当前地图组件的Message消息
@@ -162,10 +167,11 @@ const Map = {
       const {
         proxyVm: { prefixCls },
         mapControls,
+        mapRemoved,
       } = this;
       const mapCls = `${prefixCls}-container`;
 
-      return (
+      return !mapRemoved ? (
         <div class={mapCls}>
           {/* 地图视图区域 */}
           <div class={`${mapCls}-views-group`}>
@@ -181,7 +187,7 @@ const Map = {
             <section data-type="component"></section>
           </div>
         </div>
-      );
+      ) : null;
     },
 
     // 加载解析当前地图的配置文件
@@ -226,6 +232,7 @@ const Map = {
         return;
       }
 
+      this.mapRemoved = false;
       this.description = '地图初始化配置';
       this.loadMapConfig().then(config => {
         // 设定Map地图样式的默认字体库
@@ -253,6 +260,18 @@ const Map = {
           },
         });
       });
+    },
+
+    // 销毁PJtools.Map地图对象
+    destroyPJtoolsMap() {
+      // 销毁实例化地图
+      this.iMapApi && this.iMapApi.remove();
+      // 销毁地图控件
+      this.mapControls = null;
+      // 更新地图销毁状态
+      this.mapRemoved = true;
+      // 销毁地图实例化对象
+      this.iMapApi = null;
     },
   },
   render() {
