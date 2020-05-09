@@ -1,0 +1,42 @@
+/** 
+ * @文件说明: 定义地图Scale控件样式
+ * @创建人: pjtools@vip.qq.com 
+ * @创建时间: 2020-05-08 16:16:58 
+ */
+
+@import '../../../style/themes/default';
+
+@scale-prefix-cls: ~'@{map-prefix-cls}-control-scale';
+@shadow-color: rgba(255, 255, 255, 0.6);
+
+.@{scale-prefix-cls} {
+  .mapboxgl-ctrl-scale {
+    position: relative;
+    background-color: transparent;
+    border-bottom-color: @text-color;
+    border-left: none;
+    border-right: none;
+    font-size: 14px;
+    padding: 0;
+    color: @text-color;
+    text-align: center;
+    text-shadow: @shadow-color 0.2px 0 1px, @shadow-color 0 0.2px 1px, @shadow-color -0.2px 0 1px, @shadow-color 0 -0.2px 1px;
+    white-space: nowrap;
+
+    &::before,
+    &::after {
+      position: absolute;
+      content: '';
+      width: 2px;
+      height: 5px;
+      bottom: 0;
+      background-color: @text-color;
+    }
+    &::before {
+      left: 0;
+    }
+    &::after {
+      right: 0;
+    }
+  }
+}

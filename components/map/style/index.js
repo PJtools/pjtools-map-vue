@@ -8,3 +8,4 @@ import './index.less';
 // 地图控件
 import '../controls/attribution/index.less';
 import '../controls/navigation/index.less';
+import '../controls/scale/index.less';

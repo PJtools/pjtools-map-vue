@@ -9,9 +9,10 @@ import find from 'lodash/find';
 import { PropTypes } from '../../_util/antdv';
 import Attribution, { defaultAttributionPosition } from './attribution';
 import Navigation, { defaultNavigationPosition } from './navigation';
+import Scale, { defaultScalePosition } from './scale';
 
 // 地图控件的类型枚举名
-export const mapControlsTypeKeys = ['Attribution', 'Navigation'];
+export const mapControlsTypeKeys = ['Attribution', 'Navigation', 'Scale'];
 // 地图控件的位置枚举
 export const mapControlsPosition = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
 
@@ -20,6 +21,7 @@ const Controls = {
   components: {
     Attribution,
     Navigation,
+    Scale,
   },
   props: {
     dataList: PropTypes.array,
@@ -60,6 +62,8 @@ const Controls = {
           return defaultAttributionPosition;
         case 'Navigation':
           return defaultNavigationPosition;
+        case 'Scale':
+          return defaultScalePosition;
       }
     },
 
@@ -110,6 +114,14 @@ const Controls = {
             }
             case 'Navigation': {
               component = <Navigation {...{ props }} {...{ on }} />;
+              break;
+            }
+            case 'Scale': {
+              on['update:unit'] = val => {
+                const control = this.getDataControlById(item.id);
+                control && this.$set(control.options, 'unit', val);
+              };
+              component = <Scale {...{ props }} {...{ on }} />;
               break;
             }
             default:
