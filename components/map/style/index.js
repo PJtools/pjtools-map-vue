@@ -9,3 +9,4 @@ import './index.less';
 import '../controls/attribution/index.less';
 import '../controls/navigation/index.less';
 import '../controls/scale/index.less';
+import '../controls/mouse-coordinates/index.less';

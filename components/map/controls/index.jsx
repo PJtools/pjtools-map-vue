@@ -10,9 +10,10 @@ import { PropTypes } from '../../_util/antdv';
 import Attribution, { defaultAttributionPosition } from './attribution';
 import Navigation, { defaultNavigationPosition } from './navigation';
 import Scale, { defaultScalePosition } from './scale';
+import MouseCoordinates, { defaultMouseCoordinatesPosition } from './mouse-coordinates';
 
 // 地图控件的类型枚举名
-export const mapControlsTypeKeys = ['Attribution', 'Navigation', 'Scale'];
+export const mapControlsTypeKeys = ['Attribution', 'Navigation', 'Scale', 'MouseCoordinates'];
 // 地图控件的位置枚举
 export const mapControlsPosition = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
 
@@ -64,6 +65,8 @@ const Controls = {
           return defaultNavigationPosition;
         case 'Scale':
           return defaultScalePosition;
+        case 'MouseCoordinates':
+          return defaultMouseCoordinatesPosition;
       }
     },
 
@@ -122,6 +125,10 @@ const Controls = {
                 control && this.$set(control.options, 'unit', val);
               };
               component = <Scale {...{ props }} {...{ on }} />;
+              break;
+            }
+            case 'MouseCoordinates': {
+              component = <MouseCoordinates {...{ props }} {...{ on }} />;
               break;
             }
             default:
