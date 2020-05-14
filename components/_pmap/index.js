@@ -18,6 +18,7 @@ import constantMapCRS from './util/constantCRS';
 import { default as mapPrototypes } from './map';
 import Providers from './providers';
 import Services from './layers/services';
+import Handlers from './handlers';
 import Query from './query';
 
 // 默认Mapbox地图的Style对象
@@ -40,7 +41,7 @@ const defaultMapOptions = {
   // Mapbox 是否启用Ctrl拖拽旋转交互
   dragRotate: true,
   // Mapbox 是否开启键盘
-  keyboard: true,
+  keyboard: false,
   // Mapbox 是否允许滚动缩放
   scrollZoom: true,
   // Mapbox 是否允许触摸旋转缩放
@@ -186,6 +187,7 @@ const PJtoolsMap = (function() {
   const _Providers = Symbol('Providers');
   const _Services = Symbol('Services');
   const _Query = Symbol('Query');
+  const _Handlers = Symbol('Handlers');
 
   class PJtoolsMap {
     /**
@@ -278,6 +280,14 @@ const PJtoolsMap = (function() {
      */
     get Query() {
       return this[_Query];
+    }
+
+    /**
+     * PJtoolsMap的二级属性 - Handlers地图内置Handlers交互对象
+     * @readonly
+     */
+    get Handlers() {
+      return this[_Handlers];
     }
 
     /**
@@ -451,6 +461,8 @@ const PJtoolsMap = (function() {
         this[_map] = map;
         // 绑定PJtoolsMap.Query对象
         this[_Query] = new Query(this);
+        // 绑定PJtoolsMap.Handlers对象
+        this[_Handlers] = new Handlers(this);
       };
 
       // 判断内置初始底图服务源，则强制覆盖地图的属性
