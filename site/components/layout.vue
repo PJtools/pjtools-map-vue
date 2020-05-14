@@ -216,7 +216,7 @@ export default {
     return (
       <div class="page-wrapper">
         <Header searchData={searchData} name={name} />
-        <a-locale-provider locale={locale}>
+        <a-config-provider locale={locale}>
           <div class="main-wrapper">
             <a-row>
               {isMobile ? (
@@ -326,7 +326,7 @@ export default {
               </a-col>
             </a-row>
           </div>
-        </a-locale-provider>
+        </a-config-provider>
         {name.indexOf('back-top') === -1 ? <a-back-top /> : null}
       </div>
     );

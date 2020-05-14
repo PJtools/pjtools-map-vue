@@ -1,5 +1,8 @@
 import Vue from 'vue';
 import {
+  message,
+  notification,
+  Base,
   Affix,
   Anchor,
   AutoComplete,
@@ -20,16 +23,16 @@ import {
   Divider,
   Dropdown,
   Form,
+  FormModel,
   Icon,
   Input,
   InputNumber,
   Layout,
   List,
   LocaleProvider,
-  message,
   Menu,
+  Mentions,
   Modal,
-  notification,
   Pagination,
   Popconfirm,
   Popover,
@@ -58,7 +61,9 @@ import {
   Comment,
   ConfigProvider,
   Empty,
-  Base,
+  Result,
+  Descriptions,
+  PageHeader,
 } from 'ant-design-vue';
 
 Vue.prototype.$message = message;
@@ -93,6 +98,7 @@ Vue.use(Divider);
 Vue.use(Drawer);
 Vue.use(Dropdown);
 Vue.use(Form);
+Vue.use(FormModel);
 Vue.use(Icon);
 Vue.use(Input);
 Vue.use(InputNumber);
@@ -100,6 +106,7 @@ Vue.use(Layout);
 Vue.use(List);
 Vue.use(LocaleProvider);
 Vue.use(Menu);
+Vue.use(Mentions);
 Vue.use(Modal);
 Vue.use(Pagination);
 Vue.use(Popconfirm);
@@ -128,6 +135,9 @@ Vue.use(Skeleton);
 Vue.use(Comment);
 Vue.use(ConfigProvider);
 Vue.use(Empty);
+Vue.use(Result);
+Vue.use(Descriptions);
+Vue.use(PageHeader);
 
 // 增加 pjtools-map-vue 组件
 import { preload, Map } from 'pjtools-map-vue';
