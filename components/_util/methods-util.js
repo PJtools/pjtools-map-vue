@@ -10,7 +10,6 @@ import {
   isFunction as isAntdFunction,
   has as antdHas,
 } from 'ant-design-vue/es/_util/vue-types/utils';
-import { addClass as addAntdClass, removeClass as removeAntdClass } from 'ant-design-vue/es/_util/Dom/class-util';
 
 /**
  * 获取转换的前缀ClassName名称
@@ -160,14 +159,58 @@ export const isCoordinate = value => {
  * @param {Element} el DOM对象
  * @param {string} cls 待添加的ClassName名
  */
-export const addClass = addAntdClass;
+export const addClass = (el, cls) => {
+  if (!cls || !(cls = cls.trim())) {
+    return;
+  }
+
+  if (el.classList) {
+    if (cls.indexOf(' ') > -1) {
+      cls.split(/\s+/).forEach(c => el.classList.add(c));
+    } else {
+      el.classList.add(cls);
+    }
+  } else {
+    const cur = ` ${el.getAttribute('class') || ''} `;
+    if (cur.indexOf(' ' + cls + ' ') < 0) {
+      el.setAttribute('class', (cur + cls).trim());
+    }
+  }
+};
 
 /**
  * 在DOM对象上移除Class类名
  * @param {Element} el DOM对象
  * @param {string} cls 待移除的ClassName名
  */
-export const removeClass = removeAntdClass;
+export const removeClass = (el, cls) => {
+  if (!cls || !(cls = cls.trim())) {
+    return;
+  }
+
+  if (el.classList) {
+    if (cls.indexOf(' ') > -1) {
+      cls.split(/\s+/).forEach(c => el.classList.remove(c));
+    } else {
+      el.classList.remove(cls);
+    }
+    if (!el.classList.length) {
+      el.removeAttribute('class');
+    }
+  } else {
+    let cur = ` ${el.getAttribute('class') || ''} `;
+    const tar = ' ' + cls + ' ';
+    while (cur.indexOf(tar) >= 0) {
+      cur = cur.replace(tar, ' ');
+    }
+    cur = cur.trim();
+    if (cur) {
+      el.setAttribute('class', cur);
+    } else {
+      el.removeAttribute('class');
+    }
+  }
+};
 
 /**
  * 将相对路径地址转换成绝对路径地址
