@@ -155,59 +155,45 @@ export const isCoordinate = value => {
 };
 
 /**
- * 在DOM对象上添加Class类名
- * @param {Element} el DOM对象
- * @param {string} cls 待添加的ClassName名
+ * 判断DOM对象上是否存在Class类名
+ * @param {Element} node DOM对象
+ * @param {string} className 待判断的ClassName
  */
-export const addClass = (el, cls) => {
-  if (!cls || !(cls = cls.trim())) {
-    return;
+export const hasClass = (node, className) => {
+  if (node.classList) {
+    return node.classList.contains(className);
   }
+  const originClass = node.className;
+  return ` ${originClass} `.indexOf(` ${className} `) > -1;
+};
 
-  if (el.classList) {
-    if (cls.indexOf(' ') > -1) {
-      cls.split(/\s+/).forEach(c => el.classList.add(c));
-    } else {
-      el.classList.add(cls);
-    }
+/**
+ * 在DOM对象上添加Class类名
+ * @param {Element} node DOM对象
+ * @param {string} className 待添加的ClassName名
+ */
+export const addClass = (node, className) => {
+  if (node.classList) {
+    node.classList.add(className);
   } else {
-    const cur = ` ${el.getAttribute('class') || ''} `;
-    if (cur.indexOf(' ' + cls + ' ') < 0) {
-      el.setAttribute('class', (cur + cls).trim());
+    if (!hasClass(node, className)) {
+      node.className = `${node.className} ${className}`;
     }
   }
 };
 
 /**
  * 在DOM对象上移除Class类名
- * @param {Element} el DOM对象
- * @param {string} cls 待移除的ClassName名
+ * @param {Element} node DOM对象
+ * @param {string} className 待移除的ClassName名
  */
-export const removeClass = (el, cls) => {
-  if (!cls || !(cls = cls.trim())) {
-    return;
-  }
-
-  if (el.classList) {
-    if (cls.indexOf(' ') > -1) {
-      cls.split(/\s+/).forEach(c => el.classList.remove(c));
-    } else {
-      el.classList.remove(cls);
-    }
-    if (!el.classList.length) {
-      el.removeAttribute('class');
-    }
+export const removeClass = (node, className) => {
+  if (node.classList) {
+    node.classList.remove(className);
   } else {
-    let cur = ` ${el.getAttribute('class') || ''} `;
-    const tar = ' ' + cls + ' ';
-    while (cur.indexOf(tar) >= 0) {
-      cur = cur.replace(tar, ' ');
-    }
-    cur = cur.trim();
-    if (cur) {
-      el.setAttribute('class', cur);
-    } else {
-      el.removeAttribute('class');
+    if (hasClass(node, className)) {
+      const originClass = node.className;
+      node.className = ` ${originClass} `.replace(` ${className} `, ' ');
     }
   }
 };
