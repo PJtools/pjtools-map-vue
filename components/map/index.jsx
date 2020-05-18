@@ -11,6 +11,7 @@ import hat from 'hat';
 import isPlainObject from 'lodash/isPlainObject';
 import { PreLoading, Message } from './components';
 import Controls from './controls';
+import Interfaces from './interfaces';
 import { initDefaultProps } from '../_util/antdv';
 import {
   getPrefixCls,
@@ -27,6 +28,7 @@ import {
   has,
   isHttpUrl,
   isCoordinate,
+  hasClass,
   addClass,
   removeClass,
   getUrlToLink,
@@ -43,6 +45,7 @@ const Map = {
   components: {
     PreLoading,
     Controls,
+    Interfaces,
   },
   inheritAttrs: false,
   props: initDefaultProps(mapProps(), {
@@ -64,6 +67,8 @@ const Map = {
       iMapApi: null,
       // 地图控件数据集合
       mapControls: null,
+      // 地图UI组件对象集合
+      mapInterfaces: [],
       // 地图移除销毁状态
       mapRemoved: false,
     };
@@ -167,6 +172,7 @@ const Map = {
       const {
         proxyVm: { prefixCls },
         mapControls,
+        mapInterfaces,
         mapRemoved,
       } = this;
       const mapCls = `${prefixCls}-container`;
@@ -182,7 +188,7 @@ const Map = {
             {/* 地图控件 */}
             {mapControls && mapControls.length ? <Controls ref="mapControls" dataList={mapControls} /> : null}
             {/* 地图交互组件 */}
-            <section data-type="interface"></section>
+            <Interfaces ref="mapInterfaces" data={mapInterfaces} />
             {/* 地图扩展组件 */}
             <section data-type="component"></section>
           </div>
@@ -268,6 +274,8 @@ const Map = {
       this.iMapApi && this.iMapApi.remove();
       // 销毁地图控件
       this.mapControls = null;
+      // 销毁地图UI组件
+      this.mapInterfaces = [];
       // 更新地图销毁状态
       this.mapRemoved = true;
       // 销毁地图实例化对象
@@ -316,6 +324,7 @@ Map.$methods = {
   has,
   isHttpUrl,
   isCoordinate,
+  hasClass,
   addClass,
   removeClass,
   getUrlToLink,
