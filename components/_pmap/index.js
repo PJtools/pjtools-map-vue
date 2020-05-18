@@ -427,6 +427,8 @@ const PJtoolsMap = (function() {
             if (isMapProviders(opts.mapBasicLayers) && isMapboxProviders(opts.mapBasicLayers)) {
               setMapboxProvidersLayersGroup.call(this);
             }
+            // 绑定PJtoolsMap.Handlers对象
+            this[_Handlers] = new Handlers(this);
             // 判断是否触发回调地图的数据加载完成回调事件
             isFunction(cb.onLoad) && cb.onLoad.call(this, this);
           }
@@ -461,8 +463,6 @@ const PJtoolsMap = (function() {
         this[_map] = map;
         // 绑定PJtoolsMap.Query对象
         this[_Query] = new Query(this);
-        // 绑定PJtoolsMap.Handlers对象
-        this[_Handlers] = new Handlers(this);
       };
 
       // 判断内置初始底图服务源，则强制覆盖地图的属性

@@ -6,15 +6,21 @@
 
 import BasicMapApi from '../util/basicMapApiClass';
 import DragPan from './dragPan';
+import Cursor from './cursor';
 
 class Handlers extends BasicMapApi {
   /**
    * Handlers地图内置交互
-   * 其中包括：[ dragPan | boxZoom | dragRotate | scrollZoom | keyboard | doubleClickZoom | touchZoomRotate ]
+   * 其中包括：[ dragRotate | scrollZoom | boxZoom | keyboard | doubleClickZoom | touchZoomRotate | dragPan | Cursor ]
    * @param {MapApi} iMapApi 地图Api实例化对象
    */
   constructor(...arg) {
     super(...arg);
+
+    // 初始化内置地图交互对象
+    this.map = this.iMapApi && this.iMapApi.map;
+    !this.map.pjDragPan && (this.map.pjDragPan = new DragPan(this.iMapApi));
+    !this.map.pjCursor && (this.map.pjCursor = new Cursor(this.iMapApi));
   }
 
   /**
@@ -22,8 +28,7 @@ class Handlers extends BasicMapApi {
    * @readonly
    */
   get dragRotate() {
-    const map = this.iMapApi && this.iMapApi.map;
-    return map && map.dragRotate;
+    return this.map && this.map.dragRotate;
   }
 
   /**
@@ -31,8 +36,7 @@ class Handlers extends BasicMapApi {
    * @readonly
    */
   get scrollZoom() {
-    const map = this.iMapApi && this.iMapApi.map;
-    return map && map.scrollZoom;
+    return this.map && this.map.scrollZoom;
   }
 
   /**
@@ -40,8 +44,7 @@ class Handlers extends BasicMapApi {
    * @readonly
    */
   get boxZoom() {
-    const map = this.iMapApi && this.iMapApi.map;
-    return map && map.boxZoom;
+    return this.map && this.map.boxZoom;
   }
 
   /**
@@ -59,8 +62,7 @@ class Handlers extends BasicMapApi {
    * @readonly
    */
   get keyboard() {
-    const map = this.iMapApi && this.iMapApi.map;
-    return map && map.keyboard;
+    return this.map && this.map.keyboard;
   }
 
   /**
@@ -68,8 +70,7 @@ class Handlers extends BasicMapApi {
    * @readonly
    */
   get doubleClickZoom() {
-    const map = this.iMapApi && this.iMapApi.map;
-    return map && map.doubleClickZoom;
+    return this.map && this.map.doubleClickZoom;
   }
 
   /**
@@ -77,8 +78,7 @@ class Handlers extends BasicMapApi {
    * @readonly
    */
   get touchZoomRotate() {
-    const map = this.iMapApi && this.iMapApi.map;
-    return map && map.touchZoomRotate;
+    return this.map && this.map.touchZoomRotate;
   }
 
   /**
@@ -86,15 +86,15 @@ class Handlers extends BasicMapApi {
    * @readonly
    */
   get dragPan() {
-    const map = this.iMapApi && this.iMapApi.map;
-    if (!map) {
-      return;
-    }
-    // 判断是否未实例化dragPan交互对象
-    if (!map.pjDragPan) {
-      map.pjDragPan = new DragPan(this.iMapApi);
-    }
-    return map.pjDragPan;
+    return this.map && this.map.pjDragPan;
+  }
+
+  /**
+   * 获取 cursor 地图光标对象（操作：鼠标光标）
+   * @readonly
+   */
+  get cursor() {
+    return this.map && this.map.pjCursor;
   }
 }
 

@@ -21,10 +21,11 @@ const interfaces = {
    * @param {Control} component 地图交互组件参数选项
    */
   addMapInterface(id, type, component = {}) {
-    if (id && !this.getMapInterface(id)) {
+    const components = this.vComponent && this.vComponent.mapInterfaces;
+    if (id && components && !this.getMapInterface(id)) {
       component.id = id;
       component.type = type;
-      this.vComponent.mapInterfaces.push(component);
+      components.push(component);
     }
   },
 
@@ -33,11 +34,11 @@ const interfaces = {
    * @param {String} id 地图交互组件的唯一Id名
    */
   removeMapInterface(id) {
-    if (id && this.getMapInterface(id)) {
-      const components = this.vComponent.mapInterfaces;
+    const components = this.vComponent.mapInterfaces;
+    if (id && components && this.getMapInterface(id)) {
       for (let i = components.length - 1; i >= 0; i--) {
         if (components[i].id === id) {
-          this.vComponent.mapInterfaces.splice(i, 1);
+          components.splice(i, 1);
           const vmControls = this.vComponent && this.vComponent.$refs.mapInterfaces && this.vComponent.$refs.mapInterfaces.interfaces;
           delete vmControls[id];
           break;
