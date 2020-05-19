@@ -13,12 +13,24 @@
 @map-message-background: rgba(0, 0, 0, 0.85);
 @map-dark-text-color: fade(@white, 85%);
 
+@map-border-color: @primary-3;
+@map-bg-color: fade(@primary-1, 85%);
+
 // Shadow
 @map-dark-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+@map-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15);
+@map-drop-shadow: drop-shadow(0 0 4px @primary-5);
+
+// Font
+@map-font-size: 14px;
+@map-font-size-sm: 12px;
+
+// Border
+@map-border-radius: 2px;
 
 // z-index 层级序列排序
 @zindex-map-preloading: 2000;
 @zindex-map-message: 2090;
 @zindex-map-control: 1010;
-@zindex-map-interface: 1100;
-@zindex-map-component: 1200;
+@zindex-map-interface: 2010;
+@zindex-map-component: 1100;

@@ -1,0 +1,43 @@
+/** 
+ * @文件说明: 定义地图MouseTooltip交互组件样式
+ * @创建人: pjtools@vip.qq.com 
+ * @创建时间: 2020-05-18 18:59:34 
+ */
+
+@import '../../../style/themes/default';
+
+@mousetooltip-prefix-cls: ~'@{map-prefix-cls}-interface-mousetooltip';
+
+.@{mousetooltip-prefix-cls} {
+  display: flex;
+  align-items: center;
+  font-size: @map-font-size-sm;
+  border: 1px solid @map-border-color;
+  background-color: @map-bg-color;
+  border-radius: @map-border-radius;
+  line-height: 1;
+  padding: 4px 6px;
+  box-shadow: @map-shadow-base;
+  user-select: none;
+
+  & > .icon {
+    color: @primary-color;
+    align-self: flex-start;
+    transform: translateY(0.5px);
+  }
+  & > .icon + .content {
+    margin-left: 5px;
+  }
+
+  &.pure-icon {
+    padding: 0;
+    border: none;
+    font-size: @map-font-size;
+    background-color: transparent;
+    box-shadow: none;
+
+    & > .icon {
+      filter: @map-drop-shadow;
+    }
+  }
+}
