@@ -19,8 +19,8 @@ class Handlers extends BasicMapApi {
 
     // 初始化内置地图交互对象
     this.map = this.iMapApi && this.iMapApi.map;
-    !this.map.pjDragPan && (this.map.pjDragPan = new DragPan(this.iMapApi));
     !this.map.pjCursor && (this.map.pjCursor = new Cursor(this.iMapApi));
+    !this.map.pjDragPan && (this.map.pjDragPan = new DragPan(this.iMapApi));
   }
 
   /**
