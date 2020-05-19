@@ -5,6 +5,7 @@
  */
 
 import { isArray } from '../../_util/methods-util';
+import { getComponentFromProp, filterEmpty } from '../../_util/antdv';
 
 export default {
   inject: {
@@ -31,6 +32,21 @@ export default {
         mapProvider: { iMapApi },
       } = this;
       return iMapApi;
+    },
+  },
+  methods: {
+    // 根据定义的Prop属性值获取Slot插槽对象
+    getSlotFromProp(name) {
+      let prefix = this.$options.name.replace('PjMap.', '');
+      prefix = `${prefix.toLowerCase()}.${name}`;
+      // 查找具名插槽对象
+      return getComponentFromProp(this.iMapApi.component, prefix, {}, false) || null;
+    },
+
+    // 渲染指定具名Slot插槽
+    renderSlotScopeNodes(name, options = {}) {
+      const slotNodes = this.getSlotFromProp(name);
+      return slotNodes ? filterEmpty(slotNodes(options)) : null;
     },
   },
 };
