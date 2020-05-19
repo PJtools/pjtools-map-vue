@@ -11,8 +11,6 @@ export default () => ({
   id: PropTypes.string.isRequired,
   // 地图组件Class样式名
   className: PropTypes.string,
-  // 地图组件Style样式s
+  // 地图组件Style样式
   styles: PropTypes.object,
-  // 地图组件的偏移量
-  offset: PropTypes.array,
 });
