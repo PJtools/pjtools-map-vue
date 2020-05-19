@@ -19,6 +19,14 @@ class DragPan {
    * @param {Object} options 漫游交互的选项
    */
   enable(options = {}) {
+    // 判断当前地图的光标是否有关联的交互对象
+    if (this.iMapApi && this.iMapApi.Handlers && this.iMapApi.Handlers.cursor) {
+      const cursor = this.iMapApi.Handlers.cursor;
+      if (cursor.isEnabled()) {
+        cursor.disable();
+      }
+    }
+    // 触发地图漫游激活
     this.dragPan && this.dragPan.enable(options);
   }
 
