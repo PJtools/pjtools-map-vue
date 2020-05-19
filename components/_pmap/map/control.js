@@ -10,7 +10,7 @@ const control = {
    * @param {String} id 地图控件的Id名
    */
   getMapControl(id) {
-    const controls = this.vComponent && this.vComponent.$refs.mapControls && this.vComponent.$refs.mapControls.controls;
+    const controls = this.component && this.component.$refs.mapControls && this.component.$refs.mapControls.controls;
     return controls && controls[id] ? controls[id].child : null;
   },
 
@@ -20,7 +20,7 @@ const control = {
    * @param {Control} control 地图控件对象
    */
   addControl(id, control = {}) {
-    const controls = this.vComponent.mapControls;
+    const controls = this.component.mapControls;
     if (id && controls && !this.getMapControl(id)) {
       control.id = id;
       controls.push(control);
@@ -32,12 +32,12 @@ const control = {
    * @param {String} id 地图控件的Id名
    */
   removeControl(id) {
-    const controls = this.vComponent.mapControls;
+    const controls = this.component.mapControls;
     if (id && controls && this.getMapControl(id)) {
       for (let i = controls.length - 1; i >= 0; i--) {
         if (controls[i].id === id) {
           controls.splice(i, 1);
-          const vmControls = this.vComponent && this.vComponent.$refs.mapControls && this.vComponent.$refs.mapControls.controls;
+          const vmControls = this.component && this.component.$refs.mapControls && this.component.$refs.mapControls.controls;
           delete vmControls[id];
           break;
         }

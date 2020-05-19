@@ -10,7 +10,7 @@ const interfaces = {
    * @param {String} id 地图交互组件的Id名
    */
   getMapInterface(id) {
-    const interfaces = this.vComponent && this.vComponent.$refs.mapInterfaces && this.vComponent.$refs.mapInterfaces.interfaces;
+    const interfaces = this.component && this.component.$refs.mapInterfaces && this.component.$refs.mapInterfaces.interfaces;
     return interfaces && interfaces[id] ? interfaces[id].child : null;
   },
 
@@ -21,7 +21,7 @@ const interfaces = {
    * @param {Control} component 地图交互组件参数选项
    */
   addMapInterface(id, type, component = {}) {
-    const components = this.vComponent && this.vComponent.mapInterfaces;
+    const components = this.component && this.component.mapInterfaces;
     if (id && components && !this.getMapInterface(id)) {
       component.id = id;
       component.type = type;
@@ -34,12 +34,12 @@ const interfaces = {
    * @param {String} id 地图交互组件的唯一Id名
    */
   removeMapInterface(id) {
-    const components = this.vComponent.mapInterfaces;
+    const components = this.component.mapInterfaces;
     if (id && components && this.getMapInterface(id)) {
       for (let i = components.length - 1; i >= 0; i--) {
         if (components[i].id === id) {
           components.splice(i, 1);
-          const vmControls = this.vComponent && this.vComponent.$refs.mapInterfaces && this.vComponent.$refs.mapInterfaces.interfaces;
+          const vmControls = this.component && this.component.$refs.mapInterfaces && this.component.$refs.mapInterfaces.interfaces;
           delete vmControls[id];
           break;
         }
