@@ -10,3 +10,5 @@ import '../controls/attribution/index.less';
 import '../controls/navigation/index.less';
 import '../controls/scale/index.less';
 import '../controls/mouse-coordinates/index.less';
+// 地图UI交互组件
+import '../interfaces/mouse-tooltip/index.less';
