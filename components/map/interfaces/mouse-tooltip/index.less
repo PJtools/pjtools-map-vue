@@ -18,12 +18,16 @@
   line-height: 1;
   padding: 4px 6px;
   box-shadow: @map-shadow-base;
+  transition: none !important;
   user-select: none;
 
   & > .icon {
     color: @primary-color;
     align-self: flex-start;
     transform: translateY(0.5px);
+  }
+  & > .content {
+    white-space: nowrap;
   }
   & > .icon + .content {
     margin-left: 5px;
