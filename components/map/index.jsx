@@ -86,6 +86,7 @@ const Map = {
           message: _vm.message,
           iMapApi: _vm.iMapApi,
           $slots: _vm.$slots,
+          $scopedSlots: _vm.$scopedSlots,
         };
       },
     });
@@ -115,6 +116,7 @@ const Map = {
     },
   },
   mounted() {
+    this.proxyVm._data.$scopedSlots = this.$scopedSlots;
     this.preloadMapPluginsDll();
   },
   beforeDestroy() {
@@ -247,7 +249,7 @@ const Map = {
         new PJtoolsMap(this.$refs.PJMapViewWrapper, exports, config, {
           onRender: iMapApi => {
             this.iMapApi = iMapApi;
-            this.iMapApi.vComponent = this;
+            this.iMapApi.component = this;
             this.proxyVm._data.iMapApi = this.iMapApi;
             // 更新Pre-Loading的提示语
             this.description = '地图正在加载图层源数据';
