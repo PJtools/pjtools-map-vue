@@ -36,6 +36,7 @@ import {
 } from '../_util/methods-util';
 import { topTileExtentToGauss, topTileExtentToWMTS, topTileExtentToResolution } from '../_pmap/util/topTileExtent';
 import transform from '../_pmap/util/transform';
+import DOM from '../_pmap/util/dom';
 import Query from '../_pmap/query';
 import PJtoolsMap from '../_pmap';
 import mapProps from './mapProps';
@@ -333,6 +334,8 @@ Map.$methods = {
 };
 // 对外挂接互联网坐标转换静态方法
 Map.$transform = transform;
+// 对外挂接常见DOM操作静态方法
+Map.$dom = DOM;
 // 对外挂接Web GIS Service服务查询静态方法
 Map.$query = new Query();
 
