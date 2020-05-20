@@ -6,6 +6,7 @@
 
 import hat from 'hat';
 import assign from 'lodash/assign';
+import DOM from '../util/dom';
 import { isEmpty, isBooleanFlase, isString, isFunction } from '../../_util/methods-util';
 
 // 地图光标的默认选项参数
@@ -78,8 +79,8 @@ class Cursor {
     // 判断是否需激活光标提示框组件
     if (this.component) {
       this.component.enable(this._options.tip);
-      // 绑定光标的事件监控
-      this.iMapApi.on(`${this._id}.mousemove`, 'mousemove', this._handleMapCursorMouseMove.bind(this));
+      // 绑定交互事件
+      this._eventMove = DOM.onEventListener(window.document, 'mousemove', this._handleMapCursorMouseMove.bind(this));
       this.iMapApi.on(`${this._id}.mouseover`, 'mouseover', this._handleMapCursorMouseOver.bind(this));
       this.iMapApi.on(`${this._id}.mouseout`, 'mouseout', this._handleMapCursorMouseOut.bind(this));
     }
@@ -100,8 +101,11 @@ class Cursor {
     // 移除光标提示框组件
     if (this.component) {
       this.component.disable();
-      // 解绑光标的事件
-      this.iMapApi.off(`${this._id}.mousemove`);
+      // 解绑事件
+      if (this._eventMove) {
+        this._eventMove.remove();
+        delete this._eventMove;
+      }
       this.iMapApi.off(`${this._id}.mouseover`);
       this.iMapApi.off(`${this._id}.mouseout`);
     }
@@ -165,13 +169,14 @@ class Cursor {
     if (!this._enabled || !this._active || !this._component) {
       return;
     }
+    const point = DOM.mousePos(this._element, e);
     let left = this._options.cursor && this._options.cursor === 'default' ? 18 : 12;
     let top = this._options.cursor && this._options.cursor === 'default' ? 6 : 4;
     this._options.offset && this._options.offset[0] && (left += Number(this._options.offset[0]));
     this._options.offset && this._options.offset[1] && (top += Number(this._options.offset[1]));
     this._component.updateMousePostion({
-      top: `${e.point.y + top}px`,
-      left: `${e.point.x + left}px`,
+      left: `${point.x + left}px`,
+      top: `${point.y + top}px`,
     });
   }
 
