@@ -187,6 +187,7 @@ const PJtoolsMap = (function() {
   const _Providers = Symbol('Providers');
   const _Services = Symbol('Services');
   const _Query = Symbol('Query');
+  const _Evented = Symbol('Evented');
   const _Handlers = Symbol('Handlers');
 
   class PJtoolsMap {
@@ -280,6 +281,14 @@ const PJtoolsMap = (function() {
      */
     get Query() {
       return this[_Query];
+    }
+
+    /**
+     * PJtoolsMap的二级属性 - Evented地图内置自定义事件对象
+     * @readonly
+     */
+    get Evented() {
+      return this[_Evented];
     }
 
     /**
@@ -463,6 +472,8 @@ const PJtoolsMap = (function() {
         this[_map] = map;
         // 绑定PJtoolsMap.Query对象
         this[_Query] = new Query(this);
+        // 绑定PJtoolsMap.Evented对象
+        this[_Evented] = new mapboxgl.Evented();
       };
 
       // 判断内置初始底图服务源，则强制覆盖地图的属性
