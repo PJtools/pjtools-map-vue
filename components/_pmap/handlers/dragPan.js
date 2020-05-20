@@ -4,6 +4,8 @@
  * @创建时间: 2020-05-14 14:08:40
  */
 
+import { isFunction } from '../../_util/methods-util';
+
 class DragPan {
   constructor(iMapApi) {
     this.iMapApi = iMapApi;
@@ -19,13 +21,9 @@ class DragPan {
    * @param {Object} options 漫游交互的选项
    */
   enable(options = {}) {
+    const cursor = this.iMapApi && this.iMapApi.Handlers && this.iMapApi.Handlers.cursor;
     // 判断当前地图的光标是否有关联的交互对象
-    if (this.iMapApi && this.iMapApi.Handlers && this.iMapApi.Handlers.cursor) {
-      const cursor = this.iMapApi.Handlers.cursor;
-      if (cursor.isEnabled()) {
-        cursor.disable();
-      }
-    }
+    cursor && cursor.handler && isFunction(cursor.handler.disable) && cursor.handler.disable();
     // 触发地图漫游激活
     this.dragPan && this.dragPan.enable(options);
   }

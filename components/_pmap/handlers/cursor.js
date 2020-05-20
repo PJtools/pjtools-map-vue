@@ -57,6 +57,10 @@ class Cursor {
     return this._component;
   }
 
+  get handler() {
+    return this._handler || null;
+  }
+
   /**
    * 激活地图光标
    * @param {Object} options 地图光标的选项
@@ -69,9 +73,11 @@ class Cursor {
       const tip = isString(this._options.tip) ? { content: this._options.tip } : this._options.tip;
       this._options.tip = assign({}, defaultCursorTooltipOptions, tip);
     }
-    // 判断是否有关联交互对象
+    // 判断是否有历史关联交互对象则清除
     if (this._handler) {
-      this._handler.disable && isFunction(this._handler.disable) && this._handler.disable();
+      if (handler !== this._handler && this._handler.disable && isFunction(this._handler.disable)) {
+        this._handler.disable();
+      }
       this._handler = null;
     }
     // 设置当前地图光标模式
@@ -94,7 +100,7 @@ class Cursor {
   /**
    * 禁用地图光标
    */
-  disable() {
+  disable(autoHandlerDisable = true) {
     if (!this.isEnabled()) {
       return;
     }
@@ -111,17 +117,19 @@ class Cursor {
     }
     // 清除当前地图光标模式
     this._setMapCursorStyle(null);
-    // 清除地图光标模式的选项
+    // 清除地图光标模式的参数选项
     this._options = defaultCursorOptions;
-    // 判断是否有关联交互对象
-    if (this._handler) {
-      this._handler.disable && isFunction(this._handler.disable) && this._handler.disable();
-      this._handler = null;
-    }
     // 还原状态
     this._visible = false;
     this._enabled = false;
     this._active = false;
+    // 判断是否有关联交互对象
+    if (this._handler) {
+      if (!isBooleanFlase(autoHandlerDisable) && this._handler.disable && isFunction(this._handler.disable)) {
+        this._handler.disable();
+      }
+      this._handler = null;
+    }
   }
 
   /**
