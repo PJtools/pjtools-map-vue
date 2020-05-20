@@ -94,6 +94,9 @@ class Cursor {
    * 禁用地图光标
    */
   disable() {
+    if (!this.isEnabled()) {
+      return;
+    }
     // 移除光标提示框组件
     if (this.component) {
       this.component.disable();
