@@ -7,11 +7,12 @@
 import BasicMapApi from '../util/basicMapApiClass';
 import DragPan from './dragPan';
 import Cursor from './cursor';
+import ZoomInOut from './zoomInOut';
 
 class Handlers extends BasicMapApi {
   /**
    * Handlers地图内置交互
-   * 其中包括：[ dragRotate | scrollZoom | boxZoom | keyboard | doubleClickZoom | touchZoomRotate | dragPan | Cursor ]
+   * 其中包括：[ dragRotate | scrollZoom | boxZoom | keyboard | doubleClickZoom | touchZoomRotate | dragPan | Cursor | ZoomInOut ]
    * @param {MapApi} iMapApi 地图Api实例化对象
    */
   constructor(...arg) {
@@ -21,6 +22,7 @@ class Handlers extends BasicMapApi {
     this.map = this.iMapApi && this.iMapApi.map;
     !this.map.pjCursor && (this.map.pjCursor = new Cursor(this.iMapApi));
     !this.map.pjDragPan && (this.map.pjDragPan = new DragPan(this.iMapApi));
+    !this.map.pjZoomInOut && (this.map.pjZoomInOut = new ZoomInOut(this.iMapApi));
   }
 
   /**
@@ -95,6 +97,14 @@ class Handlers extends BasicMapApi {
    */
   get cursor() {
     return this.map && this.map.pjCursor;
+  }
+
+  /**
+   * 获取 ZoomInOut 地图鼠标拉框放大缩小对象（操作：鼠标左键单击 + 拖拽）
+   * @readonly
+   */
+  get zoomInOut() {
+    return this.map && this.map.pjZoomInOut;
   }
 }
 
