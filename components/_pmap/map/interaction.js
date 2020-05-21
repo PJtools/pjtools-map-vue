@@ -9,7 +9,7 @@ const interaction = {
    * 根据地图交互组件Id获取组件Component对象
    * @param {String} id 地图交互组件的Id名
    */
-  getMapInteraction(id) {
+  getUserInteraction(id) {
     const interactions = this.component && this.component.$refs.mapInteractions && this.component.$refs.mapInteractions.interactions;
     return interactions && interactions[id] ? interactions[id].child : null;
   },
@@ -20,9 +20,9 @@ const interaction = {
    * @param {String} type 地图交互组件的组件类型
    * @param {Control} component 地图交互组件参数选项
    */
-  addMapInteraction(id, type, component = {}) {
+  addUserInteraction(id, type, component = {}) {
     const components = this.component && this.component.mapInteractions;
-    if (id && components && !this.getMapInteraction(id)) {
+    if (id && components && !this.getUserInteraction(id)) {
       component.id = id;
       component.type = type;
       components.push(component);
@@ -33,9 +33,9 @@ const interaction = {
    * 根据地图交互组件的唯一Id移除组件
    * @param {String} id 地图交互组件的唯一Id名
    */
-  removeMapInteraction(id) {
+  removeUserInteraction(id) {
     const components = this.component.mapInteractions;
-    if (id && components && this.getMapInteraction(id)) {
+    if (id && components && this.getUserInteraction(id)) {
       for (let i = components.length - 1; i >= 0; i--) {
         if (components[i].id === id) {
           components.splice(i, 1);

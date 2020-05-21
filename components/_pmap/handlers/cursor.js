@@ -39,7 +39,7 @@ class Cursor {
     // 光标的参数选项
     this._options = defaultCursorOptions;
     // 光标的UI交互组件对象
-    this.iMapApi && this.iMapApi.addMapInteraction(this._id, 'MouseTooltip');
+    this.iMapApi && this.iMapApi.addUserInteraction(this._id, 'MouseTooltip');
     // 光标的手动显隐状态
     this._visible = false;
     // 光标的当前关联Handler/Interactions实例对象（需实现统一标准：disable 函数方法）
@@ -52,7 +52,7 @@ class Cursor {
 
   get component() {
     if (!this._component) {
-      this._component = this.iMapApi.getMapInteraction(this._id);
+      this._component = this.iMapApi.getUserInteraction(this._id);
     }
     return this._component;
   }
