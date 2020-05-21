@@ -19,6 +19,7 @@ import { default as mapPrototypes } from './map';
 import Providers from './providers';
 import Services from './layers/services';
 import Handlers from './handlers';
+import Interfaces from './interfaces';
 import Query from './query';
 
 // 默认Mapbox地图的Style对象
@@ -189,6 +190,7 @@ const PJtoolsMap = (function() {
   const _Query = Symbol('Query');
   const _Evented = Symbol('Evented');
   const _Handlers = Symbol('Handlers');
+  const _Interfaces = Symbol('Interfaces');
 
   class PJtoolsMap {
     /**
@@ -292,11 +294,19 @@ const PJtoolsMap = (function() {
     }
 
     /**
-     * PJtoolsMap的二级属性 - Handlers地图内置Handlers交互对象
+     * PJtoolsMap的二级属性 - Handlers地图内置唯一交互对象
      * @readonly
      */
     get Handlers() {
       return this[_Handlers];
+    }
+
+    /**
+     * PJtoolsMap的二级属性 - Interfaces地图交互型对象
+     * @readonly
+     */
+    get Interfaces() {
+      return this[_Interfaces];
     }
 
     /**
@@ -438,6 +448,8 @@ const PJtoolsMap = (function() {
             }
             // 绑定PJtoolsMap.Handlers对象
             this[_Handlers] = new Handlers(this);
+            // 绑定PJtoolsMap.Interfaces对象
+            this[_Interfaces] = new Interfaces(this);
             // 判断是否触发回调地图的数据加载完成回调事件
             isFunction(cb.onLoad) && cb.onLoad.call(this, this);
           }
