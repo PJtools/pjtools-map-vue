@@ -1,5 +1,5 @@
 /**
- * @文件说明: Map.Interfaces - 地图UI组件交互
+ * @文件说明: Map.Interactions - 地图交互组件
  * @创建人: pjtools@vip.qq.com
  * @创建时间: 2020-05-18 13:56:44
  */
@@ -8,22 +8,22 @@ import { PropTypes } from '../../_util/antdv';
 import { isNotEmptyArray } from '../../_util/methods-util';
 import MouseTooltip from './mouse-tooltip';
 
-const Interfaces = {
-  name: 'PjMap.Interfaces',
+const Interactions = {
+  name: 'PjMap.Interactions',
   props: {
     data: PropTypes.array,
   },
   data() {
     return {
-      interfaces: {},
+      interactions: {},
     };
   },
   inject: {
     mapProvider: { default: () => {} },
   },
   methods: {
-    // 动态渲染地图UI交互式组件
-    renderInterfacesComponents() {
+    // 动态渲染地图交互式组件
+    renderInteractionsComponents() {
       const { data } = this;
       return (
         data &&
@@ -41,15 +41,15 @@ const Interfaces = {
               break;
             }
           }
-          this.interfaces[item.id] = component;
+          this.interactions[item.id] = component;
           return component;
         })
       );
     },
   },
   render() {
-    return <section data-type="interface">{this.renderInterfacesComponents()}</section>;
+    return <section data-type="interaction">{this.renderInteractionsComponents()}</section>;
   },
 };
 
-export default Interfaces;
+export default Interactions;

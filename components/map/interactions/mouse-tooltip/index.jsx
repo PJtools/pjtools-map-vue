@@ -1,5 +1,5 @@
 /**
- * @文件说明: Interfaces.MouseTooltip - 光标跟随气泡提示框
+ * @文件说明: Interactions.MouseTooltip - 光标跟随气泡提示框
  * @创建人: pjtools@vip.qq.com
  * @创建时间: 2020-05-18 14:13:35
  */
@@ -7,11 +7,11 @@
 import baseProps from '../baseProps';
 import baseMixin from '../baseMixin';
 import { getComponentFromProp } from '../../../_util/antdv';
-import { isEmpty, isFunction, isBooleanTrue } from '../../../_util/methods-util';
+import { isFunction, isBooleanTrue } from '../../../_util/methods-util';
 import { Icon } from 'ant-design-vue';
 
 const MouseTooltip = {
-  name: 'PjMap.Interfaces.MouseTooltip',
+  name: 'PjMap.Interactions.MouseTooltip',
   inheritAttrs: false,
   mixins: [baseMixin],
   props: baseProps(),
@@ -58,7 +58,7 @@ const MouseTooltip = {
       } = this;
       const cls = [
         ...classes,
-        `${prefixCls}-interface-mousetooltip`,
+        `${prefixCls}-interactions-mousetooltip`,
         {
           'pure-icon': isPureIconMode,
         },

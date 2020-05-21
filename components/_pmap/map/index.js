@@ -11,7 +11,7 @@ import resource from './resource';
 import event from './event';
 import proj4 from './proj4';
 import control from './control';
-import interfaces from './interface';
+import interaction from './interaction';
 
 export default {
   // 地图“数据源”管理相关功能方法
@@ -28,6 +28,6 @@ export default {
   ...proj4,
   // 地图“控件”管理相关功能方法
   ...control,
-  // 地图“UI交互组件”管理相关功能方法
-  ...interfaces,
+  // 地图“交互组件”管理相关功能方法
+  ...interaction,
 };

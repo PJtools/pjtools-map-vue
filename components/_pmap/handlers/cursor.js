@@ -35,14 +35,14 @@ class Cursor {
     // 获取地图Canvas容器对象，确定地图光标的范围
     this._element = iMapApi && iMapApi.getMapCanvasConatainer();
     // 光标实例对象的唯一Id
-    this._id = `pjmap_interface_mouse_tooltip_${hat()}`;
+    this._id = `pjmap_interaction_mouse_tooltip_${hat()}`;
     // 光标的参数选项
     this._options = defaultCursorOptions;
     // 光标的UI交互组件对象
-    this.iMapApi && this.iMapApi.addMapInterface(this._id, 'MouseTooltip');
+    this.iMapApi && this.iMapApi.addMapInteraction(this._id, 'MouseTooltip');
     // 光标的手动显隐状态
     this._visible = false;
-    // 光标的当前关联Handler/Interfacess实例对象（需实现统一标准：disable 函数方法）
+    // 光标的当前关联Handler/Interactions实例对象（需实现统一标准：disable 函数方法）
     this._handler = null;
     // 光标禁用/启用状态
     this._enabled = false;
@@ -52,7 +52,7 @@ class Cursor {
 
   get component() {
     if (!this._component) {
-      this._component = this.iMapApi.getMapInterface(this._id);
+      this._component = this.iMapApi.getMapInteraction(this._id);
     }
     return this._component;
   }

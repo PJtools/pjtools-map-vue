@@ -1,5 +1,5 @@
 /**
- * @文件说明: 定义地图UI交互组件的基础Mixin
+ * @文件说明: 定义地图交互组件的基础Mixin
  * @创建人: pjtools@vip.qq.com
  * @创建时间: 2020-05-18 15:46:39
  */
@@ -17,7 +17,7 @@ export default {
         mapProvider: { prefixCls },
         className,
       } = this;
-      const cls = [`${prefixCls}-interfaces-wrapper`];
+      const cls = [`${prefixCls}-interactions-wrapper`];
       if (className) {
         if (isArray(className)) {
           cls.push(...className);
