@@ -6,7 +6,9 @@
 
 import BasicMapApi from '../../util/basicMapApiClass';
 import hat from 'hat';
-import { isNumeric } from '../../../_util/methods-util';
+import cloneDeep from 'lodash/cloneDeep';
+import round from 'lodash/round';
+import { isEmpty, isNumeric, isNotEmptyArray, isString } from '../../../_util/methods-util';
 
 // 矢量图层的原生MapboxGL默认参数
 export const defaultVectorLayerOptions = {
@@ -63,9 +65,6 @@ class BasicLayerClass extends BasicMapApi {
   get opacity() {
     return this[_opacity];
   }
-  set opacity(value) {
-    this[_opacity] = getCheckOpacity(value);
-  }
 
   constructor(iMapApi, id, layerOptions, options) {
     super(iMapApi);
@@ -73,9 +72,37 @@ class BasicLayerClass extends BasicMapApi {
     this[_turf] = iMapApi && iMapApi.exports && iMapApi.exports.turf;
     this[_id] = id || hat();
     layerOptions.id = this[_id];
-    this[_initLayerOptions] = layerOptions;
+    this[_initLayerOptions] = cloneDeep(layerOptions);
+
+    // 设定图层的Paint属性透明度
+    if (options.opacityPaints && !isEmpty(options.opacity)) {
+      options.opacity = getCheckOpacity(options.opacity);
+      layerOptions.paint = setLayerPaintOpacity(this[_initLayerOptions].paint, options.opacityPaints, options.opacity);
+    }
+    this[_opacity] = options.opacity;
     this[_options] = options;
-    this.opacity = (options && options.opacity) || 1;
+
+    // 设置图层数据源
+    if (layerOptions && layerOptions.type !== 'background') {
+      const features = options.data && isNotEmptyArray(options.data) ? options.data : [];
+      // 获取字符串型数据源的数据集合
+      if (layerOptions.source && isString(layerOptions.source)) {
+        const source = iMapApi.getSource(layerOptions.source);
+        // 如果存在数据源则直接追加数据集合
+        if (source) {
+          const sourceFeatures = getSourceFeatures(source._data);
+          sourceFeatures.push(...features);
+          source.setData(this.turf.featureCollection(sourceFeatures));
+        } else {
+          layerOptions.source = { type: 'geojson', data: this.turf.featureCollection(features) };
+        }
+      } else {
+        const sourceData = layerOptions.source && layerOptions.source.data;
+        features.push(...getSourceFeatures(sourceData));
+        // 追加数据源
+        layerOptions.source = { type: 'geojson', data: this.turf.featureCollection(features) };
+      }
+    }
 
     // 添加图层到地图Map中
     if (iMapApi) {
@@ -112,6 +139,26 @@ class BasicLayerClass extends BasicMapApi {
     const map = this.iMapApi.map;
     map.setPaintProperty(this.id, key, value, options);
   }
+
+  // 设置图层的整体透明度
+  // 注意：
+  // 1、透明度是根据初始图层样式进行相乘计算而来；
+  // 2、如属性值为表达式则忽略
+  setOpacity(opacity, paints = []) {
+    if (this[_opacity] !== opacity) {
+      this[_opacity] = getCheckOpacity(opacity);
+    }
+    const copyPaint = cloneDeep(this.layerOptions.paint);
+    paints &&
+      paints.map(key => {
+        if (isNumeric(this.getPaint(key)) && isNumeric(copyPaint[key])) {
+          this.setPaint(key, round(copyPaint[key] * this.opacity, 2));
+        }
+      });
+  }
+
+  // 获取当前图层的数据Features集合
+  getLayerToFeatures() {}
 }
 
 export default BasicLayerClass;
@@ -122,4 +169,34 @@ export const getCheckOpacity = function(opacity) {
   _value > 1 && (_value = 1);
   _value < 0 && (_value = 0);
   return _value;
+};
+
+// 设置图层的Paint透明度属性
+export const setLayerPaintOpacity = function(paint, properties, ratio) {
+  isString(properties) && (properties = [properties]);
+  const copyPaint = cloneDeep(paint);
+  properties &&
+    properties.map(key => {
+      if (copyPaint[key] && isNumeric(copyPaint[key])) {
+        const opacity = getCheckOpacity(copyPaint[key]);
+        copyPaint[key] = round(opacity * ratio, 2);
+      }
+    });
+  return copyPaint;
+};
+
+// 获取图层Source数据源的Feature集合
+export const getSourceFeatures = function(data) {
+  const features = [];
+  if (data && data.type) {
+    switch (data.type) {
+      case 'Feature':
+        features.push(data);
+        break;
+      case 'FeatureCollection':
+        features.push(...data.features);
+        break;
+    }
+  }
+  return features;
 };
