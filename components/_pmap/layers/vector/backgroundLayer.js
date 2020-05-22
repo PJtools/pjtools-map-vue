@@ -41,11 +41,17 @@ class BackgroundLayer extends BasicLayerClass {
    * @param {Number} opacity 待设定的透明度
    */
   setOpacity(opacity) {
-    const currentOpacity = this.getPaint('background-opacity');
-    if (opacity !== currentOpacity) {
+    if (opacity !== this.opacity) {
       this.setPaint('background-opacity', opacity);
       this.opacity = opacity;
     }
+  }
+
+  /**
+   * 获取图层的背景色
+   */
+  getColor() {
+    return this.getPaint('background-color');
   }
 
   /**
