@@ -6,6 +6,7 @@
 
 import BasicMapApi from '../util/basicMapApiClass';
 import Fullscreen from './fullscreen';
+import Draw from './draw';
 
 class Interfaces extends BasicMapApi {
   /**
@@ -13,6 +14,13 @@ class Interfaces extends BasicMapApi {
    */
   fullscreen() {
     return new Fullscreen(this.iMapApi);
+  }
+
+  /**
+   * 获取地图“绘制矢量图形”实例对象
+   */
+  draw(options = {}) {
+    return new Draw(this.iMapApi, options);
   }
 }
 
