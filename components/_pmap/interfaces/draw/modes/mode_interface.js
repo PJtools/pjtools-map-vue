@@ -4,7 +4,7 @@
  * @创建时间: 2020-05-22 11:25:15
  */
 
-let _context = Symbol('ctx');
+const _context = Symbol('ctx');
 
 class ModeInterface {
   get ctx() {

@@ -5,7 +5,7 @@
  */
 
 const BasicMapApi = (function() {
-  let _iMapApi = Symbol('iMapApi');
+  const _iMapApi = Symbol('iMapApi');
 
   class BasicMapApi {
     get iMapApi() {
@@ -24,7 +24,7 @@ export default BasicMapApi;
 
 // 扩展带自定义事件的基类
 export const BasicMapApiEvented = (function() {
-  let _evented = Symbol('Evented');
+  const _evented = Symbol('Evented');
 
   class BasicMapApiEvented extends BasicMapApi {
     constructor(iMapApi) {
