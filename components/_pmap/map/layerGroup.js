@@ -7,8 +7,7 @@
 import assign from 'lodash/assign';
 import find from 'lodash/find';
 import remove from 'lodash/remove';
-import { isNotEmptyArray, isArray, isBooleanTrue, isBooleanFlase } from '../../_util/methods-util';
-import { getCurrentWMSUrlAndCoordinates } from './layer';
+import { isNotEmptyArray, isArray, isBooleanTrue } from '../../_util/methods-util';
 
 const layerGroup = {
   /**
@@ -23,7 +22,7 @@ const layerGroup = {
   /**
    * 将MapboxGL Layer图层集合添加到指定的图层组对象，并追加到地图Map中
    * @param {String} id 图层组的Id名称
-   * @param {String} layer 图层Id名称
+   * @param {Object} layer 图层对象
    * @param {String} beforeId 待添加到指定图层Id之前
    */
   addLayerToGroup(id, layer, beforeId = null) {
