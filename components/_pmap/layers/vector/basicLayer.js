@@ -8,6 +8,7 @@ import BasicMapApi from '../../util/basicMapApiClass';
 import hat from 'hat';
 import cloneDeep from 'lodash/cloneDeep';
 import round from 'lodash/round';
+import omitBy from 'lodash/omitBy';
 import { isEmpty, isNumeric, isNotEmptyArray, isString } from '../../../_util/methods-util';
 
 // 矢量图层的原生MapboxGL默认参数
@@ -36,6 +37,7 @@ const _turf = Symbol('turf');
 const _initLayerOptions = Symbol('initLayerOptions');
 const _options = Symbol('options');
 const _mapLayer = Symbol('mapLayer');
+const _mapLayerGroup = Symbol('mapLayerGroup');
 
 class BasicLayerClass extends BasicMapApi {
   get id() {
@@ -47,7 +49,7 @@ class BasicLayerClass extends BasicMapApi {
   }
 
   // 初始原生图层参数
-  get layerOptions() {
+  get initLayerOptions() {
     return this[_initLayerOptions];
   }
 
@@ -61,6 +63,11 @@ class BasicLayerClass extends BasicMapApi {
     return this[_mapLayer] || null;
   }
 
+  // 图层组到地图中的对象
+  get mapLayerGroup() {
+    return this[_mapLayerGroup] || null;
+  }
+
   // 图层整体透明度
   get opacity() {
     return this[_opacity];
@@ -71,36 +78,43 @@ class BasicLayerClass extends BasicMapApi {
 
     this[_turf] = iMapApi && iMapApi.exports && iMapApi.exports.turf;
     this[_id] = id || hat();
-    layerOptions.id = this[_id];
-    this[_initLayerOptions] = cloneDeep(layerOptions);
+    // 仅保留专属类型的Paint和Layout属性
+    const copyLayerOptions = cloneDeep(layerOptions);
+    const regexp = new RegExp(`^${copyLayerOptions.type}-.*?`);
+    copyLayerOptions.paint = omitBy(copyLayerOptions.paint, (value, key) => !regexp.test(key));
+    copyLayerOptions.layout = omitBy(copyLayerOptions.layout, (value, key) => !regexp.test(key));
+    copyLayerOptions.layout['visibility'] = layerOptions.layout['visibility'];
+    // 记录初始图层属性
+    copyLayerOptions.id = this[_id];
+    this[_initLayerOptions] = cloneDeep(copyLayerOptions);
 
     // 设定图层的Paint属性透明度
     if (options.opacityPaints && !isEmpty(options.opacity)) {
       options.opacity = getCheckOpacity(options.opacity);
-      layerOptions.paint = setLayerPaintOpacity(this[_initLayerOptions].paint, options.opacityPaints, options.opacity);
+      copyLayerOptions.paint = setLayerPaintOpacity(this[_initLayerOptions].paint, options.opacityPaints, options.opacity);
     }
     this[_opacity] = options.opacity;
     this[_options] = options;
 
     // 设置图层数据源
-    if (layerOptions && layerOptions.type !== 'background') {
+    if (copyLayerOptions && copyLayerOptions.type !== 'background') {
       const features = options.data && isNotEmptyArray(options.data) ? options.data : [];
       // 获取字符串型数据源的数据集合
-      if (layerOptions.source && isString(layerOptions.source)) {
-        const source = iMapApi.getSource(layerOptions.source);
+      if (copyLayerOptions.source && isString(copyLayerOptions.source)) {
+        const source = iMapApi.getSource(copyLayerOptions.source);
         // 如果存在数据源则直接追加数据集合
         if (source) {
           const sourceFeatures = getSourceFeatures(source._data);
           sourceFeatures.push(...features);
           source.setData(this.turf.featureCollection(sourceFeatures));
         } else {
-          layerOptions.source = { type: 'geojson', data: this.turf.featureCollection(features) };
+          copyLayerOptions.source = { type: 'geojson', data: this.turf.featureCollection(features) };
         }
       } else {
-        const sourceData = layerOptions.source && layerOptions.source.data;
+        const sourceData = copyLayerOptions.source && copyLayerOptions.source.data;
         features.push(...getSourceFeatures(sourceData));
         // 追加数据源
-        layerOptions.source = { type: 'geojson', data: this.turf.featureCollection(features) };
+        copyLayerOptions.source = { type: 'geojson', data: this.turf.featureCollection(features) };
       }
     }
 
@@ -108,21 +122,22 @@ class BasicLayerClass extends BasicMapApi {
     if (iMapApi) {
       // 判断是否添加图层组
       if (this[_options].layerGroupId) {
-        this[_mapLayer] = iMapApi.addLayerToGroup(this[_options].layerGroupId, layerOptions, this[_options].beforeId);
-      } else {
-        this[_mapLayer] = iMapApi.addLayer(layerOptions, this[_options].beforeId);
-      }
-      // 判断是否图层已存在
-      if (!this[_mapLayer]) {
-        if (this[_options].layerGroupId) {
-          this[_mapLayer] = iMapApi.getLayer(this[_id], this[_options].layerGroupId);
+        const checkLayer = iMapApi.getLayer(this[_id], this[_options].layerGroupId);
+        if (checkLayer) {
+          this[_mapLayerGroup] = iMapApi.getLayer(this[_options].layerGroupId);
+          this[_mapLayer] = checkLayer;
+          console.error(`图层组[${this[_options].layerGroupId}]中图层[${this[_id]}]已存在，无需重复添加图层.`);
         } else {
-          this[_mapLayer] = iMapApi.getLayer(this[_id]);
+          this[_mapLayerGroup] = iMapApi.addLayerToGroup(this[_options].layerGroupId, copyLayerOptions, this[_options].beforeId);
+          this[_mapLayer] = iMapApi.getLayer(this[_id], this[_options].layerGroupId);
         }
-        if (this[_mapLayer]) {
+      } else {
+        const checkLayer = iMapApi.getLayer(this[_id]);
+        if (checkLayer) {
+          this[_mapLayer] = checkLayer;
           console.error(`图层[${this[_id]}]已存在，无需重复添加图层.`);
         } else {
-          console.error(`图层[${this[_id]}]添加失败，请核查图层参数选项是否有误.`);
+          this[_mapLayer] = iMapApi.addLayer(copyLayerOptions, this[_options].beforeId);
         }
       }
     }
@@ -148,7 +163,7 @@ class BasicLayerClass extends BasicMapApi {
     if (this[_opacity] !== opacity) {
       this[_opacity] = getCheckOpacity(opacity);
     }
-    const copyPaint = cloneDeep(this.layerOptions.paint);
+    const copyPaint = cloneDeep(this.initLayerOptions.paint);
     paints &&
       paints.map(key => {
         if (isNumeric(this.getPaint(key)) && isNumeric(copyPaint[key])) {
@@ -184,6 +199,8 @@ export const setLayerPaintOpacity = function(paint, properties, ratio) {
     });
   return copyPaint;
 };
+
+// 获取图层的指定类型Paint属性
 
 // 获取图层Source数据源的Feature集合
 export const getSourceFeatures = function(data) {

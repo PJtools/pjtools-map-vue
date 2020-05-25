@@ -8,6 +8,7 @@ import BasicMapApi from '../util/basicMapApiClass';
 import BackgroundLayer from './vector/backgroundLayer';
 import CirclePointLayer from './vector/circlePointLayer';
 import LineLayer from './vector/lineLayer';
+import PolygonLayer from './vector/polygonLayer';
 
 class Layers extends BasicMapApi {
   /**
@@ -38,6 +39,16 @@ class Layers extends BasicMapApi {
    */
   addLineLayer(id, layerOptions = {}, options = {}) {
     return new LineLayer(this.iMapApi, id, layerOptions, options);
+  }
+
+  /**
+   * 实例面图层到地图Map中
+   * @param {string} id 图层名称
+   * @param {Object} layerOptions 原生MapboxGL图层的参数选项
+   * @param {Object} options 图层参数选项
+   */
+  addPolygonLayer(id, layerOptions = {}, options = {}) {
+    return new PolygonLayer(this.iMapApi, id, layerOptions, options);
   }
 }
 
