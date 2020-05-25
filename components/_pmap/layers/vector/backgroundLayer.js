@@ -7,13 +7,12 @@
 import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions } from './basicLayer';
 import deepmerge from 'deepmerge';
 
-const defaultLayerOptions = {
+const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
   paint: {
     'background-color': 'rgba(0, 0, 0, 1)',
     'background-opacity': 1,
   },
-  ...defaultVectorLayerOptions,
-};
+});
 
 const defaultOptions = {
   ...defaultVectorBasicOptions,
