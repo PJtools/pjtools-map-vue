@@ -9,6 +9,7 @@ import BackgroundLayer from './vector/backgroundLayer';
 import CirclePointLayer from './vector/circlePointLayer';
 import LineLayer from './vector/lineLayer';
 import PolygonLayer from './vector/polygonLayer';
+import FillExtrusionLayer from './vector/fillExtrusionLayer';
 
 class Layers extends BasicMapApi {
   /**
@@ -49,6 +50,16 @@ class Layers extends BasicMapApi {
    */
   addPolygonLayer(id, layerOptions = {}, options = {}) {
     return new PolygonLayer(this.iMapApi, id, layerOptions, options);
+  }
+
+  /**
+   * 实例3D填充图层到地图Map中
+   * @param {string} id 图层名称
+   * @param {Object} layerOptions 原生MapboxGL图层的参数选项
+   * @param {Object} options 图层参数选项
+   */
+  addFillExtrusionLayer(id, layerOptions = {}, options = {}) {
+    return new FillExtrusionLayer(this.iMapApi, id, layerOptions, options);
   }
 }
 
