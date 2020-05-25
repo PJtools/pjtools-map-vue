@@ -12,6 +12,9 @@ const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
     'background-color': 'rgba(0, 0, 0, 1)',
     'background-opacity': 1,
   },
+  metadata: {
+    layerTypeName: 'BackgroundLayer',
+  },
 });
 
 const defaultOptions = {

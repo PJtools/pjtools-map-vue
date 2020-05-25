@@ -21,6 +21,9 @@ const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
     'line-cap': 'round',
     'line-join': 'round',
   },
+  metadata: {
+    layerTypeName: 'LineLayer',
+  },
 });
 
 const defaultOptions = {
@@ -32,7 +35,6 @@ class LineLayer extends BasicLayerClass {
     const opts = deepmerge.all([{}, defaultOptions, options]);
     opts.opacityPaints = ['line-opacity'];
     // 合并原生Layer图层属性
-    console.log(defaultLayerOptions);
     const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions]);
     layer.type = 'line';
     // 继承矢量图层基类

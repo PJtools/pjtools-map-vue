@@ -17,6 +17,9 @@ const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
     'circle-stroke-opacity': 1,
     'circle-stroke-width': 2,
   },
+  metadata: {
+    layerTypeName: 'CirclePointLayer',
+  },
 });
 
 const defaultOptions = {
