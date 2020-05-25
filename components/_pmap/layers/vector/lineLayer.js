@@ -10,7 +10,7 @@ import { isEmpty } from '../../../_util/methods-util';
 
 const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
   paint: {
-    'line-color': 'rgba(250, 84, 28, 0.9)',
+    'line-color': 'rgba(250, 84, 28, 0.8)',
     'line-opacity': 1,
     'line-width': 4,
     'line-blur': 0,

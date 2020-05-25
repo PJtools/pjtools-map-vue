@@ -13,7 +13,7 @@ const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
     'circle-opacity': 1,
     'circle-radius': 5,
     'circle-blur': 0,
-    'circle-stroke-color': 'rgba(250, 84, 28, 0.9)',
+    'circle-stroke-color': 'rgba(250, 84, 28, 0.8)',
     'circle-stroke-opacity': 1,
     'circle-stroke-width': 2,
   },
