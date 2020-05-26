@@ -12,6 +12,7 @@ import omitBy from 'lodash/omitBy';
 import remove from 'lodash/remove';
 import find from 'lodash/find';
 import filter from 'lodash/filter';
+import assign from 'lodash/assign';
 import { isEmpty, isNumeric, isNotEmptyArray, isArray, isString, isBooleanTrue } from '../../../_util/methods-util';
 
 // 矢量图层的原生MapboxGL默认参数
@@ -335,6 +336,41 @@ class BasicLayerClass extends BasicMapApi {
         });
       });
     return features;
+  }
+
+  /**
+   * 更新当前图层指定的Feature要素的Properties属性集合
+   * @param {Feature} feature 待更新的Feature要素
+   * @param {Feature} properties 待更新的Properties集合
+   * @param {Boolean} merge 是否采用合并模式
+   */
+  updateFeatureByProperties(feature, properties = {}, merge = false) {
+    const features = this.getFeatures();
+    const index = features.indexOf(feature);
+    if (index !== -1) {
+      if (isBooleanTrue(merge)) {
+        features[index].properties = assign({}, features[index].properties, properties);
+      } else {
+        features[index].properties = properties;
+      }
+      // 更新数据集合
+      this.setFeatures(features);
+    }
+  }
+
+  /**
+   * 更新当前图层指定的Feature要素的Geometry属性空间坐标
+   * @param {Feature} feature 待更新的Feature要素
+   * @param {Coordinates} coordinates 待更新的空间坐标数据
+   */
+  updateFeatureByGeometry(feature, coordinates) {
+    const features = this.getFeatures();
+    const index = features.indexOf(feature);
+    if (index !== -1) {
+      features[index].geometry.coordinates = coordinates;
+      // 更新数据集合
+      this.setFeatures(features);
+    }
   }
 
   /**
