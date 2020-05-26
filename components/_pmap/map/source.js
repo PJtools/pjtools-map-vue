@@ -40,6 +40,18 @@ const source = {
   },
 
   /**
+   * 获取指定Id名称的图层数据源的数据集
+   * @param {String} id 数据源Id名称
+   */
+  getSourceData(id) {
+    const source = this.getSource(id);
+    if (source) {
+      return source._data;
+    }
+    return null;
+  },
+
+  /**
    * 添加图层数据源到地图Map中
    * @param {String} id 数据源Id名称
    * @param {Object} source 数据源对象
