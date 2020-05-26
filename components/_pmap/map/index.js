@@ -7,6 +7,7 @@
 import source from './source';
 import layer from './layer';
 import layerGroup from './layerGroup';
+import feature from './feature';
 import resource from './resource';
 import event from './event';
 import proj4 from './proj4';
@@ -20,6 +21,8 @@ export default {
   ...layer,
   // 地图“图层组”管理相关功能方法
   ...layerGroup,
+  // 地图“要素”管理相关功能方法
+  ...feature,
   // 地图“资源”管理相关功能方法
   ...resource,
   // 地图“事件”管理相关功能方法

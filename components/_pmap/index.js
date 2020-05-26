@@ -915,8 +915,8 @@ const PJtoolsMap = (function() {
     /**
      * 以过渡动画的形式，将地图缩放到指定的地理范围
      * @param {Array} bounds 待设定的地理范围，格式：[[minx, miny], [maxx, maxy]]
-     * @param {Number} maxZoom 缩放指定的地理范围时，指定最大层级
-     * @param {Number} duration 过渡动画时间，单位毫秒，默认1000
+     * @param {Number} duration 过渡动画时间，单位毫秒，默认500
+     * @param {Object} options 动画的选项
      */
     boundsTo(bounds, duration = 500, options = {}) {
       return new Promise(resolve => {
