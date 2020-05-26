@@ -1012,6 +1012,22 @@ const PJtoolsMap = (function() {
     }
 
     /**
+     * 将地理坐标转换成屏幕坐标
+     * @param {LngLat} lnglat 待转换的地理坐标
+     */
+    project(lnglat) {
+      return this.map && lnglat && this.map.project(lnglat);
+    }
+
+    /**
+     * 将屏幕坐标转换成地理坐标
+     * @param {Point} point 待转换的屏幕坐标
+     */
+    unproject(point) {
+      return this.map && point && this.map.unproject(point);
+    }
+
+    /**
      * 根据标识Key获取查询分析服务对象
      * @param {String} key 唯一标识Key名
      */
