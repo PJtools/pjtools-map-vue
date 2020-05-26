@@ -20,6 +20,18 @@ const layerGroup = {
   },
 
   /**
+   * 获取指定图层组对象的图层Id集合
+   * @param {String} id 待检测的图层组的Id名称
+   */
+  getLayerGroupByIds(id) {
+    if (this.isLayerGroup(id)) {
+      const layerGroup = this.getLayer(id);
+      return layerGroup.layers.map(layer => layer.id);
+    }
+    return null;
+  },
+
+  /**
    * 将MapboxGL Layer图层集合添加到指定的图层组对象，并追加到地图Map中
    * @param {String} id 图层组的Id名称
    * @param {Object} layer 图层对象

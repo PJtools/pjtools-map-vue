@@ -331,14 +331,12 @@ const layer = {
       layer && layer.type === 'raster' && layers.push(layer);
     } else {
       const layer = this.getLayer(id);
-      if (layer) {
-        if (this.isLayerGroup(id)) {
-          layer.layers.map(item => {
-            item.type === 'raster' && layers.push(item);
-          });
-        } else {
-          layer.type === 'raster' && layers.push(layer);
-        }
+      if (layer && this.isLayerGroup(id)) {
+        layer.layers.map(item => {
+          item.type === 'raster' && layers.push(item);
+        });
+      } else if (layer) {
+        layer.type === 'raster' && layers.push(layer);
       }
     }
 
@@ -351,6 +349,60 @@ const layer = {
           this.map.setPaintProperty(layer.id, 'raster-opacity', opacity);
         }
       });
+  },
+
+  /**
+   * 设置指定Id图层(组)的最小与最大层级的区间渲染范围
+   * @param {String} id 图层(组)Id名称
+   * @param {Number} minzoom 图层最小层级
+   * @param {Number} maxzoom 图层最大层级
+   * @param {String} layerGroupId 选填项，所属图层组Id名称
+   */
+  setLayerZoomRange(id, minzoom = 0, maxzoom = 24, layerGroupId = null) {
+    // 修复最小最大层级范围
+    minzoom < 0 && (minzoom = 0);
+    maxzoom > 24 && (maxzoom = 24);
+    maxzoom < minzoom && (maxzoom = minzoom);
+
+    // 判断是否指定图层组对象，则只获取图层组内的图层对象
+    if (layerGroupId) {
+      const layer = this.getLayer(id, layerGroupId);
+      layer && this.map.setLayerZoomRange(layer.id, minzoom, maxzoom);
+    } else {
+      const layer = this.getLayer(id);
+      if (layer && this.isLayerGroup(id)) {
+        layer.layers.map(item => {
+          this.map.setLayerZoomRange(item.id, minzoom, maxzoom);
+        });
+      } else if (layer) {
+        this.map.setLayerZoomRange(layer.id, minzoom, maxzoom);
+      }
+    }
+  },
+
+  /**
+   * 根据屏幕坐标查询图层的Feature要素
+   * @param {String} id 图层(组)Id名称
+   * @param {Point} point 查询的几何屏幕坐标，可为单点和BBox范围
+   * @param {Object} options 查询的参数条件
+   * @param {String} layerGroupId 选填项，所属图层组Id名称
+   */
+  queryRenderedFeatures(id, point, options = {}, layerGroupId = null) {
+    !options.layers && (options.layers = []);
+    // 判断是否指定图层组对象，则只获取图层组内的图层对象
+    if (layerGroupId) {
+      const layer = this.getLayer(id, layerGroupId);
+      options.layers.push(layer.id);
+    } else {
+      const layer = this.getLayer(id);
+      if (layer && this.isLayerGroup(id)) {
+        const layerIds = this.getLayerGroupByIds(id);
+        options.layers.push(...layerIds);
+      } else if (layer) {
+        options.layers.push(layer.id);
+      }
+    }
+    return point && options.layers && this.map.queryRenderedFeatures(point, options);
   },
 };
 
