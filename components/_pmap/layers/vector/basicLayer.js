@@ -9,7 +9,10 @@ import hat from 'hat';
 import cloneDeep from 'lodash/cloneDeep';
 import round from 'lodash/round';
 import omitBy from 'lodash/omitBy';
-import { isEmpty, isNumeric, isNotEmptyArray, isString } from '../../../_util/methods-util';
+import remove from 'lodash/remove';
+import find from 'lodash/find';
+import filter from 'lodash/filter';
+import { isEmpty, isNumeric, isNotEmptyArray, isArray, isString, isBooleanTrue } from '../../../_util/methods-util';
 
 // 矢量图层的原生MapboxGL默认参数
 export const defaultVectorLayerOptions = {
@@ -98,7 +101,7 @@ class BasicLayerClass extends BasicMapApi {
 
     // 设置图层数据源
     if (copyLayerOptions && copyLayerOptions.type !== 'background') {
-      const features = options.data && isNotEmptyArray(options.data) ? options.data : [];
+      const features = options.data ? getSourceFeatures(options.data) : [];
       // 获取字符串型数据源的数据集合
       if (copyLayerOptions.source && isString(copyLayerOptions.source)) {
         const source = iMapApi.getSource(copyLayerOptions.source);
@@ -143,16 +146,62 @@ class BasicLayerClass extends BasicMapApi {
     }
   }
 
-  // 获取指定名称的Paint属性
+  /**
+   * 获取指定名称的Paint属性
+   * @param {String} key 待获取的Paint属性名
+   */
   getPaint(key) {
     const map = this.iMapApi.map;
     return map.getPaintProperty(this.id, key);
   }
 
-  // 设置指定名称的Paint属性
+  /**
+   * 设置指定名称的Paint属性
+   * @param {String} key 图层的Paint属性名
+   * @param {Any} value 图层Paint属性的值
+   * @param {Object} options 设置图层Paint属性的参数选项
+   */
   setPaint(key, value, options = {}) {
     const map = this.iMapApi.map;
     map.setPaintProperty(this.id, key, value, options);
+  }
+
+  /**
+   * 获取指定名称的Layout属性
+   * @param {String} key 待获取的Layout属性名
+   */
+  getLayout(key) {
+    const map = this.iMapApi.map;
+    return map.getLayoutProperty(this.id, key);
+  }
+
+  /**
+   * 设置指定名称的Layout属性
+   * @param {String} key 图层的Layout属性名
+   * @param {Any} value 图层Layout属性的值
+   * @param {Object} options 设置图层Layout属性的参数选项
+   */
+  setLayout(key, value, options = {}) {
+    const map = this.iMapApi.map;
+    map.setLayoutProperty(this.id, key, value, options);
+  }
+
+  /**
+   * 获取图层的数据过滤器
+   */
+  getFilter() {
+    const map = this.iMapApi.map;
+    return map.getFilter(this.id);
+  }
+
+  /**
+   * 设置图层的数据过滤条件
+   * @param {Array} filter 图层数据过滤条件
+   * @param {Object} options 设置图层数据过滤器的参数选项
+   */
+  setFilter(filter = null, options = {}) {
+    const map = this.iMapApi.map;
+    map.setFilter(this.id, filter, options);
   }
 
   // 设置图层的整体透明度
@@ -172,8 +221,244 @@ class BasicLayerClass extends BasicMapApi {
       });
   }
 
-  // 获取当前图层的数据Features集合
-  getLayerToFeatures() {}
+  /**
+   * 设置图层的最小与最大层级区间渲染范围
+   * @param {Number} minzoom 图层最小层级
+   * @param {Number} maxzoom 图层最大层级
+   * @param {Boolean} isLayerGroup 是否图层组统一设置
+   */
+  setZoomRange(minzoom, maxzoom, isLayerGroup = false) {
+    // 判断是否整个图层组设置层级区间
+    if (isBooleanTrue(isLayerGroup) && this.options.layerGroupId) {
+      this.iMapApi && this.iMapApi.setLayerZoomRange(this.options.layerGroupId, minzoom, maxzoom);
+    } else {
+      this.iMapApi && this.iMapApi.setLayerZoomRange(this.id, minzoom, maxzoom, this.options.layerGroupId);
+    }
+  }
+
+  /**
+   * 获取当前图层的数据Features集合
+   */
+  getFeatures() {
+    // 获取图层的数据源
+    const layerSource = this.mapLayer && this.mapLayer.source;
+    const source = this.iMapApi.getSource(layerSource);
+    // 解析数据集合
+    const features = [];
+    if (source && source._data) {
+      return getSourceFeatures(source._data);
+    }
+    return features;
+  }
+
+  /**
+   * 设置当前图层的数据Features集合
+   * @param {Array} features 待覆盖的Features数据集合
+   */
+  setFeatures(features) {
+    // 获取图层的数据源
+    const layerSource = this.mapLayer && this.mapLayer.source;
+    const source = this.iMapApi.getSource(layerSource);
+    if (source) {
+      const sourceFeatures = getSourceFeatures(features);
+      console.log(sourceFeatures);
+      source.setData(this.turf.featureCollection(sourceFeatures));
+    }
+  }
+
+  /**
+   * 追加当前图层的数据Features集合
+   * @param {Array} features 待添加的Features要素数组集合
+   */
+  addFeatures(features) {
+    // 获取当前图层的数据
+    const currentFeatures = this.getFeatures();
+    // 待追加的数据
+    const appendFeatures = getSourceFeatures(features);
+    // 更新数据集合
+    this.setFeatures(currentFeatures.concat(appendFeatures));
+  }
+
+  /**
+   * 获取当前图层的指定Id的Feature要素
+   * @param {String} id Feature要素的唯一Id
+   */
+  getFeatureById(id) {
+    if (!id) {
+      return null;
+    }
+    const features = this.getFeatures();
+    const feature = find(features, { id });
+    return feature || null;
+  }
+
+  /**
+   * 获取当前图层的指定属性值匹配的Features要素集合
+   * @param {String} key 待匹配的Property名
+   * @param {Any} value 待匹配的值
+   */
+  getFeaturesByProperty(key, value) {
+    if (!key || !value) {
+      return [];
+    }
+    const features = this.getFeatures();
+    const featureCollection = filter(features, f => f.properties[key] === value);
+    return featureCollection || [];
+  }
+
+  /**
+   * 根据屏幕坐标查询当前图层的Features要素集合
+   * @param {Point} point
+   */
+  queryFeaturesByPoint(point, options = {}, isLayerGroup = false) {
+    if (!point) {
+      return [];
+    }
+
+    let resultFeatures = [];
+    // 判断是否整个图层组进行查询
+    if (isBooleanTrue(isLayerGroup) && this.options.layerGroupId) {
+      resultFeatures = this.iMapApi.queryRenderedFeatures(this.options.layerGroupId, point, options);
+    } else {
+      resultFeatures = this.iMapApi.queryRenderedFeatures(this.id, point, options, this.options.layerGroupId);
+    }
+    // 获取当前图层的数据集合进行比对转换
+    const featureCollection = this.getFeatures();
+    const features = [];
+    resultFeatures &&
+      resultFeatures.map(feature => {
+        filter(featureCollection, f => {
+          const isGeometry = this.turf.booleanEqual(feature, f);
+          if (isGeometry && JSON.stringify(f.properties || {}) === JSON.stringify(feature.properties)) {
+            features.push(f);
+          }
+        });
+      });
+    return features;
+  }
+
+  /**
+   * 删除当前图层的指定Feature要素数据
+   * @param {Feature} feature 待删除的Feature要素
+   */
+  removeFeature(feature) {
+    const features = this.getFeatures();
+    const deleteFeatures = getSourceFeatures(feature);
+    const newFeatures = remove(features, f => deleteFeatures.indexOf(f) === -1);
+    // 更新数据集合
+    this.setFeatures(newFeatures);
+  }
+
+  /**
+   * 删除当前图层的指定Id的Feature要素数据
+   * @param {String} id 待删除的Feature要素唯一Id
+   */
+  removeFeatureById(id) {
+    const ids = isArray(id) ? id : [id];
+    ids &&
+      ids.map(key => {
+        const feature = this.getFeatureById(key);
+        feature && this.removeFeature(feature);
+      });
+  }
+
+  /**
+   * 删除当前图层的指定属性值匹配的Features要素集合
+   * @param {String} key 待匹配的Property名
+   * @param {Any} value 待匹配的值
+   */
+  removeFeatureByProperty(key, value) {
+    const features = this.getFeaturesByProperty(key, value);
+    features && this.removeFeature(features);
+  }
+
+  /**
+   * 清除当前图层的数据集合
+   */
+  clearFeatures() {
+    // 获取图层的数据源
+    const layerSource = this.mapLayer && this.mapLayer.source;
+    const source = this.iMapApi.getSource(layerSource);
+    // 清空数据
+    source && source.setData(this.turf.featureCollection([]));
+  }
+
+  /**
+   * 获取指定Id的Feature要素存储[feature-state]对象
+   * @param {String} id Feature要素的唯一Id
+   */
+  getFeatureState(id) {
+    const map = this.iMapApi.map;
+    return (
+      id &&
+      map &&
+      map.getFeatureState({
+        source: this.mapLayer.source,
+        sourceLayer: this.mapLayer.sourceLayer,
+        id,
+      })
+    );
+  }
+
+  /**
+   * 设置指定Id的Feature要素存储[feature-state]对象
+   * @param {String} id Feature要素的唯一Id
+   * @param {Object} state 存储Feature要素的[feature-state]对象
+   */
+  setFeatureState(id, state = {}) {
+    const map = this.iMapApi.map;
+    id &&
+      map &&
+      map.setFeatureState(
+        {
+          source: this.mapLayer.source,
+          sourceLayer: this.mapLayer.sourceLayer,
+          id,
+        },
+        state,
+      );
+  }
+
+  /**
+   * 清空所有或删除指定Id的Feature要素存储[feature-state]对象
+   * @param {String} id Feature要素的唯一Id，未指定则清空所有Feature要素
+   * @param {String} key 指定待删除的[feature-state]对象键名
+   */
+  removeFeatureState(id = null, key = null) {
+    const map = this.iMapApi.map;
+    // 判断是否设置Feature要素的Id
+    if (!id) {
+      map.removeFeatureState({
+        source: this.mapLayer.source,
+      });
+    } else {
+      // 判断是否指定具体的待删除[feature-state]键名
+      map.removeFeatureState(
+        {
+          source: this.mapLayer.source,
+          sourceLayer: this.mapLayer.sourceLayer,
+          id,
+        },
+        key,
+      );
+    }
+  }
+
+  /**
+   * 获取当前图层的Feature数据集的几何矩形范围
+   */
+  getLayerBounds() {
+    const features = this.getFeatures();
+    return isNotEmptyArray(features) && this.iMapApi.getFeaturesToBounds(features);
+  }
+
+  /**
+   * 设置当前图层缩放到最大的合适层级
+   */
+  setLayerToMaxZoom(options = {}) {
+    const features = this.getFeatures();
+    return this.iMapApi.boundsToFeatures(features, options);
+  }
 }
 
 export default BasicLayerClass;
@@ -200,8 +485,6 @@ export const setLayerPaintOpacity = function(paint, properties, ratio) {
   return copyPaint;
 };
 
-// 获取图层的指定类型Paint属性
-
 // 获取图层Source数据源的Feature集合
 export const getSourceFeatures = function(data) {
   const features = [];
@@ -214,6 +497,8 @@ export const getSourceFeatures = function(data) {
         features.push(...data.features);
         break;
     }
+  } else if (isNotEmptyArray(data)) {
+    features.push(...data);
   }
   return features;
 };
