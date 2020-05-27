@@ -34,6 +34,8 @@ class FillExtrusionLayer extends BasicLayerClass {
     layer.type = 'fill-extrusion';
     // 继承矢量图层基类
     super(iMapApi, id, layer, opts);
+    // 绑定图层实例对象
+    this.mapLayer && (this.mapLayer._instance = this);
   }
 
   /**

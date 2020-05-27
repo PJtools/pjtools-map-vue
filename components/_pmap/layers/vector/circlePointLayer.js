@@ -28,13 +28,15 @@ const defaultOptions = {
 
 class CirclePointLayer extends BasicLayerClass {
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
     opts.opacityPaints = ['circle-opacity', 'circle-stroke-opacity'];
     // 合并原生Layer图层属性
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
     layer.type = 'circle';
     // 继承矢量图层基类
     super(iMapApi, id, layer, opts);
+    // 绑定图层实例对象
+    this.mapLayer && (this.mapLayer._instance = this);
   }
 
   /**

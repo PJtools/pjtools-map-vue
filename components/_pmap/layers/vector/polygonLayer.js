@@ -70,6 +70,9 @@ class PolygonLayer extends BasicLayerClass {
       const outlineLayer = new LineLayer(iMapApi, `${id}.outline`, outlineLayerOptions, outlineOptions);
       this[_outlineLayer] = outlineLayer;
     }
+
+    // 绑定图层实例对象
+    this.mapLayer && (this.mapLayer._instance = this);
   }
 
   /**
