@@ -23,10 +23,10 @@ const defaultOptions = {
 
 class BackgroundLayer extends BasicLayerClass {
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
     opts.opacityPaints = ['background-opacity'];
     // 合并原生Layer图层属性
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
     layer.type = 'background';
     // 继承矢量图层基类
     super(iMapApi, id, layer, opts);
