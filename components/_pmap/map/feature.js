@@ -26,7 +26,7 @@ const feature = {
         }
       }
     }
-    return null;
+    return turf.featureCollection([]);
   },
 
   /**
