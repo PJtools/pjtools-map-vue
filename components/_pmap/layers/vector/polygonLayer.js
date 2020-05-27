@@ -39,12 +39,12 @@ class PolygonLayer extends BasicLayerClass {
   }
 
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
     opts.outline = !!isBooleanTrue(opts.outline);
     opts.opacityPaints = ['fill-opacity'];
     // 合并原生Layer图层属性
     !opts.outline && (defaultLayerOptions.paint['fill-color'] = defaultLayerOptions.paint['line-color']);
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
     layer.type = 'fill';
     // 继承矢量图层基类
     !id && (id = hat());
@@ -76,11 +76,25 @@ class PolygonLayer extends BasicLayerClass {
   }
 
   /**
+   * 移除当前图层
+   */
+  remove() {
+    // 判断是否有外边线
+    if (this.outlineLayer) {
+      this.outlineLayer.remove();
+      this[_outlineLayer] = null;
+    }
+    super.remove();
+  }
+
+  /**
    * 设置图层的整体透明度
    * @param {Number} opacity 待设定的透明度
    */
   setOpacity(opacity) {
     super.setOpacity(opacity, ['fill-opacity']);
+    // 判断是否有外边线
+    this.outlineLayer && this.outlineLayer.setOpacity(opacity);
   }
 
   /**
@@ -102,10 +116,7 @@ class PolygonLayer extends BasicLayerClass {
    * 获取矢量面的外边线颜色属性
    */
   getOutlineColor() {
-    if (this.outlineLayer) {
-      return this.outlineLayer.getColor();
-    }
-    return null;
+    return this.outlineLayer ? this.outlineLayer.getColor() : null;
   }
 
   /**
@@ -120,10 +131,7 @@ class PolygonLayer extends BasicLayerClass {
    * 获取矢量面的外边线宽度
    */
   getOutlineWidth() {
-    if (this.outlineLayer) {
-      return this.outlineLayer.getLineWidth();
-    }
-    return null;
+    return this.outlineLayer ? this.outlineLayer.getLineWidth() : null;
   }
 
   /**

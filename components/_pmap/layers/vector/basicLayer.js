@@ -147,6 +147,38 @@ class BasicLayerClass extends BasicMapApi {
     }
   }
 
+  // 设置图层的整体透明度
+  // 注意：
+  // 1、透明度是根据初始图层样式进行相乘计算而来；
+  // 2、如属性值为表达式则忽略
+  setOpacity(opacity, paints = []) {
+    if (this[_opacity] !== opacity) {
+      this[_opacity] = getCheckOpacity(opacity);
+    }
+    const copyPaint = cloneDeep(this.initLayerOptions.paint);
+    paints &&
+      paints.map(key => {
+        if (isNumeric(this.getPaint(key)) && isNumeric(copyPaint[key])) {
+          this.setPaint(key, round(copyPaint[key] * this.opacity, 2));
+        }
+      });
+  }
+
+  /**
+   * 移除当前图层
+   */
+  remove() {
+    // 判断是否添加图层组
+    if (this[_options].layerGroupId) {
+      this.iMapApi.removeLayerToGroup(this[_options].layerGroupId, this[_id]);
+    } else {
+      this.iMapApi.removeLayer(this[_id]);
+    }
+    // 清空图层属性
+    this[_mapLayer] = null;
+    this[_mapLayerGroup] = null;
+  }
+
   /**
    * 获取指定名称的Paint属性
    * @param {String} key 待获取的Paint属性名
@@ -203,23 +235,6 @@ class BasicLayerClass extends BasicMapApi {
   setFilter(filter = null, options = {}) {
     const map = this.iMapApi.map;
     map.setFilter(this.id, filter, options);
-  }
-
-  // 设置图层的整体透明度
-  // 注意：
-  // 1、透明度是根据初始图层样式进行相乘计算而来；
-  // 2、如属性值为表达式则忽略
-  setOpacity(opacity, paints = []) {
-    if (this[_opacity] !== opacity) {
-      this[_opacity] = getCheckOpacity(opacity);
-    }
-    const copyPaint = cloneDeep(this.initLayerOptions.paint);
-    paints &&
-      paints.map(key => {
-        if (isNumeric(this.getPaint(key)) && isNumeric(copyPaint[key])) {
-          this.setPaint(key, round(copyPaint[key] * this.opacity, 2));
-        }
-      });
   }
 
   /**
