@@ -16,8 +16,7 @@
         "transform-object-rest-spread",
         "transform-class-properties",
         "transform-runtime"
-      ],
-      "comments": false
+      ]
     }
   }
 }
