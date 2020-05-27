@@ -74,6 +74,20 @@ class Fullscreen extends BasicMapApiEvented {
   }
 
   /**
+   * 获取当前禁用/启用状态
+   */
+  isEnabled() {
+    return this._fullscreen;
+  }
+
+  /**
+   * 获取当前活动状态
+   */
+  isActive() {
+    return this._fullscreen;
+  }
+
+  /**
    * 判断当前是否为全屏状态
    */
   isFullscreen() {
