@@ -5,6 +5,9 @@
  */
 
 import Constants from '../constants';
+import mapEventToBoundingBox from './map_event_to_bounding_box';
+import sortFeatures from './sort_features';
+import StringSet from './string_set';
 
 const META_TYPES = [Constants.meta.FEATURE, Constants.meta.MIDPOINT, Constants.meta.VERTEX];
 
@@ -17,26 +20,22 @@ function featuresAtTouch(event, bbox, ctx) {
 }
 
 function featuresAt(event, bbox, ctx, buffer) {
-  if (ctx.map === null) return [];
+  if (ctx.iMapApi === null) return [];
 
-  // const box = event ? mapEventToBoundingBox(event, buffer) : bbox;
+  const box = event ? mapEventToBoundingBox(event, buffer) : bbox;
+  let features = ctx.iMapApi.queryRenderedFeatures(`draw-layers-group.${ctx.uid}`, box);
+  features = features.filter(feature => META_TYPES.indexOf(feature.properties['draw:meta']) !== -1);
 
-  // const queryParams = {};
-  // if (ctx.options.styles) queryParams.layers = ctx.options.styles.map(s => s.id);
+  const featureIds = new StringSet();
+  const uniqueFeatures = [];
+  features.map(feature => {
+    const featureId = feature.properties['draw:id'];
+    if (featureIds.has(featureId)) return;
+    featureIds.add(featureId);
+    uniqueFeatures.push(feature);
+  });
 
-  // const features = ctx.map.queryRenderedFeatures(box, queryParams).filter(feature => META_TYPES.indexOf(feature.properties.meta) !== -1);
-
-  // const featureIds = new StringSet();
-  // const uniqueFeatures = [];
-  // features.forEach(feature => {
-  //   const featureId = feature.properties.id;
-  //   if (featureIds.has(featureId)) return;
-  //   featureIds.add(featureId);
-  //   uniqueFeatures.push(feature);
-  // });
-
-  // return sortFeatures(uniqueFeatures);
-  return [];
+  return sortFeatures(uniqueFeatures);
 }
 
 export default {
