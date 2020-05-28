@@ -107,7 +107,7 @@ const MouseTooltip = {
       this.icon = options.icon || null;
       this.content = options.content || null;
       this.wrapClassName = options.className || null;
-      this.position = options.position || null;
+      this.position = options.position || this.position || null;
       this.show = true;
       this.visible = true;
     },
