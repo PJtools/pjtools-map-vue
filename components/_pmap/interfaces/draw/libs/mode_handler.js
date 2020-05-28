@@ -48,6 +48,8 @@ const ModeHandler = function(mode, context) {
     render: mode.render,
 
     start() {
+      // 激活时聚焦地图区域，解决绘图键盘事件默认不激活
+      context.container && context.container.focus && context.container.focus();
       mode.start.call(ctx);
     },
 

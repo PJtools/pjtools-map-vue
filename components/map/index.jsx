@@ -183,7 +183,7 @@ const Map = {
       return !mapRemoved ? (
         <div class={mapCls}>
           {/* 地图视图区域 */}
-          <div class={`${mapCls}-views-group`}>
+          <div class={`${mapCls}-views-group`} tabindex="0" hidefocus="true">
             <div ref="PJMapViewWrapper" class={`${mapCls}-view-wrapper`}></div>
           </div>
           {/* 扩展交互组件 */}
