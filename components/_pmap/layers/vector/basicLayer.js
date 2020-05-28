@@ -277,7 +277,6 @@ class BasicLayerClass extends BasicMapApi {
     const source = this.iMapApi.getSource(layerSource);
     if (source) {
       const sourceFeatures = getSourceFeatures(features);
-      console.log(sourceFeatures);
       source.setData(this.turf.featureCollection(sourceFeatures));
     }
   }
