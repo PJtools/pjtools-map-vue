@@ -5,7 +5,11 @@
  */
 
 import StaticMode from './static';
+import SelectMode from './select';
+import PointMode from './point';
 
 export default {
   static: StaticMode,
+  select: SelectMode,
+  point: PointMode,
 };

@@ -9,6 +9,9 @@ import isClick from './libs/is_click';
 import isTap from './libs/is_tap';
 import featuresAt from './libs/features_at';
 import setupModeHandler from './libs/mode_handler';
+import Constants from './constants';
+import DOM from '../../util/dom';
+import { isBooleanTrue } from '../../../_util/methods-util';
 
 const events = function(ctx) {
   // 统一处理及转换Mode模式的作用域
@@ -17,10 +20,13 @@ const events = function(ctx) {
     return mode;
   }, {});
 
-  // 记录鼠标单击下时的信息
+  // 记录鼠标单击时的时间
   let mouseDownInfo = {};
-  // 记录Touch时的信息
+  // 记录Touch时的时间
   let touchStartInfo = {};
+  // 记录鼠标双击时信息
+  let dblclickTimeoutId = null;
+  let dblclickCount = 0;
   // 当前激活的Mode模式名
   let currentModeName = null;
   // 当前激活的Mode模式
@@ -28,7 +34,7 @@ const events = function(ctx) {
   // 判断是否已进行事件监听
   let isEventsListeners = false;
   // 记录当前监听事件对象
-  const listenersEvents = [];
+  const listenersEvents = {};
 
   const events = {};
 
@@ -37,7 +43,7 @@ const events = function(ctx) {
     if (
       isDrag({
         point: e.point,
-        time: new Daete().getTime(),
+        time: new Date().getTime(),
       })
     ) {
       currentMode.drag(e);
@@ -78,21 +84,38 @@ const events = function(ctx) {
     currentMode.mousemove(e);
   };
 
+  const clearDoubleClickTimeout = function() {
+    if (dblclickTimeoutId) {
+      window.clearTimeout(dblclickTimeoutId);
+      dblclickTimeoutId = null;
+    }
+  };
+
   // 定义Mouse Up事件
   events.mouseup = function(e) {
     const features = featuresAt.click(e, null, ctx);
     e.featureTarget = features[0];
 
+    clearDoubleClickTimeout();
     if (
       isClick(mouseDownInfo, {
         point: e.point,
         time: new Date().getTime(),
       })
     ) {
-      currentMode.click(e);
+      dblclickTimeoutId = window.setTimeout(() => {
+        if (dblclickCount === 1) {
+          currentMode.click(e);
+        } else if (dblclickCount > 1) {
+          currentMode.dblclick(e);
+        }
+        dblclickCount = 0;
+        clearDoubleClickTimeout();
+      }, 240);
     } else {
       currentMode.mouseup(e);
     }
+    dblclickCount++;
   };
 
   // 定义Mouse Over事件
@@ -172,18 +195,60 @@ const events = function(ctx) {
 
     // 更新模式
     changeMode(modename, nextModeOptions, eventOptions = {}) {
-      currentMode.stop();
-
       const modebuilder = modes[modename];
       if (modebuilder === undefined) {
         throw new Error(`绘图模式[${modename}]不存在.`);
       }
-      currentModeName = modename;
-      const mode = modebuilder(ctx, nextModeOptions);
-      currentMode = setupModeHandler(mode, ctx);
-
-      ctx.store.setDirty();
+      let isStaticModeRenderChange = false;
+      // 停止历史绘制模式
+      currentMode.stop();
+      // 判断是否待更新模式与当前模式不同，则重新实例化
+      let isModeChange = false;
+      if (currentModeName !== modename) {
+        (currentModeName === Constants.modes.STATIC || modename === Constants.modes.STATIC) && (isStaticModeRenderChange = true);
+        const mode = modebuilder(ctx, nextModeOptions);
+        currentModeName = modename;
+        currentMode = setupModeHandler(mode, ctx);
+        isModeChange = true;
+      }
+      // 驱动模式激活
+      currentMode.start();
+      // 设置模式切换的渲染状态
+      ctx.store.setModeChangeRendering();
+      // 渲染绘制的数据
       ctx.store.render();
+      // 判断是否不执行驱动事件
+      eventOptions && isBooleanTrue(eventOptions.silent) && (isModeChange = false);
+      // 判断是否需要执行事件回调
+      isModeChange && ctx.api.fire(Constants.events.MODE_CHANGE, { mode: modename });
+    },
+
+    // 设置绘图可活动操作的状态
+    actionable(actions) {
+      let changed = false;
+      const actionState = {
+        // 是否可操作垃圾桶 - 删除
+        trash: false,
+        // 是否可操作 - 合并要素
+        combineFeatures: false,
+        // 是否可操作 - 拆分复合要素
+        uncombineFeatures: false,
+      };
+      Object.keys(actions).map(action => {
+        if (actionState[action] === undefined) {
+          return;
+        }
+        if (actionState[action] !== actions[action]) {
+          changed = true;
+        }
+        actionState[action] = actions[action];
+      });
+      if (changed) {
+        ctx.api.fire(Constants.events.ACTIONABLE, {
+          mode: this.getMode(),
+          actions: actionState,
+        });
+      }
     },
 
     // 获取当前模式的名称
@@ -196,7 +261,7 @@ const events = function(ctx) {
       return currentMode.render(geojson, push);
     },
 
-    // 获取当前模式对象
+    // 获取当前模式
     getMode() {
       return currentModeName;
     },
@@ -206,25 +271,29 @@ const events = function(ctx) {
       events[name] && events[name](event);
     },
 
+    // 判断是否已添加绘图事件监听
+    isLoadedEventListeners() {
+      return isEventsListeners;
+    },
+
     // 添加绘图事件监听
     addEventListeners() {
       // 判断是否已绑定绘图事件监听
       if (isEventsListeners) {
         return;
       }
-      ctx.iMapApi.on(`draw.mousedown.${ctx.uid}`, 'mousedown', events.mousedown);
 
-      // ctx.map.on('mousemove', events.mousemove);
-      // ctx.map.on('mouseup', events.mouseup);
-      // ctx.map.on('data', events.data);
-      // ctx.map.on('touchmove', events.touchmove);
-      // ctx.map.on('touchstart', events.touchstart);
-      // ctx.map.on('touchend', events.touchend);
-      // ctx.container.addEventListener('mouseout', events.mouseout);
-      // if (ctx.options.keybindings) {
-      //   ctx.container.addEventListener('keydown', events.keydown);
-      //   ctx.container.addEventListener('keyup', events.keyup);
-      // }
+      ctx.iMapApi.on(`draw.mousedown.${ctx.uid}`, 'mousedown', events.mousedown);
+      ctx.iMapApi.on(`draw.mousemove.${ctx.uid}`, 'mousemove', events.mousemove);
+      ctx.iMapApi.on(`draw.mouseup.${ctx.uid}`, 'mouseup', events.mouseup);
+      ctx.iMapApi.on(`draw.touchstart.${ctx.uid}`, 'touchstart', events.touchstart);
+      ctx.iMapApi.on(`draw.touchmove.${ctx.uid}`, 'touchmove', events.touchmove);
+      ctx.iMapApi.on(`draw.touchend.${ctx.uid}`, 'touchend', events.touchend);
+      ctx.iMapApi.on(`draw.mouseover.${ctx.uid}`, 'mouseover', events.mouseover);
+      ctx.iMapApi.on(`draw.mouseout.${ctx.uid}`, 'mouseout', events.mouseout);
+      listenersEvents[`draw.keydown.${ctx.uid}`] = DOM.onEventListener(ctx.container, 'keydown', events.keydown);
+      listenersEvents[`draw.keyup.${ctx.uid}`] = DOM.onEventListener(ctx.container, 'keyup', events.keyup);
+
       isEventsListeners = true;
     },
 
@@ -235,18 +304,17 @@ const events = function(ctx) {
       }
 
       ctx.iMapApi.off(`draw.mousedown.${ctx.uid}`);
-
-      // ctx.map.off('mousemove', events.mousemove);
-      // ctx.map.off('mouseup', events.mouseup);
-      // ctx.map.off('data', events.data);
-      // ctx.map.off('touchmove', events.touchmove);
-      // ctx.map.off('touchstart', events.touchstart);
-      // ctx.map.off('touchend', events.touchend);
-      // ctx.container.removeEventListener('mouseout', events.mouseout);
-      // if (ctx.options.keybindings) {
-      //   ctx.container.removeEventListener('keydown', events.keydown);
-      //   ctx.container.removeEventListener('keyup', events.keyup);
-      // }
+      ctx.iMapApi.off(`draw.mousemove.${ctx.uid}`);
+      ctx.iMapApi.off(`draw.mouseup.${ctx.uid}`);
+      ctx.iMapApi.off(`draw.touchstart.${ctx.uid}`);
+      ctx.iMapApi.off(`draw.touchmove.${ctx.uid}`);
+      ctx.iMapApi.off(`draw.touchend.${ctx.uid}`);
+      ctx.iMapApi.off(`draw.mouseover.${ctx.uid}`);
+      ctx.iMapApi.off(`draw.mouseout.${ctx.uid}`);
+      Object.keys(listenersEvents).map(key => {
+        listenersEvents[key].remove();
+        delete listenersEvents[key];
+      });
 
       isEventsListeners = false;
     },

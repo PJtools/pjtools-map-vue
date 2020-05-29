@@ -23,9 +23,6 @@ const ModeHandler = function(mode, context) {
         fn,
       });
     },
-    render(id) {
-      context.store.featureChanged(id);
-    },
   };
 
   // 定义事件委托
@@ -78,6 +75,10 @@ const ModeHandler = function(mode, context) {
 
     click(e) {
       delegate('click', e);
+    },
+
+    dblclick(e) {
+      delegate('dblclick', e);
     },
 
     mousedown(e) {

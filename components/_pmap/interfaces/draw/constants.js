@@ -8,19 +8,38 @@ export default {
   // 绘制模式名称
   modes: {
     STATIC: 'static',
-    SIMPLE_SELECT: 'simple_select',
-    DIRECT_SELECT: 'direct_select',
-    DRAW_LINE_STRING: 'draw_line_string',
-    DRAW_POLYGON: 'draw_polygon',
-    DRAW_POINT: 'draw_point',
+    SELECT: 'select',
+    EDIT: 'edit',
+    DRAW_POINT: 'point',
+    DRAW_LINE: 'line',
+    DRAW_POLYGON: 'polygon',
+  },
+
+  // 绘制交互的回调事件名
+  events: {
+    // 绘图模式更新
+    MODE_CHANGE: 'draw.modechange',
+    // 绘图要素选中更新
+    SELECTION_CHANGE: 'draw.selectionchange',
+    // 绘图时可活动操作状态 [ trash<垃圾桶> | combineFeatures<合并要素> | uncombineFeatures<拆分复合要素> ]
+    ACTIONABLE: 'draw.actionable',
+    // 绘图时的数据渲染
+    RENDER: 'draw.render',
+    // 绘图时的数据删除
+    DELETE: 'draw.delete',
+    // 绘图时合并要素
+    COMBINE_FEATURES: 'draw.combine',
+    // 绘图时拆分复合要素
+    UNCOMBINE_FEATURES: 'draw.uncombine',
+    // 绘制模式的绘制完成
+    DRAW_COMPLETE: 'draw.complete',
+    // 绘制模式的绘制取消
+    DRAW_CANCEL: 'draw.cancel',
   },
 
   // 绘图图层的数据源前缀
   sources: {
-    // 绘制临时数据源
-    HOT: 'pjmap-draw-hot',
-    // 绘制完成数据源
-    COLD: 'pjmap-draw-cold',
+    ID: 'draw-source-collection',
   },
 
   // Feature要素类型
@@ -30,10 +49,29 @@ export default {
     POINT: 'point',
   },
 
+  // GeoJSON类型
+  geojsonTypes: {
+    FEATURE: 'Feature',
+    POLYGON: 'Polygon',
+    LINE_STRING: 'LineString',
+    POINT: 'Point',
+    FEATURE_COLLECTION: 'FeatureCollection',
+    MULTI_PREFIX: 'Multi',
+    MULTI_POINT: 'MultiPoint',
+    MULTI_LINE_STRING: 'MultiLineString',
+    MULTI_POLYGON: 'MultiPolygon',
+  },
+
   // Feature标识类型
   meta: {
     FEATURE: 'feature',
     MIDPOINT: 'midpoint',
     VERTEX: 'vertex',
+  },
+
+  // 绘制活动状态
+  activeStates: {
+    ACTIVE: 'true',
+    INACTIVE: 'false',
   },
 };
