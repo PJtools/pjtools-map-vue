@@ -7,9 +7,13 @@
 import StaticMode from './static';
 import SelectMode from './select';
 import PointMode from './point';
+import LineMode from './line';
+import PolygonMode from './polygon';
 
 export default {
   static: StaticMode,
   select: SelectMode,
   point: PointMode,
+  line: LineMode,
+  polygon: PolygonMode,
 };

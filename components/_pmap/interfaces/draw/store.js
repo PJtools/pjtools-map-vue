@@ -93,6 +93,14 @@ class Store {
             this.iMapApi.Layers.addCirclePointLayer(id, layer.options, { layerGroupId });
             break;
           }
+          case 'line': {
+            this.iMapApi.Layers.addLineLayer(id, layer.options, { layerGroupId });
+            break;
+          }
+          case 'polygon': {
+            this.iMapApi.Layers.addPolygonLayer(id, layer.options, { layerGroupId });
+            break;
+          }
         }
       });
     // 更新状态
@@ -270,14 +278,14 @@ class Store {
   }
 
   // 删除绘制的Feature要素
-  delete(featureIds) {
+  delete(featureIds, options = {}) {
     toDenseArray(featureIds).map(id => {
       if (!this._featureIds.has(id)) return;
       this._featureIds.delete(id);
       this._selectedFeatureIds.delete(id);
-      // 加入待删除的队列
-      if (this._deletedFeaturesToEmit.indexOf(this._features[id]) === -1) {
-        this._deletedFeaturesToEmit.push(this._features[id]);
+      // 将Meta为Feature要素的数据加入待删除的队列
+      if (this._deletedFeaturesToEmit.indexOf(this._features[id]) === -1 && this._features[id].properties['draw:meta'] === Constants.meta.FEATURE) {
+        !options.silent && this._deletedFeaturesToEmit.push(this._features[id]);
       }
       delete this._features[id];
     });

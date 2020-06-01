@@ -5,7 +5,7 @@
  */
 
 import Constants from './constants';
-import { isNotEmptyArray } from '../../../_util/methods-util';
+import { isNotEmptyArray, isEmpty } from '../../../_util/methods-util';
 import find from 'lodash/find';
 
 export default function render() {
@@ -26,10 +26,9 @@ export default function render() {
     store.clearChangedIds();
   };
   // 渲染Feature要素
-  const renderFeature = (id, active) => {
+  const renderFeature = id => {
     let feature = store.get(id);
     feature = feature.updateInternalProperty('mode', mode);
-    feature = feature.updateInternalProperty('active', active ? Constants.activeStates.ACTIVE : Constants.activeStates.INACTIVE);
     feature = feature.toGeoJSON();
     let currentFeature = null;
     ctx.events.currentModeRender(feature, geojson => {
@@ -59,9 +58,7 @@ export default function render() {
       let feature = null;
       // 判断是否为模式切换刷新渲染 | 是否在更新状态列表中 | 是否在选中状态列表中
       if (store.isModeChangeRender || changedIds.indexOf(id) !== -1 || selectedIds.indexOf(id) !== -1) {
-        // 判断更新列表的Feature要素是否为选中更新
-        const isSelectedChange = !!(selectedIds.indexOf(id) !== -1);
-        feature = renderFeature(id, isSelectedChange);
+        feature = renderFeature(id);
         renderList.push(feature);
       } else {
         feature = find(store.sources, { id });
@@ -99,6 +96,7 @@ export default function render() {
     });
     // 移除数据源的删除Feature要素
     store.sources = store.sources.filter(feature => emitFeatureIds.indexOf(feature.id) === -1);
+    store._deletedFeaturesToEmit = [];
     // 绘制要素删除时执行回调事件
     ctx.api.fire(Constants.events.DELETE, { mode, features: emitFeatures });
   }

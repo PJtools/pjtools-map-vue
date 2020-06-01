@@ -119,9 +119,10 @@ class ModeInterface {
   /**
    * 删除绘制的Feature对象
    * @param {Array} ids 待删除的Feature要素Id集合
+   * @param {Object} options 删除的参数选项
    */
-  deleteFeature(ids) {
-    return this.ctx.store.delete(ids);
+  deleteFeature(ids, options = {}) {
+    return this.ctx.store.delete(ids, options);
   }
 
   /**

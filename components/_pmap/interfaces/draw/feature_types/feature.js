@@ -65,7 +65,7 @@ Feature.prototype.internal = function(mode) {
 };
 
 Feature.prototype.updateInternalProperty = function(key, value) {
-  this.properties[`draw:${key}`] && (this.properties[`draw:${key}`] = value);
+  this.properties[`draw:${key}`] = value;
   return this;
 };
 

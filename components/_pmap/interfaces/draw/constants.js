@@ -35,6 +35,10 @@ export default {
     DRAW_COMPLETE: 'draw.complete',
     // 绘制模式的绘制取消
     DRAW_CANCEL: 'draw.cancel',
+    // 绘制模式的单击Click
+    DRAW_CLICK: 'draw.click',
+    // 绘制模式的MouseMove
+    DRAW_MOUSEMOVE: 'draw.mousemove',
   },
 
   // 绘图图层的数据源前缀
@@ -67,6 +71,7 @@ export default {
     FEATURE: 'feature',
     MIDPOINT: 'midpoint',
     VERTEX: 'vertex',
+    MOVELINE: 'moveline',
   },
 
   // 绘制活动状态
