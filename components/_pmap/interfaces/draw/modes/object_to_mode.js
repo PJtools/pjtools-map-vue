@@ -9,7 +9,6 @@ import ModeInterface from './mode_interface';
 const eventMapper = {
   drag: 'onDrag',
   click: 'onClick',
-  dblclick: 'onDblClick',
   mousemove: 'onMouseMove',
   mousedown: 'onMouseDown',
   mouseup: 'onMouseUp',

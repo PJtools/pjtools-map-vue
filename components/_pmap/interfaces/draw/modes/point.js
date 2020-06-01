@@ -14,25 +14,41 @@ const DEFAULT_CURSOR_OPTIONS = {
   content: '单击确定点位，ESC键取消',
 };
 
+// 绘制模式时的默认通用激活启动
+export const defaultDrawSetupMethodsSetup = function(context, cursor) {
+  // 设置绘图为非活动状态
+  context.ctx.setActive(false);
+  // 禁止地图双击缩放交互
+  context.ctx.iMapApi.Handlers.doubleClickZoom.disable();
+  // 清空所有选中的要素
+  context.clearSelectedFeatures();
+  // 设置当前可活动操作的状态
+  context.setActionableState({
+    trash: true,
+  });
+  // 设置启动光标
+  context.updateCursor(cursor);
+};
+
+// 绘制模式时的默认通用取消激活
+export const defaultDrawSetupMethodsStop = function(context) {
+  // 移除光标
+  context.clearCursor();
+  // 设置绘图为非活动状态
+  context.ctx.setActive(false);
+  // 还原地图双击缩放交互
+  context.ctx.iMapApi.Handlers.doubleClickZoom.enable();
+};
+
 const PointMode = {};
 
 // Mode模式的注册 - 激活入口
 PointMode.onSetup = function(options = {}) {
   // 合并绘制Point模式的光标
   const cursorOptions = assign({}, DEFAULT_CURSOR_OPTIONS, (options && options.cursor) || {});
-
-  // 设置绘图为非活动状态
-  this.ctx.setActive(false);
-  // 禁止地图双击缩放交互
-  this.ctx.iMapApi.Handlers.doubleClickZoom.disable();
-  // 清空所有选中的要素
-  this.clearSelectedFeatures();
-  // 设置当前可活动操作的状态
-  this.setActionableState({
-    trash: true,
-  });
-  // 设置启动光标
-  this.updateCursor(cursorOptions);
+  options && (options.cursor = cursorOptions);
+  // 执行默认初始化
+  defaultDrawSetupMethodsSetup(this, options.cursor);
 
   return { options };
 };
@@ -62,12 +78,8 @@ PointMode.onStop = function(state) {
     this.deleteFeature([state.point.id]);
     delete state.point;
   }
-  // 移除光标
-  this.clearCursor();
-  // 设置绘图为非活动状态
-  this.ctx.setActive(false);
-  // 还原地图双击缩放交互
-  this.ctx.iMapApi.Handlers.doubleClickZoom.enable();
+  // 执行默认取消释放
+  defaultDrawSetupMethodsStop(this);
 };
 
 // Mode模式 - 绘制完成
@@ -92,8 +104,8 @@ PointMode.onCancel = function() {
   this.changeMode(Constants.modes.SELECT);
 };
 
-// 触发Tap/Click/DblClick时的响应事件
-PointMode.onTap = PointMode.onClick = PointMode.onDblClick = function(state, e) {
+// 触发Tap/Click时的响应事件
+PointMode.onTap = PointMode.onClick = function(state, e) {
   // 判断是否未构建<活动状态>的Point要素，则进行创建
   if (!state || !state.point) {
     const point = this.newFeature({
@@ -123,7 +135,10 @@ PointMode.onKeyUp = function(state, e) {
  * 触发删除选中的Feature矢量要素
  */
 PointMode.onTrash = function(state) {
-  state.point && this.deleteFeature([state.point.id]);
+  if (state.point) {
+    this.deleteFeature([state.point.id]);
+    delete state.point;
+  }
   this.changeMode(Constants.modes.SELECT);
 };
 

@@ -163,13 +163,6 @@ ModeInterface.prototype.onDrag = function(state, e) {};
 ModeInterface.prototype.onClick = function(state, e) {};
 
 /**
- * 触发DblClick时的响应事件
- * @param {Object} state 模式onSetup时State状态对象
- * @param {Event} e 捕获Event对象
- */
-ModeInterface.prototype.onDblClick = function(state, e) {};
-
-/**
  * 触发MouseDown时的响应事件
  * @param {Object} state 模式onSetup时State状态对象
  * @param {Event} e 捕获Event对象

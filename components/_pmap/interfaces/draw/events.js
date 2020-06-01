@@ -24,9 +24,6 @@ const events = function(ctx) {
   let mouseDownInfo = {};
   // 记录Touch时的时间
   let touchStartInfo = {};
-  // 记录鼠标双击时信息
-  let dblclickTimeoutId = null;
-  let dblclickCount = 0;
   // 当前激活的Mode模式名
   let currentModeName = null;
   // 当前激活的Mode模式
@@ -84,38 +81,21 @@ const events = function(ctx) {
     currentMode.mousemove(e);
   };
 
-  const clearDoubleClickTimeout = function() {
-    if (dblclickTimeoutId) {
-      window.clearTimeout(dblclickTimeoutId);
-      dblclickTimeoutId = null;
-    }
-  };
-
   // 定义Mouse Up事件
   events.mouseup = function(e) {
     const features = featuresAt.click(e, null, ctx);
     e.featureTarget = features[0];
 
-    clearDoubleClickTimeout();
     if (
       isClick(mouseDownInfo, {
         point: e.point,
         time: new Date().getTime(),
       })
     ) {
-      dblclickTimeoutId = window.setTimeout(() => {
-        if (dblclickCount === 1) {
-          currentMode.click(e);
-        } else if (dblclickCount > 1) {
-          currentMode.dblclick(e);
-        }
-        dblclickCount = 0;
-        clearDoubleClickTimeout();
-      }, 240);
+      currentMode.click(e);
     } else {
       currentMode.mouseup(e);
     }
-    dblclickCount++;
   };
 
   // 定义Mouse Over事件
@@ -199,13 +179,11 @@ const events = function(ctx) {
       if (modebuilder === undefined) {
         throw new Error(`绘图模式[${modename}]不存在.`);
       }
-      let isStaticModeRenderChange = false;
       // 停止历史绘制模式
       currentMode.stop();
       // 判断是否待更新模式与当前模式不同，则重新实例化
       let isModeChange = false;
       if (currentModeName !== modename) {
-        (currentModeName === Constants.modes.STATIC || modename === Constants.modes.STATIC) && (isStaticModeRenderChange = true);
         const mode = modebuilder(ctx, nextModeOptions);
         currentModeName = modename;
         currentMode = setupModeHandler(mode, ctx);

@@ -77,10 +77,6 @@ const ModeHandler = function(mode, context) {
       delegate('click', e);
     },
 
-    dblclick(e) {
-      delegate('dblclick', e);
-    },
-
     mousedown(e) {
       delegate('mousedown', e);
     },
