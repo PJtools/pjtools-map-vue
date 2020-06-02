@@ -36,8 +36,10 @@ export const defaultDrawSetupMethodsStop = function(context) {
   context.clearCursor();
   // 设置绘图为非活动状态
   context.ctx.setActive(false);
-  // 还原地图双击缩放交互
-  context.ctx.iMapApi.Handlers.doubleClickZoom.enable();
+  // 延时恢复还原地图双击缩放交互，避免绘制状态结束的双击触发
+  window.setTimeout(() => {
+    context.ctx.iMapApi.Handlers.doubleClickZoom.enable();
+  }, 300);
 };
 
 const PointMode = {};
