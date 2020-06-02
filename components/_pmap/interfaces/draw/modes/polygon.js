@@ -20,7 +20,7 @@ const DEFAULT_CURSOR_OPTIONS = {
 };
 
 // 计算当前绘制Polygon面要素的面积与周长
-const calculatePolygonArea = function(context, coordinates) {
+export const calculatePolygonArea = function(context, coordinates) {
   if (!coordinates || coordinates.length < 1) {
     return {};
   }
@@ -34,7 +34,7 @@ const calculatePolygonArea = function(context, coordinates) {
       if (coordinate.length > 2) {
         coordinate.length === 3 && coordinate.splice(coordinate.length - 1, 1);
         const measure = calculateLineDistance(context, coordinate);
-        measure && measure.measure && measure.measure.distance && (distance += measure.measure.distance);
+        measure && measure.measure && measure.measure.line && (distance += measure.measure.line.distance);
       }
     });
   const measure = {};
@@ -52,11 +52,15 @@ const calculatePolygonArea = function(context, coordinates) {
     // 计算面积
     const polygon = turf.polygon(wgs84Coordinates);
     const area = turf.area(polygon);
-    measure.area = area >= 1000 ? area / 1000 : area;
-    measure.round = round(measure.area, 2);
-    measure.unit = area >= 1000 ? 'km²' : '㎡';
-    measure.unitCN = area >= 1000 ? '平方千米' : '平方米';
+    measure.polygon = {
+      area: area >= 1000 ? area / 1000 : area,
+      round: area,
+      unit: area >= 1000 ? 'km²' : '㎡',
+      unitCN: area >= 1000 ? '平方千米' : '平方米',
+    };
+    measure.polygon.round = round(measure.polygon.area, 2);
   }
+
   return {
     measure,
   };
@@ -66,7 +70,7 @@ const PolygonMode = {};
 
 // Mode模式的注册 - 激活入口
 PolygonMode.onSetup = function(options = {}) {
-  // 合并绘制Line模式的光标
+  // 合并绘制Polygon模式的光标
   const cursorOptions = assign({}, DEFAULT_CURSOR_OPTIONS, (options && options.cursor) || {});
   options && (options.cursor = cursorOptions);
   // 执行默认初始化
@@ -138,6 +142,8 @@ PolygonMode.onStop = function(state) {
   defaultDrawSetupMethodsStop(this);
   // 重置当前绘制Polygon要素的节点索引
   state.currentVertexIndex = 0;
+  // 重置当前单击的时间戳
+  state.clickTime = null;
 };
 
 // 触发删除选中的Feature矢量要素

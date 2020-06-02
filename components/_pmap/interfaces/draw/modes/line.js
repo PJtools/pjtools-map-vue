@@ -30,13 +30,17 @@ export const calculateLineDistance = function(context, coordinates) {
   const line = turf.lineString(wgs84Coordinates);
   const length = turf.length(line, { units: 'kilometers' });
   const distance = length < 1 ? length * 1000 : length;
-  return {
-    measure: {
+  const measure = {
+    line: {
       distance,
       round: round(distance, 2),
       unit: length < 1 ? 'm' : 'km',
       unitCN: length < 1 ? '米' : '公里',
     },
+  };
+
+  return {
+    measure,
   };
 };
 
@@ -111,6 +115,8 @@ LineMode.onStop = function(state) {
   defaultDrawSetupMethodsStop(this);
   // 重置当前绘制Line要素的节点索引
   state.currentVertexIndex = 0;
+  // 重置当前单击的时间戳
+  state.clickTime = null;
 };
 
 // 触发删除选中的Feature矢量要素
