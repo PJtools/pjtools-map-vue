@@ -11,6 +11,7 @@ import { isVertex } from '../libs/common_selectors';
 import isEventAtCoordinates from '../libs/is_event_at_coordinates';
 import PolygonMode, { calculatePolygonArea } from './polygon';
 import { defaultDrawSetupMethodsSetup, defaultDrawSetupMethodsStop } from './point';
+import { isEmpty, isNumeric } from '../../../../_util/methods-util';
 
 // 计算当前绘制Circle圆形要素的面积与周长
 export const calculateCircleArea = function(context, coordinates, radius) {
@@ -48,6 +49,9 @@ CircleMode.onSetup = function(options = {}) {
   options && (options.cursor = cursorOptions);
   // 执行默认初始化
   defaultDrawSetupMethodsSetup(this, options.cursor);
+  // 判定是否开启设定的半径模式
+  options.radius = !isEmpty(options.radius) && isNumeric(options.radius) ? Number(options.radius) : null;
+  options.radius = options.radius && options.radius > 0 ? options.radius : null;
 
   let renderRequest;
   return {
@@ -238,23 +242,38 @@ CircleMode.clickAnywhere = function(state, e) {
     const vertexs = state.vertex.getCoordinates();
     vertexs.push(coordinates);
     state.vertex.setCoordinates(vertexs);
-    // 增加Circle圆要素的坐标点
-    state.polygon.updateCoordinate(`0.0`, coordinates[0], coordinates[1]);
+    // 更新Circle圆要素的属性
     state.polygon.center = coordinates;
     state.polygon.updateInternalProperty('center', coordinates.join(','));
     state.polygon.updateInternalProperty('radius', 0);
-    // 更新Circle圆的MoveLine线要素的起始坐标
-    state.moveline.setCoordinates([coordinates]);
-    // 更新鼠标提示
-    state.options.cursor.clicked && this.updateCursor({ content: state.options.cursor.clicked });
 
-    // 触发执行绘制单击时的回调事件
-    this.ctx.api.fire(Constants.events.DRAW_CLICK, {
-      e,
-      mode: this.getMode(),
-      feature: state.polygon.toGeoJSON(),
-      center: state.polygon.center,
-    });
+    // 判定是否有设定初始半径模式，则直接绘制完成
+    if (state.options.radius !== null) {
+      // 根据圆心点与半径获取圆形要素坐标点
+      const circle = this.getCircleByRadius(state, coordinates, state.options.radius);
+      // 更新圆形要素的坐标
+      const circleCoordinates = circle.coordinates;
+      circleCoordinates.splice(circleCoordinates.length - 1, 1);
+      state.polygon.setCoordinates([circleCoordinates]);
+      state.polygon.updateInternalProperty('radius', circle.radius);
+      // 结束绘制
+      this.doubleClick(state);
+    } else {
+      // 增加Circle圆要素的坐标点
+      state.polygon.updateCoordinate(`0.0`, coordinates[0], coordinates[1]);
+      // 更新Circle圆的MoveLine线要素的起始坐标
+      state.moveline.setCoordinates([coordinates]);
+      // 更新鼠标提示
+      state.options.cursor.clicked && this.updateCursor({ content: state.options.cursor.clicked });
+
+      // 触发执行绘制单击时的回调事件
+      this.ctx.api.fire(Constants.events.DRAW_CLICK, {
+        e,
+        mode: this.getMode(),
+        feature: state.polygon.toGeoJSON(),
+        center: state.polygon.center,
+      });
+    }
   } else {
     this.doubleClick(state);
   }
@@ -294,8 +313,8 @@ CircleMode.throttleMouseMove = function(state, e) {
     return;
   }
   const coordinates = [e.lngLat.lng, e.lngLat.lat];
-  // 根据两点更新绘制圆形的坐标
-  const circle = this.updateCircleCoordinates(state, state.polygon.center, coordinates);
+  // 根据两点获取绘制圆形的坐标
+  const circle = this.getCircleByCoordinates(state, state.polygon.center, coordinates);
   // 更新临时移动MoveLine要素的坐标
   state.moveline.setCoordinates(circle.coordinates);
   // 更新圆形要素的坐标
@@ -317,8 +336,8 @@ CircleMode.throttleMouseMove = function(state, e) {
   });
 };
 
-// <自定义函数>根据起始点与半径，获取绘制Circle圆形要素坐标点
-CircleMode.updateCircleCoordinates = function(state, center, coordinates) {
+// <自定义函数>根据起始点与半径坐标点，获取绘制Circle圆形要素坐标点
+CircleMode.getCircleByCoordinates = function(state, center, coordinates) {
   // 计算两点之间的距离，即圆形半径
   const iMapApi = this.ctx.api.iMapApi;
   const { turf } = iMapApi.exports;
@@ -327,6 +346,16 @@ CircleMode.updateCircleCoordinates = function(state, center, coordinates) {
   const line = turf.lineString([wgs84Center, wgs84Coordinates]);
   const radius = turf.length(line, { units: 'kilometers' });
   // 根据中心点和半径生成圆形要素坐标
+  const circleFeature = iMapApi.createCircleFeature(state.polygon.id, center, radius);
+  return {
+    coordinates: circleFeature.geometry.coordinates[0],
+    radius,
+  };
+};
+
+// <自定义函数>根据起始点与半径数值，获取绘制Circle圆形要素坐标点
+CircleMode.getCircleByRadius = function(state, center, radius) {
+  const iMapApi = this.ctx.api.iMapApi;
   const circleFeature = iMapApi.createCircleFeature(state.polygon.id, center, radius);
   return {
     coordinates: circleFeature.geometry.coordinates[0],
