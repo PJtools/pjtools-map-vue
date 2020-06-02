@@ -19,7 +19,7 @@ const DEFAULT_CURSOR_OPTIONS = {
 };
 
 // 计算当前绘制Line线段要素的距离
-const calculateLineDistance = function(context, coordinates) {
+export const calculateLineDistance = function(context, coordinates) {
   if (!coordinates || coordinates.length < 2) {
     return {};
   }
@@ -28,14 +28,14 @@ const calculateLineDistance = function(context, coordinates) {
   const wgs84Coordinates = iMapApi.toWGS84(coordinates);
   // 计算长度距离
   const line = turf.lineString(wgs84Coordinates);
-  const lenth = turf.length(line, { units: 'kilometers' });
-  const distance = lenth < 1 ? lenth * 1000 : lenth;
+  const length = turf.length(line, { units: 'kilometers' });
+  const distance = length < 1 ? length * 1000 : length;
   return {
     measure: {
       distance,
       round: round(distance, 2),
-      unit: lenth < 1 ? 'm' : 'km',
-      unitCN: lenth < 1 ? '米' : '公里',
+      unit: length < 1 ? 'm' : 'km',
+      unitCN: length < 1 ? '米' : '公里',
     },
   };
 };
@@ -78,7 +78,9 @@ LineMode.toDisplayFeatures = function(state, geojson, display) {
   // 判断是否为当前绘制<活动状态>的节点要素、Move移动线要素、Line线段要素
   if (isActiveVertexPoint || isActiveMoveLine || isActiveLine) {
     if (geojson.properties['draw:active'] === Constants.activeStates.INACTIVE) {
-      state.vertex.updateInternalProperty('active', Constants.activeStates.ACTIVE);
+      isActiveVertexPoint && state.vertex.updateInternalProperty('active', Constants.activeStates.ACTIVE);
+      isActiveMoveLine && state.moveline.updateInternalProperty('active', Constants.activeStates.ACTIVE);
+      isActiveLine && state.line.updateInternalProperty('active', Constants.activeStates.ACTIVE);
       geojson.properties['draw:active'] = Constants.activeStates.ACTIVE;
     }
     // 判断是否绘制完成
@@ -184,6 +186,7 @@ LineMode.onTap = LineMode.onClick = function(state, e) {
   if (isVertex(e)) {
     return;
   }
+
   // 绘制单击Click事件
   this.clickAnywhere(state, e);
 };
