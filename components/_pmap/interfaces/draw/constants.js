@@ -72,6 +72,7 @@ export default {
     MIDPOINT: 'midpoint',
     VERTEX: 'vertex',
     MOVELINE: 'moveline',
+    TEMPLINE: 'templine',
   },
 
   // 绘制活动状态

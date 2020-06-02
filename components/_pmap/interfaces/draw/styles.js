@@ -17,7 +17,11 @@ export const defaultDrawTheme = {
     'point-outline-width': 1.5,
     // Line
     'line-color': 'rgba(23, 144, 255, 0.9)',
-    'line-width': 3,
+    'line-width': 2.5,
+    // Polygon
+    'polygon-color': 'rgba(23, 144, 255, 0.4)',
+    'polygon-outline-color': 'rgba(23, 144, 255, 0.9)',
+    'polygon-outline-width': 2.5,
   },
   // 不活动状态
   inactive: {
@@ -28,7 +32,11 @@ export const defaultDrawTheme = {
     'point-outline-width': 2,
     // Line
     'line-color': 'rgba(20, 194, 194, 0.9)',
-    'line-width': 3.5,
+    'line-width': 3,
+    // Polygon
+    'polygon-color': 'rgba(20, 194, 194, 0.4)',
+    'polygon-outline-color': 'rgba(20, 194, 194, 0.9)',
+    'polygon-outline-width': 3,
   },
   // 活动状态
   active: {
@@ -39,19 +47,20 @@ export const defaultDrawTheme = {
     'point-outline-width': 2,
     // Line
     'line-color': 'rgba(250, 84, 28, 0.9)',
-    'line-width': 3.5,
+    'line-width': 3,
+    // MoveLine
+    'moveline-color': 'rgba(250, 84, 28, 0.6)',
+    'moveline-dasharray': [0.8, 2],
     // Polygon
-    // 'polygon-color': 'rgba(250, 84, 28, 0.9)',
+    'polygon-color': 'rgba(250, 84, 28, 0.2)',
+    'polygon-outline-color': 'rgba(250, 84, 28, 0.9)',
+    'polygon-outline-width': 3,
     // Vertex
     'vertex-color': 'rgba(255, 216, 191, 0.9)',
     'vertex-radius': 4,
     'vertex-outline-color': 'rgba(250, 84, 28, 0.9)',
     'vertex-outline-width': 1.5,
     // MidPoint
-
-    // MoveLine
-    'moveline-color': 'rgba(250, 84, 28, 0.6)',
-    'moveline-dasharray': [0.8, 2],
   },
 };
 
@@ -59,6 +68,38 @@ export const defaultDrawTheme = {
 export const getDrawLayers = function(theme) {
   return [
     // ----- 非活动状态 -----
+    // Polygon Feature要素图层
+    {
+      id: 'draw-inactive-polygon',
+      type: 'polygon',
+      options: {
+        paint: {
+          'fill-color': ['case', ['==', ['get', 'draw:mode'], 'static'], theme.static['polygon-color'], theme.inactive['polygon-color']],
+        },
+        filter: ['all', ['==', '$type', 'Polygon'], ['==', 'draw:meta', 'feature'], ['!=', 'draw:active', 'true']],
+      },
+    },
+    {
+      id: 'draw-inactive-polygon-outline',
+      type: 'line',
+      options: {
+        paint: {
+          'line-color': [
+            'case',
+            ['==', ['get', 'draw:mode'], 'static'],
+            theme.static['polygon-outline-color'],
+            theme.inactive['polygon-outline-color'],
+          ],
+          'line-width': [
+            'case',
+            ['==', ['get', 'draw:mode'], 'static'],
+            theme.static['polygon-outline-width'],
+            theme.inactive['polygon-outline-width'],
+          ],
+        },
+        filter: ['all', ['==', '$type', 'Polygon'], ['==', 'draw:meta', 'feature'], ['!=', 'draw:active', 'true']],
+      },
+    },
     // Line Feature要素图层
     {
       id: 'draw-inactive-line',
@@ -97,6 +138,51 @@ export const getDrawLayers = function(theme) {
     },
 
     // ----- 活动状态 -----
+    // Polygon Feature要素图层
+    {
+      id: 'draw-active-polygon',
+      type: 'polygon',
+      options: {
+        paint: {
+          'fill-color': theme.active['polygon-color'],
+        },
+        filter: ['all', ['==', '$type', 'Polygon'], ['==', 'draw:meta', 'feature'], ['==', 'draw:active', 'true']],
+      },
+    },
+    {
+      id: 'draw-active-polygon-outline',
+      type: 'line',
+      options: {
+        paint: {
+          'line-color': theme.active['polygon-outline-color'],
+          'line-width': theme.active['polygon-outline-width'],
+        },
+        filter: [
+          'all',
+          ['==', '$type', 'Polygon'],
+          ['==', 'draw:meta', 'feature'],
+          ['in', 'draw:mode', 'select', 'edit'],
+          ['==', 'draw:active', 'true'],
+        ],
+      },
+    },
+    {
+      id: 'draw-active-polygon-templine',
+      type: 'line',
+      options: {
+        paint: {
+          'line-color': theme.active['polygon-outline-color'],
+          'line-width': theme.active['polygon-outline-width'],
+        },
+        filter: [
+          'all',
+          ['==', '$type', 'LineString'],
+          ['==', 'draw:meta', 'templine'],
+          ['==', 'draw:mode', 'polygon'],
+          ['==', 'draw:active', 'true'],
+        ],
+      },
+    },
     // Line Feature要素图层
     {
       id: 'draw-active-line',
@@ -116,7 +202,7 @@ export const getDrawLayers = function(theme) {
       options: {
         paint: {
           'line-color': theme.active['moveline-color'],
-          'line-width': theme.active['line-width'],
+          'line-width': ['case', ['==', ['get', 'draw:mode'], 'polygon'], theme.active['polygon-outline-width'], theme.active['line-width']],
           'line-dasharray': theme.active['moveline-dasharray'],
         },
         filter: ['all', ['==', '$type', 'LineString'], ['==', 'draw:meta', 'moveline'], ['==', 'draw:active', 'true']],
