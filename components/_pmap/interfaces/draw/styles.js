@@ -202,7 +202,7 @@ export const getDrawLayers = function(theme) {
       options: {
         paint: {
           'line-color': theme.active['moveline-color'],
-          'line-width': ['case', ['==', ['get', 'draw:mode'], 'polygon'], theme.active['polygon-outline-width'], theme.active['line-width']],
+          'line-width': ['case', ['==', ['get', 'draw:mode'], 'line'], theme.active['line-width'], theme.active['polygon-outline-width']],
           'line-dasharray': theme.active['moveline-dasharray'],
         },
         filter: ['all', ['==', '$type', 'LineString'], ['==', 'draw:meta', 'moveline'], ['==', 'draw:active', 'true']],

@@ -13,6 +13,7 @@ export default {
     DRAW_POINT: 'point',
     DRAW_LINE: 'line',
     DRAW_POLYGON: 'polygon',
+    DRAW_CIRCLE: 'circle',
   },
 
   // 绘制交互的回调事件名

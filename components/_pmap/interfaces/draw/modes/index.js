@@ -9,6 +9,7 @@ import SelectMode from './select';
 import PointMode from './point';
 import LineMode from './line';
 import PolygonMode from './polygon';
+import CircleMode from './circle';
 
 export default {
   static: StaticMode,
@@ -16,4 +17,5 @@ export default {
   point: PointMode,
   line: LineMode,
   polygon: PolygonMode,
+  circle: CircleMode,
 };
