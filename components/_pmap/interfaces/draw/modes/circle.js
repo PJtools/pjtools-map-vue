@@ -7,7 +7,7 @@
 import assign from 'lodash/assign';
 import round from 'lodash/round';
 import Constants from '../constants';
-import { isVertex, isEscapeKey, isEnterKey } from '../libs/common_selectors';
+import { isVertex } from '../libs/common_selectors';
 import isEventAtCoordinates from '../libs/is_event_at_coordinates';
 import PolygonMode, { calculatePolygonArea } from './polygon';
 import { defaultDrawSetupMethodsSetup, defaultDrawSetupMethodsStop } from './point';
