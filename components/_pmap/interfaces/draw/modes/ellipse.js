@@ -10,7 +10,7 @@ import Constants from '../constants';
 import { defaultDrawSetupMethodsSetup } from './point';
 import { calculatePolygonArea } from './polygon';
 import CircleMode from './circle';
-import { isBooleanTrue, isEmpty, isNumeric } from '../../../../_util/methods-util';
+import { isEmpty, isNumeric } from '../../../../_util/methods-util';
 
 const DEFAULT_CURSOR_OPTIONS = {
   cursor: 'default',
