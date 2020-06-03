@@ -18,8 +18,10 @@ const DEFAULT_CURSOR_OPTIONS = {
 export const defaultDrawSetupMethodsSetup = function(context, cursor) {
   // 设置绘图为非活动状态
   context.ctx.setActive(false);
-  // 禁止地图双击缩放交互
-  context.ctx.iMapApi.Handlers.doubleClickZoom.disable();
+  // 延时禁止地图双击缩放交互，避免绘制状态结束的双击触发
+  window.setTimeout(() => {
+    context.ctx.iMapApi.Handlers.doubleClickZoom.disable();
+  }, 320);
   // 清空所有选中的要素
   context.clearSelectedFeatures();
   // 设置当前可活动操作的状态
