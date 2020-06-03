@@ -10,6 +10,7 @@ import PointMode from './point';
 import LineMode from './line';
 import PolygonMode from './polygon';
 import CircleMode from './circle';
+import RectangleMode from './rectangle';
 
 export default {
   static: StaticMode,
@@ -18,4 +19,5 @@ export default {
   line: LineMode,
   polygon: PolygonMode,
   circle: CircleMode,
+  rectangle: RectangleMode,
 };
