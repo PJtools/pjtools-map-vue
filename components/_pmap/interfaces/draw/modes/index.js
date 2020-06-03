@@ -11,6 +11,7 @@ import LineMode from './line';
 import PolygonMode from './polygon';
 import CircleMode from './circle';
 import RectangleMode from './rectangle';
+import EllipseMode from './ellipse';
 
 export default {
   static: StaticMode,
@@ -20,4 +21,5 @@ export default {
   polygon: PolygonMode,
   circle: CircleMode,
   rectangle: RectangleMode,
+  ellipse: EllipseMode,
 };

@@ -15,6 +15,7 @@ export default {
     DRAW_POLYGON: 'polygon',
     DRAW_CIRCLE: 'circle',
     DRAW_RECTANGLE: 'rectangle',
+    DRAW_ELLIPSE: 'ellipse',
   },
 
   // 绘制交互的回调事件名
