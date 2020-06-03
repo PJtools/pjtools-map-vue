@@ -13,6 +13,13 @@ import PolygonMode, { calculatePolygonArea } from './polygon';
 import { defaultDrawSetupMethodsSetup, defaultDrawSetupMethodsStop } from './point';
 import { isEmpty, isNumeric } from '../../../../_util/methods-util';
 
+const DEFAULT_CURSOR_OPTIONS = {
+  cursor: 'default',
+  icon: 'highlight',
+  content: '单击确定圆心，ESC键取消',
+  clicked: '再次单击，绘制结束',
+};
+
 // 计算当前绘制Circle圆形要素的面积与周长
 export const calculateCircleArea = function(context, coordinates, radius) {
   let measure = {};
@@ -31,13 +38,6 @@ export const calculateCircleArea = function(context, coordinates, radius) {
   return {
     measure,
   };
-};
-
-const DEFAULT_CURSOR_OPTIONS = {
-  cursor: 'default',
-  icon: 'highlight',
-  content: '单击确定圆心，ESC键取消',
-  clicked: '再次单击，绘制结束',
 };
 
 const CircleMode = {};
@@ -108,7 +108,7 @@ CircleMode.onStop = function(state) {
   // 移除当前绘制<活动状态>无效的Circle圆形要素
   if (state.polygon) {
     if (!state.polygon.coordinates || !state.polygon.coordinates.length || !state.polygon.coordinates[0].length === 1) {
-      this.deleteFeature([state.polygon.id]);
+      this.deleteFeature([state.polygon.id], { silent: true });
       delete state.polygon;
     }
   }
@@ -120,17 +120,7 @@ CircleMode.onStop = function(state) {
 };
 
 // 触发删除选中的Feature矢量要素
-CircleMode.onTrash = function(state) {
-  // 移除当前绘制<活动状态>的临时线与节点要素
-  this.deleteMoveLineAndVertex(state);
-  // 移除当前绘制<活动状态>的Polygon面要素
-  if (state.polygon) {
-    this.deleteFeature([state.polygon.id], { silent: true });
-    delete state.polygon;
-  }
-  // 切换到“选取”模式
-  this.changeMode(Constants.modes.SELECT);
-};
+CircleMode.onTrash = PolygonMode.onTrash;
 
 // 触发Tap/Click时的响应事件
 CircleMode.onTap = CircleMode.onClick = function(state, e) {
@@ -281,8 +271,8 @@ CircleMode.clickAnywhere = function(state, e) {
 
 // <自定义函数>判定doubleClick时的响应事件
 CircleMode.doubleClick = function(state) {
-  // 判断当前绘制<活动状态>的Circle要素坐标是否已确定圆心和半径
-  if (state.polygon && state.polygon.center && state.polygon.coordinates[0].length > 2) {
+  // 判断当前绘制<活动状态>的Circle要素坐标是否至少3个坐标点
+  if (state.polygon && state.polygon.coordinates[0] && state.polygon.coordinates[0].length > 2) {
     // 强制刷新Circle圆要素
     this.ctx.store.featureChanged(state.polygon.id);
     // 移除当前绘制<活动状态>的临时线与节点要素
@@ -318,7 +308,7 @@ CircleMode.throttleMouseMove = function(state, e) {
   // 更新临时移动MoveLine要素的坐标
   state.moveline.setCoordinates(circle.coordinates);
   // 更新圆形要素的坐标
-  const circleCoordinates = circle.coordinates;
+  const circleCoordinates = [...circle.coordinates];
   circleCoordinates.splice(circleCoordinates.length - 1, 1);
   state.polygon.setCoordinates([circleCoordinates]);
   state.polygon.updateInternalProperty('radius', circle.radius);

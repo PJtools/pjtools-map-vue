@@ -108,7 +108,7 @@ LineMode.onStop = function(state) {
   this.deleteMoveLineAndVertex(state);
   // 移除当前绘制<活动状态>无效的Line线要素
   if (state.line && state.line.coordinates.length < 2) {
-    this.deleteFeature([state.line.id]);
+    this.deleteFeature([state.line.id], { silent: true });
     delete state.line;
   }
   // 执行默认取消释放
@@ -121,16 +121,7 @@ LineMode.onStop = function(state) {
 
 // 触发删除选中的Feature矢量要素
 LineMode.onTrash = function(state) {
-  // 移除当前绘制<活动状态>的临时线与节点要素
-  this.deleteMoveLineAndVertex(state);
-  // 移除当前绘制<活动状态>的Line线要素
-  if (state.line) {
-    const silent = state.line.coordinates && state.line.coordinates.length > 1 ? false : true;
-    this.deleteFeature([state.line.id], { silent });
-    delete state.line;
-  }
-  // 切换到“选取”模式
-  this.changeMode(Constants.modes.SELECT);
+  this.onCancel(state);
 };
 
 // 触发Tap/Click时的响应事件

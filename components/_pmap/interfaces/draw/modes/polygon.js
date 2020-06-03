@@ -134,7 +134,7 @@ PolygonMode.onStop = function(state) {
   if (state.polygon && state.polygon.coordinates && state.polygon.coordinates[0]) {
     const coordinates = state.polygon.coordinates[0];
     if (!coordinates || coordinates.length < 3) {
-      this.deleteFeature([state.polygon.id]);
+      this.deleteFeature([state.polygon.id], { silent: true });
       delete state.polygon;
     }
   }
@@ -148,17 +148,7 @@ PolygonMode.onStop = function(state) {
 
 // 触发删除选中的Feature矢量要素
 PolygonMode.onTrash = function(state) {
-  // 记录当前绘制的节点数判定是否绘制Polygon面有效
-  const silent = state.vertex && state.vertex.features && state.vertex.features.length > 2 ? false : true;
-  // 移除当前绘制<活动状态>的临时线与节点要素
-  this.deleteMoveLineAndVertex(state);
-  // 移除当前绘制<活动状态>的Polygon面要素
-  if (state.polygon) {
-    this.deleteFeature([state.polygon.id], { silent });
-    delete state.polygon;
-  }
-  // 切换到“选取”模式
-  this.changeMode(Constants.modes.SELECT);
+  this.onCancel(state);
 };
 
 // 触发Tap/Click时的响应事件

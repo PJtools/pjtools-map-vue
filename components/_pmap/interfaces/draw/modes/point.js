@@ -77,7 +77,7 @@ PointMode.toDisplayFeatures = function(state, geojson, display) {
 PointMode.onStop = function(state) {
   // 判断绘制的Point要素是否无效
   if (state.point && !state.point.getCoordinate().length) {
-    this.deleteFeature([state.point.id]);
+    this.deleteFeature([state.point.id], { silent: true });
     delete state.point;
   }
   // 执行默认取消释放
@@ -98,7 +98,11 @@ PointMode.onCompleted = function(geojson) {
 };
 
 // Mode模式 - 绘制取消
-PointMode.onCancel = function() {
+PointMode.onCancel = function(state) {
+  if (state.point) {
+    this.deleteFeature([state.point.id], { silent: true });
+    delete state.point;
+  }
   // 驱动事件回调
   this.ctx.api.fire(Constants.events.DRAW_CANCEL, {
     mode: this.getMode(),
@@ -137,11 +141,7 @@ PointMode.onKeyUp = function(state, e) {
  * 触发删除选中的Feature矢量要素
  */
 PointMode.onTrash = function(state) {
-  if (state.point) {
-    this.deleteFeature([state.point.id]);
-    delete state.point;
-  }
-  this.changeMode(Constants.modes.SELECT);
+  this.onCancel(state);
 };
 
 export default PointMode;
