@@ -4,6 +4,7 @@
  * @创建时间: 2020-05-22 11:20:22
  */
 
+import Constants from '../constants';
 import { eventKeys } from '../modes/object_to_mode';
 
 const ModeHandler = function(mode, context) {
@@ -32,7 +33,7 @@ const ModeHandler = function(mode, context) {
     while (iHandle--) {
       const handle = handles[iHandle];
       if (handle.selector(event)) {
-        const skipRender = handle.fn.call(ctx, event);
+        let skipRender = handle.fn.call(ctx, event);
         if (!skipRender) {
           context.store.render();
         }
@@ -44,10 +45,10 @@ const ModeHandler = function(mode, context) {
   return {
     render: mode.render,
 
-    start() {
+    start(options = null) {
       // 激活时聚焦地图区域，解决绘图键盘事件默认不激活
       context.container && context.container.focus && context.container.focus();
-      mode.start.call(ctx);
+      mode.start.call(ctx, options);
     },
 
     stop() {

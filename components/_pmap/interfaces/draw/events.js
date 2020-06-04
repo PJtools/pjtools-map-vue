@@ -190,7 +190,7 @@ const events = function(ctx) {
         isModeChange = true;
       }
       // 驱动模式激活
-      currentMode.start();
+      currentMode.start(nextModeOptions || {});
       // 设置模式切换的渲染状态
       ctx.store.setModeChangeRendering();
       // 渲染绘制的数据

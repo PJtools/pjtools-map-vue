@@ -7,6 +7,10 @@
 import assign from 'lodash/assign';
 import { isBooleanTrue } from '../../../../_util/methods-util';
 import Constants from '../constants';
+import Point from '../feature_types/point';
+import LineString from '../feature_types/line_string';
+import Polygon from '../feature_types/polygon';
+import MultiFeature from '../feature_types/multi_feature';
 
 const _context = Symbol('ctx');
 const _cursorOptions = Symbol('cursorOptions');
@@ -57,10 +61,21 @@ class ModeInterface {
   }
 
   /**
-   * 清除当前绘制模式的选中Feature要素
+   * 设置地图鼠标的CSS样式
    */
-  clearSelectedFeatures() {
-    return this.ctx.store.clearSelected();
+  setMapCursorStyle(cursor) {
+    const iMapApi = this.ctx.api.iMapApi;
+    const container = iMapApi.getMapCanvasConatainer();
+    if (container) {
+      if (cursor === null || cursor === undefined) {
+        container.style.removeProperty('cursor');
+      } else {
+        const style = container.style.getPropertyValue('cursor');
+        if (style.replace('!important').trim() !== cursor) {
+          container.style.setProperty('cursor', cursor.trim(), 'important');
+        }
+      }
+    }
   }
 
   /**
@@ -126,6 +141,28 @@ class ModeInterface {
   }
 
   /**
+   * 获取当前选中的Feature要素
+   */
+  getSelected() {
+    return this.ctx.store.getSelected();
+  }
+
+  /**
+   * 获取当前选中的Feature要素Id
+   */
+  getSelectedIds() {
+    return this.ctx.store.getSelectedIds();
+  }
+
+  /**
+   * 判断指定Id的Feature要素是否为选中状态
+   * @param {String} id Feature要素的Id
+   */
+  isSelected(id) {
+    return this.ctx.store.isSelected(id);
+  }
+
+  /**
    * 指定Id的Feature对象更新为选中状态
    * @param {Array} ids 待选中的Feature要素Id集合
    */
@@ -134,11 +171,55 @@ class ModeInterface {
   }
 
   /**
+   * 删除指定Feature要素Id选中状态
+   * @param {String} id 待删除选中的Feature要素Id
+   */
+  deselect(id) {
+    return this.ctx.store.deselect(id);
+  }
+
+  /**
+   * 清除当前绘制模式的选中Feature要素
+   * @param {Object} options 删除的参数选项
+   */
+  clearSelectedFeatures(options = {}) {
+    return this.ctx.store.clearSelected(options);
+  }
+
+  /**
    * 获取指定Id的Feature对象
    * @param {String} id Feature要素的Id
    */
   getFeature(id) {
     return this.ctx.store.get(id);
+  }
+
+  /**
+   * 判断Feature要素是否为指定类型比对相同
+   * @param {String} type 要素类型，Point、LineString、Polygon、MultiFeature
+   * @param {Feature} feature Feature要素对象
+   */
+  isInstanceOf(type, feature) {
+    switch (type) {
+      case Constants.geojsonTypes.POINT:
+        return eature instanceof Point;
+      case Constants.geojsonTypes.LINE_STRING:
+        return feature instanceof LineString;
+      case Constants.geojsonTypes.POLYGON:
+        return feature instanceof Polygon;
+      case 'MultiFeature':
+        return feature instanceof MultiFeature;
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * 强制渲染指定Id的要素Feature对象
+   * @param {String} id 要素的Id
+   */
+  doRender(id) {
+    return this.ctx.store.featureChanged(id);
   }
 }
 

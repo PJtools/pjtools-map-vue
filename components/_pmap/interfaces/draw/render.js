@@ -5,7 +5,7 @@
  */
 
 import Constants from './constants';
-import { isNotEmptyArray, isEmpty } from '../../../_util/methods-util';
+import { isNotEmptyArray } from '../../../_util/methods-util';
 import find from 'lodash/find';
 
 export default function render() {
@@ -37,6 +37,7 @@ export default function render() {
     return currentFeature;
   };
 
+  const oldSourcesLength = store.sources.length;
   const featureIds = store.getAllIds();
   const changedIds = store.getChangedIds().filter(id => {
     const feature = store.get(id);
@@ -102,8 +103,8 @@ export default function render() {
   }
 
   // 判断是否有绘图数据源更新，则重新渲染图层数据
-  if (!!(renderList && renderList.length)) {
-    store.sources = newSources;
+  if (!!(renderList && renderList.length) || (!newSources.length && newSources.length !== oldSourcesLength.length)) {
+    store.sources = [...newSources];
     // 设置绘图的数据源数据
     drawSource.setData({
       type: Constants.geojsonTypes.FEATURE_COLLECTION,

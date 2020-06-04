@@ -40,8 +40,9 @@ export default function(modeObject) {
     };
 
     return {
-      start() {
-        state = mode.onSetup(startOpts);
+      start(options = null) {
+        const modeOptions = options !== null && options !== undefined ? options : startOpts;
+        state = mode.onSetup(modeOptions);
         eventKeys.forEach(key => {
           const modeHandler = eventMapper[key];
           let selector = () => false;
