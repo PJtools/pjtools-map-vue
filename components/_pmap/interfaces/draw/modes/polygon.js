@@ -130,13 +130,14 @@ PolygonMode.toDisplayFeatures = function(state, geojson, display) {
 PolygonMode.onStop = function(state) {
   // 移除当前绘制<活动状态>的临时线与节点要素
   this.deleteMoveLineAndVertex(state);
-  // 移除当前绘制<活动状态>无效的Polygon面要素
-  if (state.polygon && state.polygon.coordinates && state.polygon.coordinates[0]) {
-    const coordinates = state.polygon.coordinates[0];
-    if (!coordinates || coordinates.length < 3) {
-      this.deleteFeature([state.polygon.id], { silent: true });
-      delete state.polygon;
-    }
+  // 移除当前绘制<活动状态>未完成的Polygon面要素
+  if (state.polygon && !state.polygon.completed) {
+    this.deleteFeature([state.polygon.id], { silent: true });
+    delete state.polygon;
+    // 驱动事件回调
+    this.ctx.api.fire(Constants.events.DRAW_CANCEL, {
+      mode: this.getMode(),
+    });
   }
   // 执行默认取消释放
   defaultDrawSetupMethodsStop(this);

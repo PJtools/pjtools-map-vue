@@ -105,12 +105,14 @@ CircleMode.toDisplayFeatures = function(state, geojson, display) {
 CircleMode.onStop = function(state) {
   // 移除当前绘制<活动状态>的临时线与节点要素
   this.deleteMoveLineAndVertex(state);
-  // 移除当前绘制<活动状态>无效的Circle圆形要素
-  if (state.polygon) {
-    if (!state.polygon.coordinates || !state.polygon.coordinates.length || !state.polygon.coordinates[0].length === 1) {
-      this.deleteFeature([state.polygon.id], { silent: true });
-      delete state.polygon;
-    }
+  // 移除当前绘制<活动状态>未完成的Circle圆形要素
+  if (state.polygon && !state.polygon.completed) {
+    this.deleteFeature([state.polygon.id], { silent: true });
+    delete state.polygon;
+    // 驱动事件回调
+    this.ctx.api.fire(Constants.events.DRAW_CANCEL, {
+      mode: this.getMode(),
+    });
   }
   // 执行默认取消释放
   defaultDrawSetupMethodsStop(this);

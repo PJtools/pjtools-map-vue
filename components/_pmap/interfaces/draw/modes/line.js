@@ -106,10 +106,14 @@ LineMode.toDisplayFeatures = function(state, geojson, display) {
 LineMode.onStop = function(state) {
   // 移除当前绘制<活动状态>的临时线与节点要素
   this.deleteMoveLineAndVertex(state);
-  // 移除当前绘制<活动状态>无效的Line线要素
-  if (state.line && state.line.coordinates.length < 2) {
+  // 移除当前绘制<活动状态>未完成的Line线要素
+  if (state.line && !state.line.completed) {
     this.deleteFeature([state.line.id], { silent: true });
     delete state.line;
+    // 驱动事件回调
+    this.ctx.api.fire(Constants.events.DRAW_CANCEL, {
+      mode: this.getMode(),
+    });
   }
   // 执行默认取消释放
   defaultDrawSetupMethodsStop(this);

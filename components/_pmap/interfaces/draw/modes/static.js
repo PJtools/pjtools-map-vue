@@ -8,7 +8,11 @@ const StaticMode = {};
 
 // Mode模式的注册 - 激活入口
 StaticMode.onSetup = function() {
-  console.log('static mode');
+  // 清空所有选中的要素
+  this.clearSelectedFeatures();
+  // 禁用所有可活动的操作
+  this.setActionableState({});
+
   return {};
 };
 
