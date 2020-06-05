@@ -12,6 +12,8 @@ StaticMode.onSetup = function() {
   this.clearSelectedFeatures();
   // 禁用所有可活动的操作
   this.setActionableState({});
+  // 设置绘图为非活动状态
+  this.ctx.setActive(false);
 
   return {};
 };
