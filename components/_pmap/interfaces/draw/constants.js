@@ -30,6 +30,8 @@ export default {
     RENDER: 'draw.render',
     // 绘图时的数据删除
     DELETE: 'draw.delete',
+    // 绘图时的数据更新
+    UPDATE: 'draw.update',
     // 绘图时合并要素
     COMBINE_FEATURES: 'draw.combine',
     // 绘图时拆分复合要素
@@ -42,6 +44,8 @@ export default {
     DRAW_CLICK: 'draw.click',
     // 绘制模式的MouseMove
     DRAW_MOUSEMOVE: 'draw.mousemove',
+    // 绘制模式的Drag
+    DRAW_DRAG: 'draw.drag',
   },
 
   // 绘图图层的数据源前缀

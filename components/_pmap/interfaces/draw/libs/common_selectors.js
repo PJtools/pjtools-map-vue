@@ -55,6 +55,13 @@ export function isVertex(e) {
   return featureTarget.properties['draw:meta'] === Constants.meta.VERTEX;
 }
 
+export function isMidPoint(e) {
+  const featureTarget = e.featureTarget;
+  if (!featureTarget) return false;
+  if (!featureTarget.properties) return false;
+  return featureTarget.properties['draw:meta'] === Constants.meta.MIDPOINT;
+}
+
 export function isShiftDown(e) {
   if (!e.originalEvent) return false;
   return e.originalEvent.shiftKey === true;

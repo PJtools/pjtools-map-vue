@@ -60,7 +60,15 @@ export const defaultDrawTheme = {
     'vertex-radius': 4,
     'vertex-outline-color': 'rgba(250, 84, 28, 0.9)',
     'vertex-outline-width': 1.5,
+    'vertex-selected-color': 'rgba(255, 216, 191, 0.9)',
+    'vertex-selected-radius': 5,
+    'vertex-selected-outline-color': 'rgba(250, 84, 28, 0.9)',
+    'vertex-selected-outline-width': 2,
     // MidPoint
+    'midpoint-color': 'rgba(250, 122, 69, 0.9)',
+    'midpoint-radius': 3.5,
+    'midpoint-outline-color': 'rgba(255, 216, 191, 0.8)',
+    'midpoint-outline-width': 1,
   },
 };
 
@@ -214,12 +222,35 @@ export const getDrawLayers = function(theme) {
       type: 'point',
       options: {
         paint: {
-          'circle-color': theme.active['vertex-color'],
-          'circle-radius': theme.active['vertex-radius'],
-          'circle-stroke-color': theme.active['vertex-outline-color'],
-          'circle-stroke-width': theme.active['vertex-outline-width'],
+          'circle-color': ['case', ['==', ['get', 'draw:selected'], true], theme.active['vertex-selected-color'], theme.active['vertex-color']],
+          'circle-radius': ['case', ['==', ['get', 'draw:selected'], true], theme.active['vertex-selected-radius'], theme.active['vertex-radius']],
+          'circle-stroke-color': [
+            'case',
+            ['==', ['get', 'draw:selected'], true],
+            theme.active['vertex-selected-outline-color'],
+            theme.active['vertex-outline-color'],
+          ],
+          'circle-stroke-width': [
+            'case',
+            ['==', ['get', 'draw:selected'], true],
+            theme.active['vertex-selected-outline-width'],
+            theme.active['vertex-outline-width'],
+          ],
         },
         filter: ['all', ['==', '$type', 'Point'], ['==', 'draw:meta', 'vertex'], ['==', 'draw:active', 'true']],
+      },
+    },
+    {
+      id: 'draw-active-midpoint',
+      type: 'point',
+      options: {
+        paint: {
+          'circle-color': theme.active['midpoint-color'],
+          'circle-radius': theme.active['midpoint-radius'],
+          'circle-stroke-color': theme.active['midpoint-outline-color'],
+          'circle-stroke-width': theme.active['midpoint-outline-width'],
+        },
+        filter: ['all', ['==', '$type', 'Point'], ['==', 'draw:meta', 'midpoint'], ['==', 'draw:active', 'true']],
       },
     },
     // Point Feature要素图层

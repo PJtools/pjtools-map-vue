@@ -7,6 +7,7 @@
 import Constants from './constants';
 import { isNotEmptyArray } from '../../../_util/methods-util';
 import find from 'lodash/find';
+import hat from 'hat';
 
 export default function render() {
   const store = this;
@@ -74,16 +75,22 @@ export default function render() {
     ctx.api.fire(Constants.events.SELECTION_CHANGE, {
       mode,
       features: store.getSelected().map(feature => feature.toGeoJSON()),
-      // points: store.getSelectedCoordinates().map(coordinate => ({
-      //   type: Constants.geojsonTypes.FEATURE,
-      //   properties: {},
-      //   geometry: {
-      //     type: Constants.geojsonTypes.POINT,
-      //     coordinates: coordinate.coordinates,
-      //   },
-      // })),
+      points: store.getSelectedCoordinates().map(coordinate => ({
+        id: hat(),
+        type: Constants.geojsonTypes.FEATURE,
+        properties: {
+          'draw:meta': Constants.meta.VERTEX,
+          'draw:type': Constants.geojsonTypes.POINT,
+          'draw:pid': coordinate.pid,
+          'draw:path': coordinate.path,
+        },
+        geometry: {
+          type: Constants.geojsonTypes.POINT,
+          coordinates: coordinate.coordinates,
+        },
+      })),
     });
-
+    console.log(store.getSelectedCoordinates());
     store._emitSelectionChange = false;
   }
 

@@ -6,6 +6,7 @@
 
 import StaticMode from './static';
 import SelectMode from './select';
+import EditMode from './edit';
 import PointMode from './point';
 import LineMode from './line';
 import PolygonMode from './polygon';
@@ -16,6 +17,7 @@ import EllipseMode from './ellipse';
 export default {
   static: StaticMode,
   select: SelectMode,
+  edit: EditMode,
   point: PointMode,
   line: LineMode,
   polygon: PolygonMode,

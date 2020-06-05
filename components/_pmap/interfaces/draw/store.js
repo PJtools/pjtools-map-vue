@@ -264,9 +264,25 @@ class Store {
       const feature = this.get(coordinate.feature_id);
       return {
         coordinates: feature.getCoordinate(coordinate.coord_path),
+        path: coordinate.coord_path,
+        pid: coordinate.feature_id,
       };
     });
     return selected;
+  }
+
+  // 设置选中的Feature要素节点
+  setSelectedCoordinates(coordinates) {
+    this._selectedCoordinates = coordinates;
+    this._emitSelectionChange = true;
+    return this;
+  }
+
+  // 清空选中的Feauture要素节点
+  clearSelectedCoordinates() {
+    this._selectedCoordinates = [];
+    this._emitSelectionChange = true;
+    return this;
   }
 
   // 添加绘制Feature要素
@@ -289,6 +305,8 @@ class Store {
       }
       delete this._features[id];
     });
+    this.refreshSelectedCoordinates(options);
+    return this;
   }
 }
 

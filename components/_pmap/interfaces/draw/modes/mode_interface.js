@@ -187,6 +187,21 @@ class ModeInterface {
   }
 
   /**
+   * 设置选中的Feature要素的Vertex节点
+   * @param {Array} coords 待选中Feature要素的节点集合
+   */
+  setSelectedCoordinates(coords) {
+    this.ctx.store.setSelectedCoordinates(coords);
+    coords.reduce((m, c) => {
+      if (m[c.feature_id] === undefined) {
+        m[c.feature_id] = true;
+        this.ctx.store.get(c.feature_id).changed();
+      }
+      return m;
+    }, {});
+  }
+
+  /**
    * 获取指定Id的Feature对象
    * @param {String} id Feature要素的Id
    */
