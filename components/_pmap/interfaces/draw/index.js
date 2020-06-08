@@ -153,6 +153,30 @@ class Draw extends BasicMapApiEvented {
     const events = this[_ctx].events;
     events && events.changeMode(mode, options, eventOptions);
   }
+
+  /**
+   * 执行当前绘图模式的删除
+   */
+  trash() {
+    const events = this[_ctx].events;
+    events && events.trash && events.trash();
+  }
+
+  /**
+   * 执行当前编辑模式的同类型Feature要素合并成复合要素
+   */
+  combineFeatures() {
+    const events = this[_ctx].events;
+    events && events.combineFeatures && events.combineFeatures();
+  }
+
+  /**
+   * 执行当前编辑模式复合要素类型拆分为单类型Feature要素
+   */
+  uncombineFeatures() {
+    const events = this[_ctx].events;
+    events && events.uncombineFeatures && events.uncombineFeatures();
+  }
 }
 
 export default Draw;

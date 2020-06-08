@@ -1,5 +1,5 @@
 /**
- * @文件说明:
+ * @文件说明: 定义绘图数据的渲染刷新
  * @创建人: pjtools@vip.qq.com
  * @创建时间: 2020-05-26 17:24:30
  */
@@ -90,7 +90,6 @@ export default function render() {
         },
       })),
     });
-    console.log(store.getSelectedCoordinates());
     store._emitSelectionChange = false;
   }
 

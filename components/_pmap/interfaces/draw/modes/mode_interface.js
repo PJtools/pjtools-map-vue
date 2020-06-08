@@ -202,6 +202,13 @@ class ModeInterface {
   }
 
   /**
+   * 清空选中的Feature要素Vertex节点
+   */
+  clearSelectedCoordinates() {
+    return this.ctx.store.clearSelectedCoordinates();
+  }
+
+  /**
    * 获取指定Id的Feature对象
    * @param {String} id Feature要素的Id
    */

@@ -108,7 +108,7 @@ SelectMode.onMouseMove = function(state, e) {
 // <自定义函数>单击绘制的Feature要素
 SelectMode.clickOnFeature = function(state, e) {
   // 获取当前选取的Feature要素
-  const featureId = e.featureTarget.id;
+  const featureId = isVertex(e) ? e.featureTarget.properties['draw:pid'] : e.featureTarget.id;
   // 是否同时按下组合Shift键
   const isShiftClick = isShiftDown(e);
   // 判定是否已经是选中状态

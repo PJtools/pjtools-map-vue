@@ -5,7 +5,6 @@
  */
 
 import Constants from '../constants';
-import { isBooleanTrue } from '../../../../_util/methods-util';
 
 // 创建Vertex节点对象
 const createVertex = (context, pid, coordinates, path, selected) => {
@@ -63,9 +62,9 @@ const createMultiVertex = (context, pid, path = '0') => {
 
 // 生成绘制要素的单一复合节点
 export const createSupplementaryMultiPoints = function(context, feature) {
-  const { type, coordinates, properties } = feature;
+  const { type, coordinates, features, properties } = feature;
   const featureId = feature && feature.id;
-  const supplementaryPoints = [];
+  let supplementaryPoints = [];
 
   // 根据线段生成节点对象
   const processLine = function(line) {
@@ -123,17 +122,20 @@ export const createSupplementaryMultiPoints = function(context, feature) {
     supplementaryPoints.push(vertex);
   } else if (type.indexOf(Constants.geojsonTypes.MULTI_PREFIX) === 0) {
     // 判定是否为复合要素类型
-    // Todo...
+    features.map((subFeature, index) => {
+      subFeature.id = featureId;
+      supplementaryPoints = supplementaryPoints.concat(createSupplementaryMultiPoints(context, subFeature));
+    });
   }
 
   return supplementaryPoints;
 };
 
 // 生成绘制要素的节点
-export const createSupplementaryPoints = function(context, feature, options = {}) {
-  const { type, coordinates, properties } = feature;
+export const createSupplementaryPoints = function(context, feature, options = {}, basePath = null) {
+  const { type, coordinates, features, properties } = feature;
   const featureId = feature && feature.id;
-  const supplementaryPoints = [];
+  let supplementaryPoints = [];
 
   // 判定是否为选中的节点路径
   const isSelectedPath = function(pid, path) {
@@ -177,7 +179,7 @@ export const createSupplementaryPoints = function(context, feature, options = {}
 
   // 判断是否为线要素类型
   if (type === Constants.geojsonTypes.LINE_STRING) {
-    processLine(coordinates);
+    processLine(coordinates, basePath);
   } else if (type === Constants.geojsonTypes.POLYGON) {
     coordinates.map((line, lineIndex) => {
       // 判定多边形面的所属分类，根据不同特定分类进行节点筛选
@@ -188,8 +190,8 @@ export const createSupplementaryPoints = function(context, feature, options = {}
           const index = Math.floor(line.length * 0.75);
           const radius = line[index] || line[0];
           if (radius) {
-            const pointPath = `${pointPath}.${index}`;
-            const vertex = createVertex(context, featureId, radius, pointPath, isSelectedPath(pointPath));
+            const pointPath = basePath !== null ? `${basePath}.0.${index}` : `0.${index}`;
+            const vertex = createVertex(context, featureId, radius, pointPath, isSelectedPath(featureId, pointPath));
             vertex.updateInternalProperty('polygon', properties['draw:polygon']);
             supplementaryPoints.push(vertex);
           }
@@ -199,25 +201,30 @@ export const createSupplementaryPoints = function(context, feature, options = {}
         case 'ellipse': {
           // 添加长轴半径点
           if (line[0]) {
-            const pointPath = `${pointPath}.0`;
-            const vertex = createVertex(context, featureId, line[0], pointPath, isSelectedPath(pointPath));
+            const pointPath = basePath !== null ? `${basePath}.0.0` : `0.0`;
+            const vertex = createVertex(context, featureId, line[0], pointPath, isSelectedPath(featureId, pointPath));
             vertex.updateInternalProperty('polygon', properties['draw:polygon']);
             supplementaryPoints.push(vertex);
           }
           const index = Math.floor(line.length * 0.5);
           if (line[index]) {
-            const pointPath = `${pointPath}.${index}`;
-            const vertex = createVertex(context, featureId, line[index], pointPath, isSelectedPath(pointPath));
+            const pointPath = basePath !== null ? `${basePath}.0.${index}` : `0.${index}`;
+            const vertex = createVertex(context, featureId, line[index], pointPath, isSelectedPath(featureId, pointPath));
             vertex.updateInternalProperty('polygon', properties['draw:polygon']);
             supplementaryPoints.push(vertex);
           }
           break;
         }
         default: {
-          processLine([...line, line[0]], String(lineIndex));
+          processLine([...line, line[0]], basePath !== null ? `${basePath}.${lineIndex}` : String(lineIndex));
           break;
         }
       }
+    });
+  } else if (type.indexOf(Constants.geojsonTypes.MULTI_PREFIX) === 0) {
+    features.map((subFeature, index) => {
+      subFeature.id = featureId;
+      supplementaryPoints = supplementaryPoints.concat(createSupplementaryPoints(context, subFeature, options, index));
     });
   }
 

@@ -10,6 +10,12 @@ import SelectMode from './select';
 import { createSupplementaryPoints } from '../libs/create_supplementary_points';
 import { noTarget, isFeature, isVertex, isActiveFeature, isMidPoint, isShiftDown } from '../libs/common_selectors';
 import moveFeatures from '../libs/move_features';
+import CircleMode from './circle';
+import EllipseMode from './ellipse';
+import RectangleMode from './rectangle';
+
+// 特殊图像
+const DEFAULT_DRAW_POLYGON_TYPES = ['circle', 'ellipse', 'rectangle', 'square'];
 
 const EditMode = {};
 
@@ -73,13 +79,52 @@ EditMode.onStop = function(state) {
 // 触发删除选中的Feature矢量要素
 EditMode.onTrash = function(state) {
   const selectedFeatureIds = this.getSelectedIds();
-  if (selectedFeatureIds && selectedFeatureIds.length) {
+  const deleteFeatures = () => {
     // 移除选中的选中状态与节点
     this.removeSelectedFeaturesVertex(state);
     // 移除选中的Feature要素
     this.deleteFeature(selectedFeatureIds);
+    // 刷新当前可活动操作的状态
+    this.fireActionable();
     // 强制刷新数据
     this.ctx.store.setModeChangeRendering();
+  };
+
+  // 判断是否有选中的节点
+  if (state.selectedCoordPaths && state.selectedCoordPaths.length) {
+    const selectedCoordPaths = state.selectedCoordPaths.sort((a, b) => b.coord_path.localeCompare(a, 'en', { numeric: true }));
+    let isFeatureValid = true;
+    let featureId = null;
+    selectedCoordPaths.map(item => {
+      featureId = item.feature_id;
+      const feature = this.getFeature(featureId);
+      const isSpecialPolygon = !!(
+        feature.properties['draw:polygon'] && DEFAULT_DRAW_POLYGON_TYPES.indexOf(feature.properties['draw:polygon']) !== -1
+      );
+      if (isSpecialPolygon) {
+        isFeatureValid = false;
+      } else {
+        // 删除选中的节点
+        feature.removeCoordinate(item.coord_path);
+        isFeatureValid = feature.isValid();
+      }
+    });
+    if (isFeatureValid) {
+      state.selectedCoordPaths = [];
+      this.setSingleActiveFeatureById(state, featureId);
+      // 清空选中的节点
+      this.clearSelectedCoordinates();
+      // 刷新当前可活动操作的状态
+      this.fireActionable();
+      // 执行事件回调
+      this.fireUpdate(state);
+    } else {
+      // 删除选中的Feature要素
+      deleteFeatures();
+    }
+  } else if (selectedFeatureIds && selectedFeatureIds.length) {
+    // 删除选中的Feature要素
+    deleteFeatures();
   }
 };
 
@@ -117,7 +162,7 @@ EditMode.onMouseMove = function(state, e) {
         feature_id: properties['draw:pid'],
         coord_path: properties['draw:path'],
       }) !== -1 ||
-        (properties && properties['draw:polygon'] && ['circle', 'ellipse', 'rectangle', 'square'].indexOf(properties['draw:polygon']) !== -1))
+        (properties && properties['draw:polygon'] && DEFAULT_DRAW_POLYGON_TYPES.indexOf(properties['draw:polygon']) !== -1))
     ) {
       // 判断是否为选中的Vertex节点对象或者是否为特殊图形的节点
       this.setMapCursorStyle('move');
@@ -189,6 +234,69 @@ EditMode.onTouchEnd = EditMode.onMouseUp = function(state, e) {
   this.stopDragging(state);
 };
 
+// 触发选中Feature要素合并
+EditMode.onCombineFeatures = function(state) {
+  const selectedFeatures = this.getSelected();
+  if (!selectedFeatures.length || selectedFeatures.length < 2) {
+    return;
+  }
+
+  const coordinates = [];
+  const properties = [];
+  const featuresCombined = [];
+  const featureType = selectedFeatures[0].type.replace('Multi', '');
+  for (let i = 0; i < selectedFeatures.length; i++) {
+    const feature = selectedFeatures[i];
+    // 判断待合并的Feature要素是否类型一致
+    if (feature.type.replace('Multi', '') !== featureType) {
+      return;
+    }
+    if (feature.type.includes('Multi')) {
+      const multiProperties = feature.properties && feature.properties['draw:properties'] ? JSON.parse(feature.properties['draw:properties']) : [];
+      feature.getCoordinates().map((subcoords, idx) => {
+        coordinates.push(subcoords);
+        multiProperties[idx] && properties.push(multiProperties[idx]);
+      });
+    } else {
+      coordinates.push(feature.getCoordinates());
+      properties.push(JSON.stringify(feature.properties));
+    }
+    featuresCombined.push(feature.toGeoJSON());
+  }
+
+  if (featuresCombined.length > 1) {
+    this.deleteFeature(this.getSelectedIds(), { silent: true });
+    // 清空选中的Vertex节点
+    this.clearSelectedCoordinatePaths(state);
+    // 新增复合Feature要素
+    const multiFeature = this.newFeature({
+      type: Constants.geojsonTypes.FEATURE,
+      geometry: {
+        type: `Multi${featureType}`,
+        coordinates,
+      },
+    });
+    featureType === Constants.geojsonTypes.POLYGON && multiFeature.updateInternalProperty('polygon', 'polygon');
+    multiFeature.updateInternalProperty('properties', JSON.stringify(properties));
+    multiFeature.updateInternalProperty('active', 'false');
+    this.addFeature(multiFeature);
+    this.setSingleActiveFeatureById(state, multiFeature.id);
+    this.fireActionable();
+    // 刷新数据
+    this.ctx.store.setModeChangeRendering();
+    this.ctx.store.render();
+
+    // 执行事件回调
+    this.ctx.api.fire(Constants.events.COMBINE_FEATURES, {
+      createdFeatures: [multiFeature.toGeoJSON()],
+      deletedFeatures: featuresCombined,
+    });
+  }
+};
+
+// 触发选中复合Feature要素拆分
+EditMode.onUncombineFeatures = function(state) {};
+
 // <自定义函数>单击绘制的Feature要素
 EditMode.clickOnFeature = function(state, e) {
   // 获取当前选取的Feature要素
@@ -236,8 +344,9 @@ EditMode.downOnVertex = function(state, e) {
     const selectedIndex = findIndex(state.selectedCoordPaths, { feature_id: featureId, coord_path: vertexPath });
     // 判断当前节点是否为未选中节点
     if (selectedIndex === -1) {
+      const isSpecialPolygon = !!(properties['draw:polygon'] && DEFAULT_DRAW_POLYGON_TYPES.indexOf(properties['draw:polygon']) !== -1);
       // 判断是否为Shift多选组合键
-      if (isShiftDown(e)) {
+      if (isShiftDown(e) && !isSpecialPolygon) {
         state.selectedCoordPaths.push(this.pathToCoordinates(featureId, vertexPath));
       } else {
         state.selectedCoordPaths = [this.pathToCoordinates(featureId, vertexPath)];
@@ -251,7 +360,26 @@ EditMode.downOnVertex = function(state, e) {
 };
 
 // <自定义函数>敲击按下绘制的MidPoint中点
-EditMode.downOnMidPoint = function(state, e) {};
+EditMode.downOnMidPoint = function(state, e) {
+  this.startDragging(state, e);
+  state.dragMeta = Constants.meta.VERTEX;
+  const properties = e.featureTarget.properties;
+  const featureId = properties['draw:pid'];
+  const feature = this.getFeature(featureId);
+  const coordinates = e.featureTarget.geometry.coordinates;
+  // 增加Vertex节点
+  feature.addCoordinate(properties['draw:path'], coordinates[0], coordinates[1]);
+  // 更新选中节点记录
+  state.selectedCoordPaths = [this.pathToCoordinates(featureId, properties['draw:path'])];
+  // 设置单个Feature要素选中
+  this.setSingleActiveFeatureById(state, featureId);
+  // 更新选中节点记录
+  this.setSelectedCoordinates(state.selectedCoordPaths);
+  // 刷新当前可活动操作的状态
+  this.fireActionable();
+  // 执行事件回调
+  this.fireUpdate(state);
+};
 
 // <自定义函数>敲击按下绘制的Feature要素
 EditMode.downOnFeature = function(state, e) {
@@ -284,7 +412,90 @@ EditMode.stopDragging = function(state) {
 };
 
 // <自定义函数>拖拽选中的Vertex节点
-EditMode.dragVertex = function(state, e, delta) {};
+EditMode.dragVertex = function(state, e, delta) {
+  // 获取选中节点的坐标，且更新移动节点位置
+  const features = state.selectedCoordPaths.map(item => {
+    const feature = this.getFeature(item.feature_id);
+    const coordinates = feature.getCoordinate(item.coord_path);
+    // 判断是否为特殊图像面
+    const isSpecialPolygon = !!(
+      feature.properties &&
+      feature.properties['draw:polygon'] &&
+      DEFAULT_DRAW_POLYGON_TYPES.indexOf(feature.properties['draw:polygon']) !== -1
+    );
+    if (!isSpecialPolygon) {
+      // 更新Feature要素节点
+      feature.updateCoordinate(item.coord_path, coordinates[0] + delta.lng, coordinates[1] + delta.lat);
+    } else {
+      const coordinates = e.lngLat.toArray();
+      switch (feature.properties['draw:polygon']) {
+        case 'circle': {
+          // 判断是否有中心点数据
+          const center = this.calculationCenterPoint(feature);
+          // 重新生成圆
+          const circle = this.getCircleByCoordinates(center, coordinates);
+          const circleCoordinates = [...circle.coordinates];
+          circleCoordinates.splice(circleCoordinates.length - 1, 1);
+          // 更新数据
+          feature.setCoordinates([circleCoordinates]);
+          feature.center = center;
+          feature.updateInternalProperty('center', center.join(','));
+          feature.updateInternalProperty('radius', circle.radius);
+          break;
+        }
+        case 'ellipse': {
+          const center = this.calculationCenterPoint(feature);
+          // 重新生成椭圆
+          const ellipse = this.getEllipseByCoordinates(center, coordinates, {
+            eccentricity: feature.properties['draw:eccentricity'] ? feature.properties['draw:eccentricity'] : 0.8,
+            divisions: 99,
+          });
+          const ellipseCoordinates = [...ellipse.coordinates];
+          ellipseCoordinates.splice(ellipseCoordinates.length - 1, 1);
+          feature.setCoordinates([ellipseCoordinates]);
+          feature.center = center;
+          feature.updateInternalProperty('center', center.join(','));
+          feature.updateInternalProperty('xradius', ellipse.xradius);
+          feature.updateInternalProperty('yradius', ellipse.yradius);
+          break;
+        }
+        case 'rectangle': {
+          const vertexIndex = Number(item.coord_path.split('.')[1]);
+          const { start, diagonal } = this.calculationRectanglePoints(feature, vertexIndex, coordinates);
+          // 重新生成矩形
+          const rectangle = this.getRectangleByCoordinates(start, diagonal);
+          const rectangleCoordinates = [...rectangle.coordinates];
+          rectangleCoordinates.splice(rectangleCoordinates.length - 1, 1);
+          feature.setCoordinates([rectangleCoordinates]);
+          feature.updateInternalProperty('length', rectangle.length);
+          feature.updateInternalProperty('width', rectangle.width);
+          break;
+        }
+        case 'square': {
+          const vertexIndex = Number(item.coord_path.split('.')[1]);
+          const { start, diagonal } = this.calculationRectanglePoints(feature, vertexIndex, coordinates);
+          // 重新生成正方形
+          const square = this.getSquareByCoordinates(start, diagonal, { min: true });
+          const squareCoordinates = [...square.coordinates];
+          squareCoordinates.splice(squareCoordinates.length - 1, 1);
+          feature.setCoordinates([squareCoordinates]);
+          feature.updateInternalProperty('length', square.length);
+          break;
+        }
+      }
+    }
+    // 重绘节点与中点
+    this.setSingleActiveFeatureById(state, feature.id);
+
+    return feature;
+  });
+
+  // 执行事件回调
+  this.ctx.api.fire(Constants.events.DRAW_DRAG, {
+    action: state.dragMeta,
+    features: features.filter(feature => feature.properties['draw:meta'] === Constants.meta.FEATURE).map(feature => feature.toGeoJSON()),
+  });
+};
 
 // <自定义函数>拖拽选中的Feature要素
 EditMode.dragFeature = function(state, e, delta) {
@@ -300,6 +511,7 @@ EditMode.dragFeature = function(state, e, delta) {
   // 移动相对位置
   moveFeatures(selectedFeatures, delta);
   state.dragMoveLocation = e.lngLat;
+
   // 执行事件回调
   this.ctx.api.fire(Constants.events.DRAW_DRAG, {
     action: state.dragMeta,
@@ -448,8 +660,7 @@ EditMode.setSelectedFeatureByIds = function(selectedIds, options = {}) {
     // 判断是否为无中点类型的Polygon面要素
     const isNotMidPointPolygon =
       feature.type === Constants.geojsonTypes.POINT ||
-      (feature.type === Constants.geojsonTypes.POLYGON &&
-        ['circle', 'ellipse', 'rectangle', 'square'].indexOf(feature.properties['draw:polygon']) !== -1);
+      (feature.type === Constants.geojsonTypes.POLYGON && DEFAULT_DRAW_POLYGON_TYPES.indexOf(feature.properties['draw:polygon']) !== -1);
     options.midpoint = isNotMidPointPolygon ? false : !!options.midpoint;
     // 构建对应选中要素的节点或中点
     const vertexs = createSupplementaryPoints(this, feature, options);
@@ -479,5 +690,60 @@ EditMode.removeSelectedFeaturesVertex = function(state) {
   // 清除选中要素的队列
   this.clearSelectedFeatures();
 };
+
+// <自定义函数>计算Feature要素的中心点
+EditMode.calculationCenterPoint = function(feature) {
+  if (!feature.center) {
+    return feature.center;
+  } else if (!feature.properties['draw:center']) {
+    let center = feature.properties['draw:center'];
+    center = center.split(',');
+    return [Number(center[0]), Number(center[1])];
+  } else {
+    const iMapApi = this.ctx.api.iMapApi;
+    const geojson = feature.toGeoJSON();
+    const point = iMapApi.getFeaturesToCenter(geojson);
+    return point && point.geometry.coordinates;
+  }
+};
+
+// <自定义函数>根据矩形节点的索引获取起始点与对角点
+EditMode.calculationRectanglePoints = function(feature, index, coordinates) {
+  let start = feature.coordinates[0][0];
+  let diagonal = feature.coordinates[0][2];
+  switch (index) {
+    case 0: {
+      start = coordinates;
+      break;
+    }
+    case 1: {
+      start = [start[0], coordinates[1]];
+      diagonal = [coordinates[0], diagonal[1]];
+      break;
+    }
+    case 2: {
+      diagonal = coordinates;
+      break;
+    }
+    case 3: {
+      start = [coordinates[0], start[1]];
+      diagonal = [diagonal[0], coordinates[1]];
+      break;
+    }
+  }
+  return { start, diagonal };
+};
+
+// <自定义函数>根据圆心和半径坐标点位获取圆形坐标
+EditMode.getCircleByCoordinates = CircleMode.getCircleByCoordinates;
+
+// <自定义函数>根据圆心和长轴坐标点位获取椭圆坐标
+EditMode.getEllipseByCoordinates = EllipseMode.getEllipseByCoordinates;
+
+// <自定义函数>根据对角坐标点位获取矩形坐标
+EditMode.getRectangleByCoordinates = RectangleMode.getRectangleByCoordinates;
+
+// <自定义函数>根据对角坐标点位获取正方形坐标
+EditMode.getSquareByCoordinates = RectangleMode.getSquareByCoordinates;
 
 export default EditMode;
