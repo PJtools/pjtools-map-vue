@@ -4,6 +4,7 @@
  * @创建时间: 2020-06-02 14:08:45
  */
 
+import hat from 'hat';
 import assign from 'lodash/assign';
 import round from 'lodash/round';
 import Constants from '../constants';
@@ -242,7 +243,7 @@ CircleMode.clickAnywhere = function(state, e) {
     // 判定是否有设定初始半径模式，则直接绘制完成
     if (state.options.radius !== null) {
       // 根据圆心点与半径获取圆形要素坐标点
-      const circle = this.getCircleByRadius(state, coordinates, state.options.radius);
+      const circle = this.getCircleByRadius(coordinates, state.options.radius);
       // 更新圆形要素的坐标
       const circleCoordinates = circle.coordinates;
       circleCoordinates.splice(circleCoordinates.length - 1, 1);
@@ -306,7 +307,7 @@ CircleMode.throttleMouseMove = function(state, e) {
   }
   const coordinates = [e.lngLat.lng, e.lngLat.lat];
   // 根据两点获取绘制圆形的坐标
-  const circle = this.getCircleByCoordinates(state, state.polygon.center, coordinates);
+  const circle = this.getCircleByCoordinates(state.polygon.center, coordinates);
   // 更新临时移动MoveLine要素的坐标
   state.moveline.setCoordinates(circle.coordinates);
   // 更新圆形要素的坐标
@@ -329,7 +330,7 @@ CircleMode.throttleMouseMove = function(state, e) {
 };
 
 // <自定义函数>根据起始点与半径坐标点，获取绘制Circle圆形要素坐标点
-CircleMode.getCircleByCoordinates = function(state, center, coordinates) {
+CircleMode.getCircleByCoordinates = function(center, coordinates) {
   // 计算两点之间的距离，即圆形半径
   const iMapApi = this.ctx.api.iMapApi;
   const { turf } = iMapApi.exports;
@@ -338,7 +339,7 @@ CircleMode.getCircleByCoordinates = function(state, center, coordinates) {
   const line = turf.lineString([wgs84Center, wgs84Coordinates]);
   const radius = turf.length(line, { units: 'kilometers' });
   // 根据中心点和半径生成圆形要素坐标
-  const circleFeature = iMapApi.createCircleFeature(state.polygon.id, center, radius);
+  const circleFeature = iMapApi.createCircleFeature(hat(), center, radius);
   return {
     coordinates: circleFeature.geometry.coordinates[0],
     radius,
@@ -346,9 +347,9 @@ CircleMode.getCircleByCoordinates = function(state, center, coordinates) {
 };
 
 // <自定义函数>根据起始点与半径数值，获取绘制Circle圆形要素坐标点
-CircleMode.getCircleByRadius = function(state, center, radius) {
+CircleMode.getCircleByRadius = function(center, radius) {
   const iMapApi = this.ctx.api.iMapApi;
-  const circleFeature = iMapApi.createCircleFeature(state.polygon.id, center, radius);
+  const circleFeature = iMapApi.createCircleFeature(hat(), center, radius);
   return {
     coordinates: circleFeature.geometry.coordinates[0],
     radius,

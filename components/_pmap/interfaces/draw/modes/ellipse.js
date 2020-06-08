@@ -130,6 +130,7 @@ EllipseMode.initStateDrawFeature = function(state) {
     },
   });
   polygon.updateInternalProperty('polygon', Constants.modes.DRAW_ELLIPSE);
+  polygon.updateInternalProperty('eccentricity', state.options.eccentricity);
   state.polygon = polygon;
   state.polygon.center = null;
   state.polygon.completed = false;
@@ -179,7 +180,10 @@ EllipseMode.clickAnywhere = function(state, e) {
     // 判定是否有设定初始长轴半径模式，则直接绘制完成
     if (state.options.radius !== null) {
       // 根据起点与长轴半径获取要素坐标点
-      const ellipse = this.getEllipseByRadius(state, coordinates, state.options.radius);
+      const ellipse = this.getEllipseByRadius(coordinates, state.options.radius, {
+        eccentricity: state.options.eccentricity,
+        divisions: state.divisions,
+      });
       // 更新Ellipse椭圆要素的坐标
       const ellipseCoordinates = [...ellipse.coordinates];
       ellipseCoordinates.splice(ellipseCoordinates.length - 1, 1);
@@ -222,7 +226,10 @@ EllipseMode.throttleMouseMove = function(state, e) {
 
   const coordinates = [e.lngLat.lng, e.lngLat.lat];
   // 根据两点获取绘制椭圆的坐标
-  const ellipse = this.getEllipseByCoordinates(state, state.polygon.center, coordinates);
+  const ellipse = this.getEllipseByCoordinates(state.polygon.center, coordinates, {
+    eccentricity: state.options.eccentricity,
+    divisions: state.divisions,
+  });
   // 更新临时移动MoveLine要素的坐标
   state.moveline.setCoordinates(ellipse.coordinates);
   // 更新Ellipse椭圆要素的坐标
@@ -247,7 +254,7 @@ EllipseMode.throttleMouseMove = function(state, e) {
 EllipseMode.deleteMoveLineAndVertex = CircleMode.deleteMoveLineAndVertex;
 
 // <自定义函数>根据起始点与长轴半径点坐标获取椭圆要素坐标
-EllipseMode.getEllipseByCoordinates = function(state, center, coordinates) {
+EllipseMode.getEllipseByCoordinates = function(center, coordinates, options = {}) {
   const iMapApi = this.ctx.api.iMapApi;
   const { turf } = iMapApi.exports;
   // 计算长轴距离
@@ -255,14 +262,14 @@ EllipseMode.getEllipseByCoordinates = function(state, center, coordinates) {
   const wgs84Coordinates = iMapApi.toWGS84(coordinates);
   const xradius = Math.sqrt((wgs84Coordinates[0] - wgs84Center[0]) ** 2 + (wgs84Coordinates[1] - wgs84Center[1]) ** 2);
   // 转换短轴半径
-  const yradius = xradius * Math.sqrt(1 - state.options.eccentricity ** 2);
+  const yradius = xradius * Math.sqrt(1 - options.eccentricity ** 2);
   // 计算弧度
   const radian = Math.atan2(wgs84Coordinates[1] - wgs84Center[1], wgs84Coordinates[0] - wgs84Center[0]);
   // 生成椭圆的坐标点
   let startCoordinates = [];
   const ellipseCoordinates = [];
-  for (let i = 0; i < state.divisions; i++) {
-    const angle = (i / state.divisions) * (Math.PI * 2);
+  for (let i = 0; i < options.divisions; i++) {
+    const angle = (i / options.divisions) * (Math.PI * 2);
     const cos = Math.cos(radian);
     const sin = Math.sin(radian);
     const tx = xradius * Math.cos(angle);
@@ -280,24 +287,24 @@ EllipseMode.getEllipseByCoordinates = function(state, center, coordinates) {
   return {
     coordinates: ellipseCoordinates,
     xradius: radius,
-    yradius: radius * Math.sqrt(1 - state.options.eccentricity ** 2),
+    yradius: radius * Math.sqrt(1 - options.eccentricity ** 2),
   };
 };
 
 // <自定义函数>根据起始点与长轴半径获取椭圆要素坐标
-EllipseMode.getEllipseByRadius = function(state, center, radius) {
+EllipseMode.getEllipseByRadius = function(center, radius, options = {}) {
   const iMapApi = this.ctx.api.iMapApi;
   const { turf } = iMapApi.exports;
   // 获取长轴半径点
   const feature = turf.destination(iMapApi.toWGS84(center), radius, 0, { units: 'kilometers' });
   const coordinates = iMapApi.fromWGS84(turf.getCoord(feature));
   // 获取椭圆的坐标点
-  const ellipse = this.getEllipseByCoordinates(state, center, coordinates);
+  const ellipse = this.getEllipseByCoordinates(center, coordinates, options);
 
   return {
     coordinates: ellipse.coordinates,
     xradius: radius,
-    yradius: radius * Math.sqrt(1 - state.options.eccentricity ** 2),
+    yradius: radius * Math.sqrt(1 - options.eccentricity ** 2),
   };
 };
 

@@ -289,13 +289,15 @@ RectangleMode.getRectangleByCoordinates = function(start, coordinates) {
 };
 
 // <自定义函数>根据起始点与对角点坐标获取正方形要素坐标
-RectangleMode.getSquareByCoordinates = function(start, coordinates) {
+RectangleMode.getSquareByCoordinates = function(start, coordinates, options = {}) {
   const iMapApi = this.ctx.api.iMapApi;
   const { turf } = iMapApi.exports;
   // 获取矩形的长宽
   const rectangle = this.getRectangleByCoordinates(start, coordinates);
   // 判断长宽的距离，取较长的边为基准
-  const length = Math.max(Math.abs(rectangle.length), Math.abs(rectangle.width));
+  const length = isBooleanTrue(options.min)
+    ? Math.min(Math.abs(rectangle.length), Math.abs(rectangle.width))
+    : Math.max(Math.abs(rectangle.length), Math.abs(rectangle.width));
   // 根据长度重新获取对角点坐标
   const lengthFeature = turf.destination(iMapApi.toWGS84(start), length, coordinates[0] - start[0] > 0 ? 90 : -90, { units: 'kilometers' });
   const lengthPoint = turf.getCoord(lengthFeature);
