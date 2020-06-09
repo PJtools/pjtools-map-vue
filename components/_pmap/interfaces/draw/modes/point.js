@@ -70,7 +70,6 @@ PointMode.toDisplayFeatures = function(state, geojson, display) {
     // 执行绘制完成
     this.onCompleted(geojson);
   } else {
-    console.log(geojson);
     // 渲染数据
     display(geojson);
   }

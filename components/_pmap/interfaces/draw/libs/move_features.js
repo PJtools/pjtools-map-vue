@@ -31,6 +31,17 @@ export default function(features, delta) {
       nextCoordinates = currentCoordinates.map(moveMultiPolygon);
     }
 
+    // 判断是否有圆心属性
+    if (feature.center) {
+      feature.center = moveCoordinate(feature.center);
+    }
+    if (feature.properties['draw:center']) {
+      let center = feature.properties['draw:center'].split(',');
+      center = [Number(center[0]), Number(center[1])];
+      center = moveCoordinate(center);
+      feature.updateInternalProperty('center', center.join(','));
+    }
+
     feature.incomingCoords(nextCoordinates);
   });
 }

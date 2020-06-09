@@ -48,9 +48,6 @@ export default function render() {
     const feature = store.get(id);
     return feature !== null && feature !== undefined;
   });
-  console.warn(mode, store.isModeChangeRender);
-  console.warn('更新队列', changedIds);
-  console.warn('选中队列', selectedIds);
 
   const newSources = [];
   const renderList = [];
@@ -67,8 +64,6 @@ export default function render() {
       }
       feature && newSources.push(feature);
     });
-  console.warn('全数据源：', newSources);
-  console.warn('更新数据：', renderList);
 
   // 判断是否执行有要素的选中状态变化
   if (store._emitSelectionChange) {

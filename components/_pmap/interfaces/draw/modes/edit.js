@@ -4,6 +4,7 @@
  * @创建时间: 2020-06-04 17:58:05
  */
 
+import hat from 'hat';
 import findIndex from 'lodash/findIndex';
 import Constants from '../constants';
 import SelectMode from './select';
@@ -295,7 +296,63 @@ EditMode.onCombineFeatures = function(state) {
 };
 
 // 触发选中复合Feature要素拆分
-EditMode.onUncombineFeatures = function(state) {};
+EditMode.onUncombineFeatures = function(state) {
+  const selectedFeatures = this.getSelected();
+  if (selectedFeatures.length === 0) {
+    return;
+  }
+
+  const createdFeatures = [];
+  const featuresUncombined = [];
+  selectedFeatures.map(feature => {
+    if (this.isInstanceOf('MultiFeature', feature)) {
+      // 获取合并的属性
+      let properties = feature.properties && feature.properties['draw:properties'];
+      properties = JSON.parse(properties);
+      properties && (properties = properties.map(property => JSON.parse(property)));
+      // 拆分复合Feature要素
+      feature.getFeatures().map((subFeature, idx) => {
+        if (properties && properties[idx]) {
+          subFeature.properties = { ...properties[idx] };
+        } else {
+          subFeature.updateInternalProperty('active', Constants.activeStates.INACTIVE);
+          subFeature.updateInternalProperty('meta', Constants.meta.FEATURE);
+          subFeature.updateInternalProperty('mode', this.ctx.events.getMode());
+          subFeature.updateInternalProperty('type', subFeature.geometry.type);
+          subFeature.geometry.type === Constants.geojsonTypes.POLYGON && subFeature.updateInternalProperty('polygon', 'polygon');
+        }
+        subFeature.id = hat();
+        subFeature.updateInternalProperty('id', subFeature.id);
+        // 添加Feature要素
+        this.addFeature(subFeature);
+        createdFeatures.push(subFeature.toGeoJSON());
+      });
+      this.deleteFeature([feature.id], { silent: true });
+      this.clearSelectedCoordinatePaths(state);
+      featuresUncombined.push(feature.toGeoJSON());
+    }
+  });
+
+  if (featuresUncombined && featuresUncombined.length) {
+    createdFeatures.map((feature, idx) => {
+      if (idx === 0) {
+        this.setSingleActiveFeatureById(state, feature.id);
+      } else {
+        this.addMultiActiveFeatureById(state, feature.id);
+      }
+    });
+    this.fireActionable();
+    // 刷新数据
+    this.ctx.store.setModeChangeRendering();
+    this.ctx.store.render();
+
+    // 执行事件回调
+    this.ctx.api.fire(Constants.events.UNCOMBINE_FEATURES, {
+      createdFeatures,
+      deletedFeatures: featuresUncombined,
+    });
+  }
+};
 
 // <自定义函数>单击绘制的Feature要素
 EditMode.clickOnFeature = function(state, e) {
@@ -693,18 +750,10 @@ EditMode.removeSelectedFeaturesVertex = function(state) {
 
 // <自定义函数>计算Feature要素的中心点
 EditMode.calculationCenterPoint = function(feature) {
-  if (!feature.center) {
-    return feature.center;
-  } else if (!feature.properties['draw:center']) {
-    let center = feature.properties['draw:center'];
-    center = center.split(',');
-    return [Number(center[0]), Number(center[1])];
-  } else {
-    const iMapApi = this.ctx.api.iMapApi;
-    const geojson = feature.toGeoJSON();
-    const point = iMapApi.getFeaturesToCenter(geojson);
-    return point && point.geometry.coordinates;
-  }
+  const iMapApi = this.ctx.api.iMapApi;
+  const geojson = feature.toGeoJSON();
+  const point = iMapApi.getFeaturesToCenter(geojson);
+  return point && point.geometry.coordinates;
 };
 
 // <自定义函数>根据矩形节点的索引获取起始点与对角点
