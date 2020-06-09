@@ -20,4 +20,6 @@ export default () => ({
   config: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   // 地图的初始化加载的Images图片资源
   imageIcons: PropTypes.array,
+  // 地图初始化追加的配置清单插件
+  plugins: PropTypes.object,
 });

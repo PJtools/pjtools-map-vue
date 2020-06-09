@@ -53,6 +53,7 @@ const Map = {
     width: '100%',
     height: '100%',
     baseUrl: '/static/GeoMap/',
+    plugins: {},
     imageIcons: [],
   }),
   data() {
@@ -154,12 +155,17 @@ const Map = {
 
     // 预加载地图依赖插件基础库
     preloadMapPluginsDll() {
-      const { baseUrl } = this;
+      const { baseUrl, plugins } = this;
+      // 判断是否有追加的地图配置清单插件，则预加载注入
+      const appendLoad = {};
+      plugins && plugins.js && isNotEmptyArray(plugins.js) && (appendLoad.js = plugins.js);
+      plugins && plugins.css && isNotEmptyArray(plugins.css) && (appendLoad.css = plugins.css);
 
       this.description = '地图依赖资源加载中';
       this.$preload
         .load({
           baseUrl,
+          appendLoad,
         })
         .then(exports => {
           setTimeout(() => {

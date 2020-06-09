@@ -6,12 +6,16 @@
 
 import createjs from 'createjs-npm/lib/preload';
 import merge from 'lodash/merge';
+import union from 'lodash/union';
 import PromiseQueue from '../_util/promiseQueue';
+import { isNotEmptyArray } from '../_util/methods-util';
 
 // 定义默认的预加载对象的参数选项
 const DEFAULT_PRELOAD_OPTIONS = {
   // 定义预加载的基础前缀路径
   baseUrl: '',
+  // 追加预加载的插件（配置文件时有效）
+  appendLoad: null,
   // 执行预加载时的进度百分比回调，范围：0-100之间
   onProgress: null,
   // 执行预加载时单个文件加载完成的回调
@@ -21,8 +25,9 @@ const DEFAULT_PRELOAD_OPTIONS = {
 /**
  * 根据Manifest配置清单文件读取对应的JSON数据项
  * @param {String} baseUrl 基础前缀路径
+ * @param {Object} append 追加预加载清单库
  */
-const fetchManifestList = function(baseUrl = DEFAULT_PRELOAD_OPTIONS.baseUrl) {
+const fetchManifestList = function(baseUrl = DEFAULT_PRELOAD_OPTIONS.baseUrl, append = {}) {
   const instance = api.getInstance(baseUrl);
   return new Promise((resolve, reject) => {
     instance.loadFile('manifest.json');
@@ -41,12 +46,18 @@ const fetchManifestList = function(baseUrl = DEFAULT_PRELOAD_OPTIONS.baseUrl) {
         api.$alias = { ...api.$alias, ...alias };
 
         // 转换配置项为文件初始请求清单
-        const cssList = (result && result.load && result.load.css) || [];
+        let cssList = (result && result.load && result.load.css) || [];
+        if (append && append.css && isNotEmptyArray(append.css)) {
+          cssList = union(cssList.concat(append.css));
+        }
         const filesCss = [];
         cssList.map(item => {
           filesCss.push({ id: item, src: api.$alias[item] || item, type: 'css', exports: null });
         });
-        const jsList = (result && result.load && result.load.js) || [];
+        let jsList = (result && result.load && result.load.js) || [];
+        if (append && append.js && isNotEmptyArray(append.js)) {
+          jsList = union(jsList.concat(append.js));
+        }
         const filesJs = [];
         jsList.map(item => {
           filesJs.push({ id: item, src: api.$alias[item] || item, type: 'javascript', exports: $exports[item] || null });
@@ -130,7 +141,7 @@ const loadManifestList = async function(manifest, options = {}) {
       result = api.$cacheManifest;
     } else {
       // 以配置文件形式进行预加载文件转换处理
-      result = await fetchManifestList(options.baseUrl);
+      result = await fetchManifestList(options.baseUrl, options.appendLoad || {});
       // 缓存配置文件型的清单列表数据
       api.$cacheManifest = result;
     }
