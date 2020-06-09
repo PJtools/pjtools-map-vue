@@ -90,7 +90,6 @@ const resource = {
     return new Promise((resolve, reject) => {
       // 判断指定Id的图片资源是否已加载到地图中
       if (this.hasImage(id)) {
-        console.warn(`Image图片资源[${id}]已加载渲染到地图中，无需重复加载!`);
         resolve(id);
       } else {
         if (map) {
