@@ -9,6 +9,8 @@ import { isEmpty } from '../../../_util/methods-util';
 import assign from 'lodash/assign';
 import hat from 'hat';
 import Constants from './constants';
+import featuresAt from './libs/features_at';
+import StringSet from './libs/string_set';
 import modes from './modes';
 import events from './events';
 import Store from './store';
@@ -86,11 +88,6 @@ class Draw extends BasicMapApiEvented {
    * 激活绘图模式
    */
   enable(mode, options = {}) {
-    // 判断初次激活模式是否为静态模式，则直接忽略
-    if (!this.getMode() && mode === Constants.modes.STATIC) {
-      return;
-    }
-
     const store = this[_ctx].store;
     const events = this[_ctx].events;
     // 判断是否未添加绘图的图层，则渲染图层
@@ -116,9 +113,15 @@ class Draw extends BasicMapApiEvented {
    * 取消激活绘图模式
    */
   disable() {
-    console.log('draw disable');
-
+    const events = this[_ctx].events;
+    // 切换成静态模式
+    this.changeMode(Constants.modes.STATIC, {}, { silent: true });
+    // 移除绘图事件监听
+    if (events.isLoadedEventListeners()) {
+      events.removeEventListeners();
+    }
     // 更新状态
+    this._active = false;
     this._enabled = false;
   }
 
@@ -134,6 +137,23 @@ class Draw extends BasicMapApiEvented {
    */
   isActive() {
     return !!this._active;
+  }
+
+  /**
+   * 销毁绘图的实例（包括图层数据）
+   */
+  destroy() {
+    const store = this[_ctx].store;
+
+    // 还原默认静态模式
+    this.disable();
+    // 移除数据图层
+    if (store.isLoadedLayers()) {
+      store.removeLayers();
+    }
+    // 重置内置参数
+    this[_isInitModeChange] = true;
+    this[_ctx] = null;
   }
 
   /**
@@ -176,6 +196,178 @@ class Draw extends BasicMapApiEvented {
   uncombineFeatures() {
     const events = this[_ctx].events;
     events && events.uncombineFeatures && events.uncombineFeatures();
+  }
+
+  /**
+   * 根据屏幕坐标点或BBOX范围查询绘图的Feature要素的Id集合
+   * @param {Point} point 待查询的屏幕坐标
+   */
+  getFeatureIdsAt(point) {
+    const ctx = this[_ctx];
+    let features = featuresAt.click({ point }, null, ctx);
+    if (features && features.length) {
+      features = features.filter(feature => feature.properties['draw:meta'] === Constants.meta.FEATURE);
+    } else {
+      features = [];
+    }
+    return features.map(feature => feature.id || feature.properties['draw:id']);
+  }
+
+  /**
+   * 根据要素Id获取Feature要素对象
+   * @param {String} id 要素Feature的Id
+   */
+  getFeature(id) {
+    const feature = this[_ctx].store.get(id);
+    if (feature && feature.properties['draw:meta'] === Constants.meta.FEATURE) {
+      const geojson = feature.toGeoJSON();
+      const keys = Object.keys(geojson.properties);
+      const properties = {};
+      keys.map(key => {
+        if (key.indexOf('draw:') !== 0) {
+          properties[key] = geojson.properties[key];
+        }
+      });
+      geojson.properties = properties;
+      return geojson;
+    }
+    return null;
+  }
+
+  /**
+   * 获取所有的Feature要素
+   */
+  getAllFeatures() {
+    const features = this[_ctx].store.getAll();
+    return features.map(feature => this.getFeature(feature.id)).filter(feature => feature !== null && feature !== undefined);
+  }
+
+  /**
+   * 获取当前选中的Feature要素Id集合
+   */
+  getSelectedIds() {
+    return this[_ctx].store.getSelectedIds();
+  }
+
+  /**
+   * 获取当前选中的Feature要素
+   */
+  getSelected() {
+    const selectedIds = this.getSelectedIds();
+    if (selectedIds && selectedIds.length) {
+      return selectedIds.map(id => this.getFeature(id));
+    }
+    return [];
+  }
+
+  /**
+   * 获取当前选中的Vertex节点
+   */
+  getSelectedVertexs() {
+    const selectedCoordinates = this[_ctx].store.getSelectedCoordinates();
+    if (selectedCoordinates && selectedCoordinates.length) {
+      return selectedCoordinates.map(item => {
+        const id = hat();
+        return {
+          type: Constants.geojsonTypes.FEATURE,
+          id,
+          geometry: {
+            type: Constants.geojsonTypes.POINT,
+            coordinates: item.coordinates,
+          },
+          properties: {
+            'draw:id': id,
+            'draw:path': item.path,
+            'draw:pid': item.pid,
+          },
+        };
+      });
+    }
+    return [];
+  }
+
+  /**
+   * 设置指定Id的Feature要素的Properties属性
+   * @param {String} id Feature要素的Id
+   * @param {String} key 属性名
+   * @param {String|Number|Boolean} value 属性值
+   */
+  setFeatureProperty(id, key, value) {
+    this[_ctx].store.setFeatureProperty(id, key, value);
+  }
+
+  /**
+   * 添加绘图的要素数据
+   * @param {FeatureCollection} FeatureCollection 待添加的Feature要素集合
+   */
+  add(featureCollection) {
+    const store = this[_ctx].store;
+    const events = this[_ctx].events;
+    const collection = this.iMapApi.getFeatureCollection(featureCollection);
+    const featureIds = [];
+    if (collection && collection.features.length) {
+      collection.features.map(geojson => {
+        geojson.id = geojson.id || hat();
+        const _feature = store.get(geojson.id);
+        if (_feature === undefined || _feature === null) {
+          const feature = store.getFeatureToGeoJSON(geojson);
+          store.add(feature);
+          featureIds.push(feature.id);
+        }
+      });
+      // 判断是否还未激活绘图模式，则激活默认静态模式
+      if (!events.getMode()) {
+        this.enable(Constants.modes.STATIC);
+      } else {
+        store.render();
+      }
+      return featureIds;
+    }
+  }
+
+  /**
+   * 删除指定Id的Feature要素
+   * @param {Array} featureIds Feature要素的Id集合
+   */
+  delete(featureIds) {
+    const store = this[_ctx].store;
+    const events = this[_ctx].events;
+    store.delete(featureIds);
+    if (!events.getMode()) {
+      this.enable(Constants.modes.STATIC);
+    } else {
+      store.setModeChangeRendering();
+      store.render();
+    }
+  }
+
+  /**
+   * 清空所有绘制的Feature要素
+   */
+  deleteAll() {
+    const ids = this[_ctx].store.getAllIds();
+    ids && ids.length && this.delete(ids);
+  }
+
+  /**
+   * 设置绘图的要素数据集合
+   * @param {FeatureCollection} featureCollection 待覆盖的Feature要素集合
+   */
+  set(featureCollection) {
+    const store = this[_ctx].store;
+    const collection = this.iMapApi.getFeatureCollection(featureCollection);
+    if (collection && collection.features.length) {
+      const renderBatch = store.createRenderBatch();
+      let toDelete = store.getAllIds().slice();
+      const newIds = this.add(featureCollection);
+      const newIdsLookup = new StringSet(newIds);
+      toDelete = toDelete.filter(id => !newIdsLookup.has(id));
+      if (toDelete.length) {
+        this.delete(toDelete);
+      }
+      renderBatch();
+      return newIds;
+    }
   }
 }
 

@@ -179,6 +179,11 @@ const events = function(ctx) {
       if (modebuilder === undefined) {
         throw new Error(`绘图模式[${modename}]不存在.`);
       }
+      if (!currentMode) {
+        const mode = modebuilder(ctx, {});
+        currentModeName = ctx.options.defaultMode;
+        currentMode = setupModeHandler(mode, ctx);
+      }
       // 停止历史绘制模式
       currentMode.stop();
       // 判断是否待更新模式与当前模式不同，则重新实例化

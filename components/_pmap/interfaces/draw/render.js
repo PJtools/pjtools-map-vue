@@ -17,7 +17,7 @@ export default function render() {
   // 判断绘制图层数据源是否不存在，则直接忽略
   const drawSource = iMapApi.getSource(`${Constants.sources.ID}.${this.ctx.uid}`);
   if (!drawSource) {
-    return cleanup();
+    return cleanup && cleanup();
   }
 
   const mode = ctx.events.currentModeName();

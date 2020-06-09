@@ -308,6 +308,28 @@ class Store {
     this.refreshSelectedCoordinates(options);
     return this;
   }
+
+  // 设置Feature的外置属性
+  setFeatureProperty(featureId, property, value) {
+    this.get(featureId).setProperty(property, value);
+    this.featureChanged(featureId);
+  }
+
+  // 创建延迟渲染函数
+  createRenderBatch() {
+    const holdRender = this.render;
+    let numRenders = 0;
+    this.render = function() {
+      numRenders++;
+    };
+
+    return () => {
+      this.render = holdRender;
+      if (numRenders > 0) {
+        this.render();
+      }
+    };
+  }
 }
 
 export default Store;

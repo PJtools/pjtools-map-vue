@@ -56,12 +56,12 @@ const createMultiVertex = (context, pid, path = '0') => {
   vertex.updateInternalProperty('meta', Constants.meta.VERTEX);
   vertex.updateInternalProperty('active', Constants.activeStates.ACTIVE);
   vertex.updateInternalProperty('pid', pid);
-  vertex.updateInternalProperty('path', path);
+  path !== null && path !== undefined && vertex.updateInternalProperty('path', path);
   return vertex;
 };
 
 // 生成绘制要素的单一复合节点
-export const createSupplementaryMultiPoints = function(context, feature) {
+export const createSupplementaryMultiPoints = function(context, feature, basePath = null) {
   const { type, coordinates, features, properties } = feature;
   const featureId = feature && feature.id;
   let supplementaryPoints = [];
@@ -85,12 +85,12 @@ export const createSupplementaryMultiPoints = function(context, feature) {
 
   // 判断是否为线要素类型
   if (type === Constants.geojsonTypes.LINE_STRING) {
-    const vertex = createMultiVertex(context, featureId);
+    const vertex = createMultiVertex(context, featureId, basePath || null);
     vertex.setCoordinates(processLine(coordinates));
     supplementaryPoints.push(vertex);
   } else if (type === Constants.geojsonTypes.POLYGON) {
     // 判定是否为面要素类型
-    const vertex = createMultiVertex(context, featureId);
+    const vertex = createMultiVertex(context, featureId, basePath ? `${basePath}.0` : '0');
     const points = [];
     coordinates.map(line => {
       // 判定多边形面的所属分类，根据不同特定分类进行节点筛选
@@ -117,14 +117,14 @@ export const createSupplementaryMultiPoints = function(context, feature) {
         }
       }
     });
-    vertex.updateInternalProperty('polygon', properties['draw:polygon']);
+    properties['draw:polygon'] && vertex.updateInternalProperty('polygon', properties['draw:polygon']);
     vertex.setCoordinates(points);
     supplementaryPoints.push(vertex);
   } else if (type.indexOf(Constants.geojsonTypes.MULTI_PREFIX) === 0) {
     // 判定是否为复合要素类型
     features.map((subFeature, index) => {
       subFeature.id = featureId;
-      supplementaryPoints = supplementaryPoints.concat(createSupplementaryMultiPoints(context, subFeature));
+      supplementaryPoints = supplementaryPoints.concat(createSupplementaryMultiPoints(context, subFeature, String(index)));
     });
   }
 
