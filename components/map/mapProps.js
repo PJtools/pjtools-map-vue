@@ -18,4 +18,6 @@ export default () => ({
   baseUrl: PropTypes.string,
   // 地图的初始化配置文件或选项
   config: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+  // 地图的初始化加载的Images图片资源
+  imageIcons: PropTypes.array,
 });

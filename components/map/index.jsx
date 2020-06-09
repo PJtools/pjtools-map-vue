@@ -53,6 +53,7 @@ const Map = {
     width: '100%',
     height: '100%',
     baseUrl: '/static/GeoMap/',
+    imageIcons: [],
   }),
   data() {
     const message = this.setMapMessageInstance();
@@ -263,9 +264,24 @@ const Map = {
             this.$emit('render', this.iMapApi);
           },
           onLoad: () => {
-            // 移除Pre-Loading预加载转场
-            this.description = '';
-            this.preloading = false;
+            const completed = () => {
+              // 移除Pre-Loading预加载转场
+              this.description = '';
+              this.preloading = false;
+            };
+            // 判断是否有前置地图图标资源需加载，则渲染加载图标后再执行地图完成事件
+            if (isNotEmptyArray(this.imageIcons)) {
+              this.iMapApi
+                .loadImages(this.imageIcons)
+                .then(() => {
+                  completed();
+                })
+                .catch(() => {
+                  completed();
+                });
+            } else {
+              completed();
+            }
           },
         });
       });
