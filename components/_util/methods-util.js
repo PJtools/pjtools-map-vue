@@ -227,7 +227,14 @@ export const fetchJsFile = url => {
         response &&
           response.text().then(data => {
             try {
-              const json = data && eval(data);
+              let json = null;
+              // 判断文件后缀是否为JSON文件后缀
+              let fileUrl = url.split('?')[0];
+              if (/.json$/.test(fileUrl)) {
+                json = data && JSON.parse(data);
+              } else {
+                json = data && eval(data);
+              }
               resolve(json);
             } catch (e) {
               resolve(null);
