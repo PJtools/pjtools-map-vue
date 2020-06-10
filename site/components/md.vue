@@ -42,6 +42,7 @@ export default {
       .split('\n')
       .map(t => t.trim())
       .join('\n');
+
     return {
       marked,
       text,

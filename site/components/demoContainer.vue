@@ -56,6 +56,7 @@ export default {
   name: 'DemoContainer',
   props: ['code'],
   data() {
+    console.log(this.code);
     const cn = this.code.match(cnReg) || [];
     const us = this.code.match(usReg) || [];
     const cnHtml = marked(cn[1].trim());

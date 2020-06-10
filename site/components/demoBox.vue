@@ -13,7 +13,7 @@
     <section class="code-box-meta markdown">
       <slot v-if="isZhCN" name="description" />
       <slot v-else name="us-description" />
-      <a-tooltip :title="codeExpand ? 'Hide Code' : 'Show Code'">
+      <a-tooltip :title="codeExpand ? '隐藏代码' : '显示代码'">
         <span class="code-expand-icon">
           <img
             width="16"
@@ -45,6 +45,9 @@
             :type="copied && copyTooltipVisible ? 'check' : 'copy'"
             class="code-box-code-copy"
           />
+        </a-tooltip>
+        <a-tooltip v-if="link" title="查看配置">
+          <a-icon v-if="link" type="link" class="code-box-code-copy code-box-map-config" @click.stop="handleShowMapConfigLink" />
         </a-tooltip>
         <slot name="code" />
       </section>
@@ -89,6 +92,15 @@ export default {
         currentSubMenu: [...currentSubMenu, { cnTitle, usTitle, id }],
       });
     }
+
+    let link = null;
+    let mapHtml = sourceCode.match(/<pj-map.*?(?:>|\/>)/gi);
+    mapHtml = (mapHtml && mapHtml[0]) || null;
+    if (mapHtml) {
+      const config = mapHtml.match(/config=[\'\"]?([^\'\"]*)[\'\"]?/i);
+      link = (config && config[1]) || null;
+    }
+
     return {
       codeExpand: false,
       isZhCN: isZhCN(name),
@@ -97,6 +109,7 @@ export default {
       sourceCode,
       id,
       iframeDemoKey,
+      link,
     };
   },
   methods: {
@@ -121,6 +134,11 @@ export default {
         copyTooltipVisible: visible,
       });
     },
+
+    handleShowMapConfigLink() {
+      const link = this.link.replace(/..\/MapConfig\//g, '/static/MapConfig/');
+      window.open(link);
+    }
   },
 };
 </script>

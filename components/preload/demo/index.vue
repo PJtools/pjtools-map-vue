@@ -22,10 +22,8 @@ import Basic from './basic';
 import CN from './preload.zh-CN.md';
 
 export default {
-	category: 'Components',
-  subtitle: '预加载文件',
-  type: 'General',
 	title: 'Preload',
+  subtitle: '预加载文件',
 	noinstant: true,
 	render () {
 		return (
