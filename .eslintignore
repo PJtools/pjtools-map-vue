@@ -2,6 +2,7 @@ node_modules/
 **/*.spec.*
 **/style/
 *.html
+*.md
 /components/test/*
 /site/static/*
 es/
