@@ -84,7 +84,7 @@ class BasicLayerClass extends BasicMapApi {
     this[_id] = id || hat();
     // 仅保留专属类型的Paint和Layout属性
     const copyLayerOptions = cloneDeep(layerOptions);
-    const regexp = new RegExp(`^${copyLayerOptions.type}-.*?`);
+    const regexp = new RegExp(`^${copyLayerOptions.type === 'symbol' ? `(${copyLayerOptions.type}|icon|text)` : copyLayerOptions.type}-.*?`);
     copyLayerOptions.paint = omitBy(copyLayerOptions.paint, (value, key) => !regexp.test(key));
     copyLayerOptions.layout = omitBy(copyLayerOptions.layout, (value, key) => !regexp.test(key));
     copyLayerOptions.layout['visibility'] = layerOptions.layout['visibility'];

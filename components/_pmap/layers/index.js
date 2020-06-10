@@ -10,6 +10,7 @@ import CirclePointLayer from './vector/circlePointLayer';
 import LineLayer from './vector/lineLayer';
 import PolygonLayer from './vector/polygonLayer';
 import FillExtrusionLayer from './vector/fillExtrusionLayer';
+import SymbolLayer, { TextSymbolLayer, IconSymbolLayer } from './vector/symbolLayer';
 
 class Layers extends BasicMapApi {
   /**
@@ -60,6 +61,36 @@ class Layers extends BasicMapApi {
    */
   addFillExtrusionLayer(id, layerOptions = {}, options = {}) {
     return new FillExtrusionLayer(this.iMapApi, id, layerOptions, options);
+  }
+
+  /**
+   * 实例符号图层到地图Map中
+   * @param {string} id 图层名称
+   * @param {Object} layerOptions 原生MapboxGL图层的参数选项
+   * @param {Object} options 图层参数选项
+   */
+  addSymbolLayer(id, layerOptions = {}, options = {}) {
+    return new SymbolLayer(this.iMapApi, id, layerOptions, options);
+  }
+
+  /**
+   * 实例矢量文本图层到地图Map中
+   * @param {string} id 图层名称
+   * @param {Object} layerOptions 原生MapboxGL图层的参数选项
+   * @param {Object} options 图层参数选项
+   */
+  addTextSymbolLayer(id, layerOptions = {}, options = {}) {
+    return new TextSymbolLayer(this.iMapApi, id, layerOptions, options);
+  }
+
+  /**
+   * 实例矢量图标图层到地图Map中
+   * @param {string} id 图层名称
+   * @param {Object} layerOptions 原生MapboxGL图层的参数选项
+   * @param {Object} options 图层参数选项
+   */
+  addIconSymbolLayer(id, layerOptions = {}, options = {}) {
+    return new IconSymbolLayer(this.iMapApi, id, layerOptions, options);
   }
 }
 
