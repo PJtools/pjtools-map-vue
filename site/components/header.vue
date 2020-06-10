@@ -42,15 +42,19 @@ export default {
               <img alt="logo" height="32" src={logo} />
               <img alt="logo" height="16" src={logoTitle} />
             </router-link>
-            <a-button
-              ghost
-              size="small"
-              onClick={this.handleClick}
-              class="header-lang-button"
-              key="lang-button"
-            >
-              {isCN ? 'English' : '中文'}
-            </a-button>
+            {
+              false ? 
+                <a-button
+                  ghost
+                  size="small"
+                  onClick={this.handleClick}
+                  class="header-lang-button"
+                  key="lang-button"
+                >
+                  {isCN ? 'English' : '中文'}
+                </a-button> 
+              : null
+            }
           </a-col>
           <a-col xxl={20} xl={19} lg={19} md={18} sm={0} xs={0}>
             <div id="search-box">
@@ -73,15 +77,19 @@ export default {
                 ))}
               </a-select>
             </div>
-            <a-button
-              ghost
-              size="small"
-              onClick={this.handleClick}
-              class="header-lang-button"
-              key="lang-button"
-            >
-              {isCN ? 'English' : '中文'}
-            </a-button>
+            {
+              false ? 
+                <a-button
+                  ghost
+                  size="small"
+                  onClick={this.handleClick}
+                  class="header-lang-button"
+                  key="lang-button"
+                >
+                  {isCN ? 'English' : '中文'}
+                </a-button> 
+              : null
+            }
             <a-select size="small" defaultValue={packageInfo.version} class="version">
               <a-select-option value={packageInfo.version}>{packageInfo.version}</a-select-option>
             </a-select>

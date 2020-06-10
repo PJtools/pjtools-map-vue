@@ -4,11 +4,13 @@ export default {
     subtitle: '预加载文件',
     type: 'General',
     title: 'Preload',
+    sort: 1,
   },
   map: {
     category: 'Components',
     subtitle: '地图',
-    type: 'Display',
+    type: 'General',
     title: 'Map',
+    sort: 2,
   },
 };

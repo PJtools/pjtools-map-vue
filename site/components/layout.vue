@@ -174,7 +174,7 @@ export default {
     const MenuGroup = [];
     for (const [type, menus] of Object.entries(menuConfig)) {
       const MenuItems = [];
-      sortBy(menus, ['title']).forEach(({ title, subtitle }) => {
+      sortBy(menus, ['sort', 'title']).forEach(({ title, subtitle }) => {
         const linkValue = isCN
           ? [<span>{title}</span>, <span class="chinese">{subtitle}</span>]
           : [<span>{title}</span>];
