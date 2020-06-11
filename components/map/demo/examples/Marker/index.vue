@@ -9,7 +9,7 @@ const md = {
 	`,
 };
 
-import Basic from '../test';
+import Basic from './basic';
 
 export default {
 	title: 'Marker',
