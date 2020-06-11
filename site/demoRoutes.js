@@ -15,4 +15,12 @@ export default [
     path: 'map-cn',
     component: () => import('../components/map/demo/index.vue'),
   },
+  {
+    path: 'marker',
+    component: () => import('../components/map/demo/examples/Marker/index.vue'),
+  },
+  {
+    path: 'marker-cn',
+    component: () => import('../components/map/demo/examples/Marker/index.vue'),
+  },
 ];

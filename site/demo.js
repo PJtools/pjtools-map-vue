@@ -13,4 +13,11 @@ export default {
     title: 'Map',
     sort: 2,
   },
+  marker: {
+    category: 'Components',
+    subtitle: '标注',
+    type: 'Marker And Pupop',
+    title: 'Marker',
+    sort: 1,
+  },
 };
