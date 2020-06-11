@@ -15,7 +15,7 @@ import demoContainer from './components/demoContainer';
 import zhCN from './theme/zh-CN';
 import enUS from './theme/en-US';
 
-import Test from '../components/map/demo/index';
+import Test from '../docs/vue/changelog.zh-CN';
 
 Vue.use(Vuex);
 Vue.use(VueClipboard);
