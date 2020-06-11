@@ -1,6 +1,6 @@
 <cn>
 #### 渲染Map地图
-初始化渲染加载Map地图基础组件。
+通过配置文件快速初始化渲染地图。
 </cn>
 
 <us>
@@ -10,17 +10,7 @@ xx.
 
 ```tpl
 <template>
-	<div>
-		Hello Map Component！
-	</div>
+	<pj-map bordered height="600" config="../MapConfig/examples/basic.json">
+	</pj-map>
 </template>
-
-<script>
-  export default {
-		data () {
-			return {
-			};
-		}
-	}
-</script>
 ```
