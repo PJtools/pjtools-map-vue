@@ -13,6 +13,7 @@ import event from './event';
 import proj4 from './proj4';
 import control from './control';
 import interaction from './interaction';
+import marker from './marker';
 
 export default {
   // 地图“数据源”管理相关功能方法
@@ -33,4 +34,6 @@ export default {
   ...control,
   // 地图“交互组件”管理相关功能方法
   ...interaction,
+  // 地图“Marker标注”管理相关功能方法
+  ...marker,
 };
