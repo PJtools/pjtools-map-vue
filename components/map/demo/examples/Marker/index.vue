@@ -10,6 +10,10 @@ const md = {
 };
 
 import Basic from './basic';
+import ColorMarker from './color';
+import DraggableMarker from './draggable';
+import SlotsMarker from './slots';
+import CN from './zh-CN';
 
 export default {
 	title: 'Marker',
@@ -18,8 +22,18 @@ export default {
 		return (
 			<div>
 				<md cn={md.cn} />
-				<Basic />
+				<a-row gutter={[10, 10]}>
+					<a-col span={12} >
+						<Basic />
+						<DraggableMarker />
+					</a-col>
+					<a-col span={12}>
+						<ColorMarker />
+						<SlotsMarker />
+					</a-col>
+				</a-row>
 				<api>
+					<CN slot="cn" />
 				</api>
 			</div>
 		)

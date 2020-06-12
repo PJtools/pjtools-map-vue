@@ -1,10 +1,10 @@
 <cn>
-#### 默认Marker标注
-快速构建一个Marker标注到地图Map中。
+#### 可拖拽的Marker
+构建一个可拖拽的Marker标注到地图Map中。
 </cn>
 
 <us>
-#### basic
+#### draggable
 xx.
 </us>
 
@@ -20,8 +20,10 @@ xx.
   export default {
 		methods: {
 			handleMapLoaded(iMapApi) {
-				// 创建一个Marker实例
-				iMapApi.addMarker('marker-id', iMapApi.getCenter());
+				// 创建Marker实例
+				iMapApi.addMarker(`marker-id`, iMapApi.getCenter(), {
+					draggable: true,
+				});
 			},
 		}
 	}
