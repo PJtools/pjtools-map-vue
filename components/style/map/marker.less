@@ -1,0 +1,28 @@
+@import '../themes/default';
+
+@marker-prefix-cls: ~'@{map-prefix-cls}-marker';
+
+.@{marker-prefix-cls} {
+  position: relative;
+  outline: none;
+
+  .icon-marker-wrapper {
+    &::before {
+      position: absolute;
+      content: '';
+      z-index: 1;
+      width: 11px;
+      height: 8px;
+      border-radius: 50%;
+      bottom: 1px;
+      left: calc(~'50% - 5px');
+      background-color: rgba(0, 0, 0, 0.25);
+      filter: blur(2px);
+    }
+
+    & > svg {
+      position: relative;
+      z-index: 2;
+    }
+  }
+}
