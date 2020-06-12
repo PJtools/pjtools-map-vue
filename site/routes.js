@@ -47,6 +47,14 @@ export default [
         path: 'docs/vue/faq-cn',
         component: () => import('../docs/vue/faq.zh-CN.md'),
       },
+      {
+        path: 'docs/vue/imapapi',
+        component: () => import('../docs/vue/map.en-US.md'),
+      },
+      {
+        path: 'docs/vue/imapapi-cn',
+        component: () => import('../docs/vue/map.zh-CN.md'),
+      },
       { path: '', redirect: '/docs/vue/changelog-cn/' },
     ],
   },

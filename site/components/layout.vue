@@ -14,6 +14,7 @@ import MobileMenu from 'ant-design-vue/es/vc-drawer/src';
 const docsList = [
   { key: 'changelog', enTitle: 'Change Log', title: '更新日志' },
   { key: 'faq', enTitle: 'FAQ', title: '常见问题' },
+  { key: 'imapapi', enTitle: 'Map Api', title: 'API接口' },
 ];
 
 let isMobile = false;
