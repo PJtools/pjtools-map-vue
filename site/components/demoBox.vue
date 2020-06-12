@@ -94,7 +94,8 @@ export default {
     }
 
     let link = null;
-    let mapHtml = sourceCode.match(/<pj-map.*?(?:>|\/>)/gi);
+    const code = sourceCode;
+    let mapHtml = code.replace(/[\r\n]/g, '').match(/<pj-map.*?(?:>|\/>)/gi);
     mapHtml = (mapHtml && mapHtml[0]) || null;
     if (mapHtml) {
       const config = mapHtml.match(/config=[\'\"]?([^\'\"]*)[\'\"]?/i);
