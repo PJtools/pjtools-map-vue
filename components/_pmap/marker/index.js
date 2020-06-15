@@ -89,6 +89,7 @@ class Marker extends BasicMapApi {
     opts.style && (props.style = opts.style);
     opts.slots && (props.slots = opts.slots);
     props.vProps = { marker, data: opts.data || null };
+    props.options = opts;
     // 创建Vue组件包实例
     ElementWrapper.newInstance(props, instance => {
       marker._instance = instance;

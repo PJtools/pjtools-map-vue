@@ -8,7 +8,12 @@ import { PropTypes } from '../../../_util/antdv';
 
 const DefaultMarker = {
   props: {
+    // Marker对象
     marker: PropTypes.any,
+    // Marker对象的参数选项
+    options: PropTypes.object.def({}),
+    // Slot插槽传递的数据
+    data: PropTypes.any,
   },
   data() {
     return {
