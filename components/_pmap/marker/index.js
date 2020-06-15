@@ -93,6 +93,8 @@ class Marker extends BasicMapApi {
     ElementWrapper.newInstance(props, instance => {
       marker._instance = instance;
     });
+    // 删除部分原生方法
+    marker.addTo && (marker.addTo = () => null);
 
     // 存储当前实例的Marker对象
     this[_markers][id] = marker;
