@@ -23,6 +23,7 @@ import Interfaces from './interfaces';
 import Layers from './layers';
 import Query from './query';
 import Marker from './marker';
+import Popup from './popup';
 
 // 默认Mapbox地图的Style对象
 const defaultMapStyle = {
@@ -195,6 +196,7 @@ const PJtoolsMap = (function() {
   const _Interfaces = Symbol('Interfaces');
   const _Layers = Symbol('Layers');
   const _Marker = Symbol('Marker');
+  const _Popup = Symbol('Popup');
 
   class PJtoolsMap {
     /**
@@ -327,6 +329,14 @@ const PJtoolsMap = (function() {
      */
     get Marker() {
       return this[_Marker];
+    }
+
+    /**
+     * PJtoolsMap的二级属性 - Popup气泡弹窗对象
+     * @readonly
+     */
+    get Popup() {
+      return this[_Popup];
     }
 
     /**
@@ -474,6 +484,8 @@ const PJtoolsMap = (function() {
             this[_Layers] = new Layers(this);
             // 绑定PJtoolsMap.Marker对象
             this[_Marker] = new Marker(this);
+            // 绑定PJtoolsMap.Popup对象
+            this[_Popup] = new Popup(this);
             // 判断是否触发回调地图的数据加载完成回调事件
             isFunction(cb.onLoad) && cb.onLoad.call(this, this);
           }

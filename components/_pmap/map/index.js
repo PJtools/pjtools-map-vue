@@ -14,6 +14,7 @@ import proj4 from './proj4';
 import control from './control';
 import interaction from './interaction';
 import marker from './marker';
+import popup from './popup';
 
 export default {
   // 地图“数据源”管理相关功能方法
@@ -36,4 +37,6 @@ export default {
   ...interaction,
   // 地图“Marker标注”管理相关功能方法
   ...marker,
+  // 地图“Popup弹框”管理相关功能方法
+  ...popup,
 };

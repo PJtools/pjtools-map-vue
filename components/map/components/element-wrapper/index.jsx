@@ -9,6 +9,7 @@ import Base from '../../../base';
 import { BaseMixin, PropTypes, getComponentFromProp, filterEmpty } from '../../../_util/antdv';
 import { isFunction, isString } from '../../../_util/methods-util';
 import DefaultMarker from './marker';
+import DefaultPopup from './popup';
 
 const ElementWrapper = {
   inheritAttrs: false,
@@ -23,6 +24,8 @@ const ElementWrapper = {
     slots: PropTypes.any,
     // 组件的传递属性数据
     vProps: PropTypes.object,
+    // 原生对象的参数选项
+    options: PropTypes.object.def({}),
   },
   computed: {
     iMapApi() {
@@ -49,32 +52,38 @@ const ElementWrapper = {
       const slotNodes = getComponentFromProp(iMapApi.component, slotName, {}, false);
       return slotNodes ? filterEmpty(slotNodes({ iMapApi, ...vProps })) : null;
     },
+
+    // 根据插槽的类型获取不同的插槽内容节点
+    getNodesBySolts(slots) {
+      if (isFunction(slots)) {
+        return <div>{slots(h)}</div>;
+      } else if (typeof slots === 'object' && slots instanceof HTMLElement) {
+        return <div domPropsInnerHTML={slots.outerHTML} />;
+      } else if (isString(slots)) {
+        // 判断是否为插槽名称，则根据模板进行注入
+        return this.renderSlotScopeNodes(slots) || null;
+      }
+    },
   },
   render(h) {
-    const { slots, type, vProps } = this;
+    const { slots, type, vProps, options } = this;
     // 判断是否无插槽对象，则直接采用默认组件
-    if (!slots) {
-      switch (type) {
-        case 'marker':
-          return (
-            <div>
-              <DefaultMarker {...{ props: vProps }} />
-            </div>
-          );
-        default:
-          return null;
+    switch (type) {
+      case 'marker': {
+        return !slots ? (
+          <div>
+            <DefaultMarker {...{ props: vProps, options }} />
+          </div>
+        ) : (
+          this.getNodesBySolts(slots)
+        );
       }
+      case 'popup': {
+        return <DefaultPopup {...{ props: { ...vProps, options } }}>{!slots ? null : this.getNodesBySolts(slots)}</DefaultPopup>;
+      }
+      default:
+        return null;
     }
-    // 判断是否为Function函数
-    if (isFunction(slots)) {
-      return <div>{slots(h)}</div>;
-    } else if (typeof slots === 'object' && slots instanceof HTMLElement) {
-      return <div domPropsInnerHTML={slots.outerHTML} />;
-    } else if (isString(slots)) {
-      // 判断是否为插槽名称，则根据模板进行注入
-      return this.renderSlotScopeNodes(slots) || null;
-    }
-    return null;
   },
 };
 
