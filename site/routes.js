@@ -32,6 +32,14 @@ export default [
     },
     children: [
       {
+        path: 'docs/vue/getting-started',
+        component: () => import('../docs/vue/getting-started.en-US.md'),
+      },
+      {
+        path: 'docs/vue/getting-started-cn',
+        component: () => import('../docs/vue/getting-started.zh-CN.md'),
+      },
+      {
         path: 'docs/vue/changelog',
         component: () => import('../docs/vue/changelog.en-US.md'),
       },
@@ -55,8 +63,8 @@ export default [
         path: 'docs/vue/imapapi-cn',
         component: () => import('../docs/vue/map.zh-CN.md'),
       },
-      { path: '', redirect: '/docs/vue/changelog-cn/' },
+      { path: '', redirect: '/docs/vue/getting-started-cn/' },
     ],
   },
-  { path: '/*', redirect: '/docs/vue/changelog-cn/' },
+  { path: '/*', redirect: '/docs/vue/getting-started-cn/' },
 ];

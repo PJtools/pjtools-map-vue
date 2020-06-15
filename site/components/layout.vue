@@ -12,6 +12,7 @@ import NProgress from 'nprogress';
 import MobileMenu from 'ant-design-vue/es/vc-drawer/src';
 
 const docsList = [
+  { key: 'getting-started', enTitle: 'Getting Started', title: '快速上手' },
   { key: 'changelog', enTitle: 'Change Log', title: '更新日志' },
   { key: 'faq', enTitle: 'FAQ', title: '常见问题' },
   { key: 'imapapi', enTitle: 'Map Api', title: 'API接口' },
