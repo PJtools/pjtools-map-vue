@@ -1,0 +1,12 @@
+@import '../themes/default';
+
+@popup-prefix-cls: ~'@{map-prefix-cls}-popup';
+
+.mapboxgl-popup {
+  .@{popup-prefix-cls} {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+  }
+}
