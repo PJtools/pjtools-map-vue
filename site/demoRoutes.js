@@ -23,4 +23,12 @@ export default [
     path: 'marker-cn',
     component: () => import('../components/map/demo/examples/Marker/index.vue'),
   },
+  {
+    path: 'popup',
+    component: () => import('../components/map/demo/examples/Popup/index.vue'),
+  },
+  {
+    path: 'popup-cn',
+    component: () => import('../components/map/demo/examples/Popup/index.vue'),
+  },
 ];

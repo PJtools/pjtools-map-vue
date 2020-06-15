@@ -20,4 +20,11 @@ export default {
     title: 'Marker',
     sort: 1,
   },
+  popup: {
+    category: 'Components',
+    subtitle: '气泡弹窗',
+    type: 'Marker And Pupop',
+    title: 'Popup',
+    sort: 2,
+  },
 };
