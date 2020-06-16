@@ -40,9 +40,7 @@ const DefaultPopup = {
         return <div class="popup-inner-content" domPropsInnerHTML={slots.outerHTML} />;
       } else if (isString(slots)) {
         const slotNodes = getComponentFromProp(iMapApi.component, `popup.${slots}`, {}, false);
-        if (slotNodes) {
-          return <div class="popup-inner-content">{filterEmpty(slotNodes({ iMapApi, popup, data }))}</div>;
-        }
+        return <div class="popup-inner-content">{slotNodes ? filterEmpty(slotNodes({ iMapApi, popup, data })) : slots}</div>;
       }
       return <div class="popup-inner-content" />;
     },
