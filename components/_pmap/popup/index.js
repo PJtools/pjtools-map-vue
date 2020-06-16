@@ -112,6 +112,7 @@ class Popup extends BasicMapApi {
         // 移除Popup的存储对象记录
         this[_popups][popup.id] && delete this[_popups][popup.id];
       });
+      popup.fire('open');
     });
 
     // 删除部分原生方法
