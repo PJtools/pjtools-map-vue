@@ -1,5 +1,5 @@
 <template>
-	<div style="margin: 10px;">
+	<div>
 		<pj-map bordered height="700" 
 						baseUrl="/static/GeoMap/" 
 						config="../MapConfig/map.config.js"
@@ -10,7 +10,6 @@
 
 <script>
   export default {
-		props: ['id'],
 		data () {
 			return {
 				iMapApi: null

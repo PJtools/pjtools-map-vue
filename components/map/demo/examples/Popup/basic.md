@@ -20,11 +20,11 @@ xx.
   export default {
 		methods: {
 			handleMapLoaded(iMapApi) {
+				const coordinates = iMapApi.getCenter();
 				// 创建一个Popup实例
-				const popup = new mapboxgl.Popup();
-				popup.setLngLat(iMapApi.getCenter());
-				popup.setHTML("<h1>Hello World!</h1>");
-				popup.addTo(iMapApi.map);
+				iMapApi.addPopup('popup-id', coordinates, {
+					slots: 'Hi, Popup!',
+				});
 			},
 		}
 	}

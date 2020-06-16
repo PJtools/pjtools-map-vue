@@ -10,6 +10,9 @@ const md = {
 };
 
 import Basic from './basic';
+import Slots from './slots';
+import Skin from './skin';
+import CN from './zh-CN';
 
 export default {
 	title: 'Popup',
@@ -18,12 +21,11 @@ export default {
 		return (
 			<div>
 				<md cn={md.cn} />
-				<a-row gutter={[10, 10]}>
-					<a-col span={24} >
-						<Basic />
-					</a-col>
-				</a-row>
+				<Basic />
+				<Slots />
+				<Skin />
 				<api>
+					<CN slot="cn" />
 				</api>
 			</div>
 		)
