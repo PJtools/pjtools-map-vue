@@ -36,51 +36,37 @@ const ElementWrapper = {
     },
   },
   methods: {
-    // 根据插槽名称获取组件模板
-    renderSlotScopeNodes(name) {
-      const { type, iMapApi, vProps } = this;
-      let slotName = null;
-      switch (type) {
-        case 'marker':
-        case 'popup':
-          slotName = `${type}.${name}`;
-          break;
-        default:
-          slotName = name;
-          break;
-      }
-      const slotNodes = getComponentFromProp(iMapApi.component, slotName, {}, false);
-      return slotNodes ? filterEmpty(slotNodes({ iMapApi, ...vProps })) : null;
-    },
-
-    // 根据插槽的类型获取不同的插槽内容节点
-    getNodesBySolts(slots) {
-      if (isFunction(slots)) {
-        return <div>{slots(h)}</div>;
-      } else if (typeof slots === 'object' && slots instanceof HTMLElement) {
-        return <div domPropsInnerHTML={slots.outerHTML} />;
-      } else if (isString(slots)) {
-        // 判断是否为插槽名称，则根据模板进行注入
-        return this.renderSlotScopeNodes(slots) || null;
-      }
-    },
-  },
-  render(h) {
-    const { slots, type, vProps, options } = this;
-    // 判断是否无插槽对象，则直接采用默认组件
-    switch (type) {
-      case 'marker': {
-        return !slots ? (
+    // 渲染Marker标注Slot插槽
+    renderMarkerSlotScope() {
+      const { type, slots, iMapApi, vProps, options } = this;
+      if (!slots) {
+        return (
           <div>
             <DefaultMarker {...{ props: vProps, options }} />
           </div>
-        ) : (
-          this.getNodesBySolts(slots)
         );
+      } else {
+        if (isFunction(slots)) {
+          return <div>{slots(h)}</div>;
+        } else if (typeof slots === 'object' && slots instanceof HTMLElement) {
+          return <div domPropsInnerHTML={slots.outerHTML} />;
+        } else if (isString(slots)) {
+          const slotNodes = getComponentFromProp(iMapApi.component, `${type}.${slots}`, {}, false);
+          return slotNodes ? filterEmpty(slotNodes({ iMapApi, ...vProps })) : null;
+        } else {
+          return null;
+        }
       }
-      case 'popup': {
-        return <DefaultPopup {...{ props: { ...vProps, options } }}>{!slots ? null : this.getNodesBySolts(slots)}</DefaultPopup>;
-      }
+    },
+  },
+  render() {
+    const { type, iMapApi, vProps, options } = this;
+    // 判断是否无插槽对象，则直接采用默认组件
+    switch (type) {
+      case 'marker':
+        return this.renderMarkerSlotScope();
+      case 'popup':
+        return <DefaultPopup {...{ props: { ...vProps, iMapApi, options } }} />;
       default:
         return null;
     }
