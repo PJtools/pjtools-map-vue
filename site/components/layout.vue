@@ -231,7 +231,7 @@ export default {
                     mode="inline"
                   >
                     {docsMenu}
-                    <a-sub-menu title={`Components(${searchData.length})`} key="Components">
+                    <a-sub-menu title={`Examples(${searchData.length})`} key="Components">
                       {MenuGroup}
                     </a-sub-menu>
                   </a-menu>
@@ -257,7 +257,7 @@ export default {
                         mode="inline"
                       >
                         {docsMenu}
-                        <a-sub-menu title={`Components(${searchData.length})`} key="Components">
+                        <a-sub-menu title={`Examples(${searchData.length})`} key="Components">
                           {MenuGroup}
                         </a-sub-menu>
                       </a-menu>

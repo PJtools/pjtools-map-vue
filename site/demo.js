@@ -13,6 +13,13 @@ export default {
     title: 'Map',
     sort: 2,
   },
+  measure: {
+    category: 'Components',
+    subtitle: '测量',
+    type: 'User Interaction',
+    title: 'Measure',
+    sort: 1,
+  },
   marker: {
     category: 'Components',
     subtitle: '标注',
