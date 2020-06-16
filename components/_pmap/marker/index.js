@@ -96,6 +96,11 @@ class Marker extends BasicMapApi {
     });
     // 删除部分原生方法
     marker.addTo && (marker.addTo = () => null);
+    // 重构原生方法
+    marker._removeMarker = marker.remove;
+    marker.remove = () => {
+      this.remove(marker.id);
+    };
 
     // 存储当前实例的Marker对象
     this[_markers][id] = marker;
@@ -181,13 +186,12 @@ class Marker extends BasicMapApi {
       // 移除Marker的Vue组件对象
       marker._instance && marker._instance.destroy();
       // 移除地图的Marker对象
-      marker.remove();
+      marker._removeMarker && marker._removeMarker();
       // 移除Marker的存储对象记录
       if (this[_markers][id]) {
         delete this[_markers][id];
       }
     }
-    console.log(this);
   }
 
   /**
