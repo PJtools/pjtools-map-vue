@@ -4,8 +4,6 @@
  * @创建时间: 2020-05-21 16:54:57
  */
 
-import Constants from './constants';
-
 // 图层样式的参数主题
 export const defaultDrawTheme = {
   // 静态状态
