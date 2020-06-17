@@ -16,6 +16,14 @@ export default [
     component: () => import('../components/map/demo/index.vue'),
   },
   {
+    path: 'fullscreen',
+    component: () => import('../components/map/demo/examples/Interfaces/Fullscreen/index.vue'),
+  },
+  {
+    path: 'fullscreen-cn',
+    component: () => import('../components/map/demo/examples/Interfaces/Fullscreen/index.vue'),
+  },
+  {
     path: 'measure',
     component: () => import('../components/map/demo/examples/Interfaces/Measure/index.vue'),
   },

@@ -13,12 +13,19 @@ export default {
     title: 'Map',
     sort: 2,
   },
+  fullscreen: {
+    category: 'Components',
+    subtitle: '地图全屏',
+    type: 'User Interaction',
+    title: 'Fullscreen',
+    sort: 1,
+  },
   measure: {
     category: 'Components',
     subtitle: '测量',
     type: 'User Interaction',
     title: 'Measure',
-    sort: 1,
+    sort: 2,
   },
   marker: {
     category: 'Components',
