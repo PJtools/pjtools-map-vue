@@ -55,6 +55,8 @@ const instance = iMapApi.Interfaces.measure();
 	| --- | --- | --- | --- |
 	| id | 地图测量的唯一Id名称 | string |
 
+	### 事件监听
+
 	> 地图`Measure`测量实例对象可通过`instance.on(name, listener)`、`instance.off(name, listener)`事件监听。
 
 	| 事件名称 | 说明 | 输出对象 |
