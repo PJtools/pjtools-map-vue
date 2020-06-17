@@ -281,7 +281,7 @@ PolygonMode.clickAnywhere = function(state, e) {
   // 更新Polygon面的临时边线坐标
   state.templine.updateCoordinate(state.currentVertexIndex, coordinates[0], coordinates[1]);
   // 更新Polygon面的MoveLine线要素的起始坐标
-  state.moveline.setCoordinates([coordinates]);
+  state.moveline.setCoordinates(vertexs.length > 2 ? [coordinates, vertexs[0]] : [coordinates]);
   // 更新当前节点的索引
   state.currentVertexIndex++;
   // 重新记录单击时间戳
