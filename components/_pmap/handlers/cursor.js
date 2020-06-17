@@ -157,6 +157,26 @@ class Cursor {
     }
   }
 
+  /**
+   * 更新当前地图光标提示框的文本内容
+   * @param {String} content 待更新的光标提示框内容
+   */
+  updateContent(content) {
+    if (this._enabled && this._component) {
+      this._component.updateMouseContent(content);
+    }
+  }
+
+  /**
+   * 更新当前地图光标提示框的Icon图标
+   * @param {String} icon 待更新的光标提示框Icon图标
+   */
+  updateIcon(icon) {
+    if (this._enabled && this._component) {
+      this._component.updateMouseIcon(icon);
+    }
+  }
+
   // 设置地图光标的样式
   _setMapCursorStyle(cursor) {
     if (!this._element) {

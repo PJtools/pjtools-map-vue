@@ -131,6 +131,16 @@ const MouseTooltip = {
       this.position = position;
     },
 
+    // 更新关闭提示框的Icon图标
+    updateMouseIcon(icon) {
+      this.icon = icon;
+    },
+
+    // 更新关闭提示框的内容
+    updateMouseContent(content) {
+      this.content = content;
+    },
+
     // 更新光标提示框的显隐状态
     updateVisible(show = false) {
       this.show = isBooleanTrue(show);
