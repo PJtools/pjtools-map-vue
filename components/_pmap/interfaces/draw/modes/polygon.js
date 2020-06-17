@@ -34,7 +34,9 @@ export const calculatePolygonArea = function(context, coordinates) {
       if (coordinate.length > 2) {
         coordinate.length === 3 && coordinate.splice(coordinate.length - 1, 1);
         const measure = calculateLineDistance(context, coordinate);
-        measure && measure.measure && measure.measure.line && (distance += measure.measure.line.distance);
+        if (measure && measure.measure && measure.measure.line) {
+          distance += measure.measure.line.unit === 'm' ? measure.measure.line.distance / 1000 : measure.measure.line.distance;
+        }
       }
     });
   const measure = {};
