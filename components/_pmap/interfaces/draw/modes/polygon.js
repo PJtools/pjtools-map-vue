@@ -44,7 +44,7 @@ export const calculatePolygonArea = function(context, coordinates) {
       distance: length,
       round: round(length, 2),
       unit: distance < 1 ? 'm' : 'km',
-      unitCN: distance < 1 ? '米' : '公里',
+      unitCN: distance < 1 ? '米' : '千米',
     };
   }
   // 判定是否面的坐标点是否超过3个

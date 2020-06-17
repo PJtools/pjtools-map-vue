@@ -32,13 +32,13 @@ export const calculateRectangleArea = function(context, coordinates, length, wid
   measure.length.distance = length < 1 ? length * 1000 : length;
   measure.length.round = round(measure.length.distance, 2);
   measure.length.unit = length < 1 ? 'm' : 'km';
-  measure.length.unitCN = length < 1 ? '米' : '公里';
+  measure.length.unitCN = length < 1 ? '米' : '千米';
   if (width) {
     measure.width = {};
     measure.width.distance = width < 1 ? width * 1000 : width;
     measure.width.round = round(measure.width.distance, 2);
     measure.width.unit = width < 1 ? 'm' : 'km';
-    measure.width.unitCN = width < 1 ? '米' : '公里';
+    measure.width.unitCN = width < 1 ? '米' : '千米';
   }
 
   return {
