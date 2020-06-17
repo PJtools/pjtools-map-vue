@@ -161,7 +161,7 @@ const layerGroup = {
         this.map.removeLayer(layer.id);
         this.removeSource(layer.source);
         // 移除图层组中的图层对象的缓存
-        this._mapLayers[id].layers.splice(this._mapLayers[id].layers.indexOf(layerId), 1);
+        this._mapLayers[id].layers.splice(this._mapLayers[id].layers.indexOf(layer), 1);
         if (!this._mapLayers[id].layers.length) {
           delete this._mapLayers[id];
         }
