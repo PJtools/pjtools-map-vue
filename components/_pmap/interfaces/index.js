@@ -7,6 +7,7 @@
 import BasicMapApi from '../util/basicMapApiClass';
 import Fullscreen from './fullscreen';
 import Draw from './draw';
+import Measure from './measure';
 
 class Interfaces extends BasicMapApi {
   /**
@@ -18,9 +19,17 @@ class Interfaces extends BasicMapApi {
 
   /**
    * 获取地图“绘制矢量图形”实例对象
+   * @param {Object} options “绘制”交互的初始参数选项
    */
   draw(options = {}) {
     return new Draw(this.iMapApi, options);
+  }
+
+  /**
+   * 获取地图“测量”实例对象
+   */
+  measure() {
+    return new Measure(this.iMapApi);
   }
 }
 
