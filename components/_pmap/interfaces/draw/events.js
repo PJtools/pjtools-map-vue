@@ -244,9 +244,18 @@ const events = function(ctx) {
       return currentMode.render(geojson, push);
     },
 
-    // 获取当前模式
+    // 获取当前模式名称
     getMode() {
       return currentModeName;
+    },
+
+    // 获取当前模式实例对象
+    getCurrentModeInstance() {
+      if (currentMode) {
+        const modeHanler = currentMode.mode();
+        return modeHanler && modeHanler.mode();
+      }
+      return null;
     },
 
     // 执行事件

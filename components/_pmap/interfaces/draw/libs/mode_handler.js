@@ -4,7 +4,6 @@
  * @创建时间: 2020-05-22 11:20:22
  */
 
-import Constants from '../constants';
 import { eventKeys } from '../modes/object_to_mode';
 
 const ModeHandler = function(mode, context) {
@@ -43,6 +42,10 @@ const ModeHandler = function(mode, context) {
   };
 
   return {
+    mode() {
+      return mode;
+    },
+
     render: mode.render,
 
     start(options = null) {

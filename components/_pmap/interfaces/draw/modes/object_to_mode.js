@@ -40,6 +40,9 @@ export default function(modeObject) {
     };
 
     return {
+      mode() {
+        return mode;
+      },
       start(options = null) {
         const modeOptions = options !== null && options !== undefined ? options : startOpts;
         state = mode.onSetup(modeOptions);

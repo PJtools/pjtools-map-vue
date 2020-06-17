@@ -29,12 +29,21 @@ const defaultDrawOptions = {
 };
 
 const _drawOptions = Symbol('options');
+const _uid = Symbol('uid');
 const _ctx = Symbol('Context');
 const _isInitModeChange = Symbol('isInitModeChange');
 
 class Draw extends BasicMapApiEvented {
   /**
-   * 绘图的参数选项
+   * 当前绘图的唯一Id
+   * @readonly
+   */
+  get uid() {
+    return this[_uid];
+  }
+
+  /**
+   * 当前绘图的参数项
    * @readonly
    */
   get options() {
@@ -48,6 +57,7 @@ class Draw extends BasicMapApiEvented {
     // 合并与设置参数选项
     options.modes = !options.modes ? modes : assign({}, modes, options.modes);
     const opts = assign({}, defaultDrawOptions, options);
+    this[_uid] = hat();
     // 添加默认绘图模式
     opts.defaultMode = Constants.modes.STATIC;
     // 赋值参数选项
@@ -62,7 +72,7 @@ class Draw extends BasicMapApiEvented {
     // 定义内部作用域对象
     const ctx = {
       api: this,
-      uid: hat(),
+      uid: this[_uid],
       options: opts,
       iMapApi: this.iMapApi,
       map: (this.iMapApi && this.iMapApi.map) || null,
@@ -172,6 +182,16 @@ class Draw extends BasicMapApiEvented {
   changeMode(mode, options = {}, eventOptions = {}) {
     const events = this[_ctx].events;
     events && events.changeMode(mode, options, eventOptions);
+  }
+
+  /**
+   * 更新当前模式的地图光标样式及Tip提示
+   * @param {Object} options 光标参数选项
+   */
+  updateModeCursor(options = {}) {
+    const events = this[_ctx].events;
+    const mode = events.getCurrentModeInstance();
+    mode && mode.updateCursor(options);
   }
 
   /**
