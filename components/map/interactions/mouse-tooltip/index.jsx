@@ -73,6 +73,8 @@ const MouseTooltip = {
       const content = getComponentFromProp(this, 'content', {}, false);
       if (isFunction(content)) {
         return <span class="content">{content(h)}</span>;
+      } else if (typeof content === 'object' && content instanceof HTMLElement) {
+        return <span class="content" domPropsInnerHTML={content.outerHTML}></span>;
       } else {
         return this.renderSlotScopeNodes(content, this.$data) || <span class="content">{content}</span>;
       }
@@ -84,6 +86,8 @@ const MouseTooltip = {
       // 判断是否为Function函数类型
       if (isFunction(icon)) {
         return <span class="icon">{icon(h)}</span>;
+      } else if (typeof icon === 'object' && icon instanceof HTMLElement) {
+        return <span class="icon" domPropsInnerHTML={icon.outerHTML}></span>;
       } else {
         // 判断是否有具名插槽
         const slotNodes = this.renderSlotScopeNodes(icon, this.$data);
