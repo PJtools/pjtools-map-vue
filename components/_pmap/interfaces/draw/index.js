@@ -185,10 +185,10 @@ class Draw extends BasicMapApiEvented {
   }
 
   /**
-   * 更新当前模式的地图光标样式及Tip提示
+   * 设置当前模式的地图光标样式及Tip提示
    * @param {Object} options 光标参数选项
    */
-  updateModeCursor(options = {}) {
+  setModeCursor(options = {}) {
     const events = this[_ctx].events;
     const mode = events.getCurrentModeInstance();
     mode && mode.updateCursor(options);
