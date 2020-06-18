@@ -15,6 +15,72 @@ export default [
     path: 'map-cn',
     component: () => import('../components/map/demo/index.vue'),
   },
+
+  {
+    path: 'drag-pan',
+    component: () => import('../components/map/demo/examples/Handlers/DragPan/index.vue'),
+  },
+  {
+    path: 'drag-pan-cn',
+    component: () => import('../components/map/demo/examples/Handlers/DragPan/index.vue'),
+  },
+  {
+    path: 'drag-rotate',
+    component: () => import('../components/map/demo/examples/Handlers/DragRotate/index.vue'),
+  },
+  {
+    path: 'drag-rotate-cn',
+    component: () => import('../components/map/demo/examples/Handlers/DragRotate/index.vue'),
+  },
+  {
+    path: 'scroll-zoom',
+    component: () => import('../components/map/demo/examples/Handlers/ScrollZoom/index.vue'),
+  },
+  {
+    path: 'scroll-zoom-cn',
+    component: () => import('../components/map/demo/examples/Handlers/ScrollZoom/index.vue'),
+  },
+  {
+    path: 'box-zoom',
+    component: () => import('../components/map/demo/examples/Handlers/BoxZoom/index.vue'),
+  },
+  {
+    path: 'box-zoom-cn',
+    component: () => import('../components/map/demo/examples/Handlers/BoxZoom/index.vue'),
+  },
+  {
+    path: 'keyboard',
+    component: () => import('../components/map/demo/examples/Handlers/Keyboard/index.vue'),
+  },
+  {
+    path: 'keyboard-cn',
+    component: () => import('../components/map/demo/examples/Handlers/Keyboard/index.vue'),
+  },
+  {
+    path: 'double-click-zoom',
+    component: () => import('../components/map/demo/examples/Handlers/DoubleClickZoom/index.vue'),
+  },
+  {
+    path: 'double-click-zoom-cn',
+    component: () => import('../components/map/demo/examples/Handlers/DoubleClickZoom/index.vue'),
+  },
+  {
+    path: 'zoom-in-out',
+    component: () => import('../components/map/demo/examples/Handlers/ZoomInOut/index.vue'),
+  },
+  {
+    path: 'zoom-in-out-cn',
+    component: () => import('../components/map/demo/examples/Handlers/ZoomInOut/index.vue'),
+  },
+  {
+    path: 'cursor',
+    component: () => import('../components/map/demo/examples/Handlers/Cursor/index.vue'),
+  },
+  {
+    path: 'cursor-cn',
+    component: () => import('../components/map/demo/examples/Handlers/Cursor/index.vue'),
+  },
+
   {
     path: 'fullscreen',
     component: () => import('../components/map/demo/examples/Interfaces/Fullscreen/index.vue'),
@@ -39,6 +105,7 @@ export default [
     path: 'draw-cn',
     component: () => import('../components/map/demo/examples/Interfaces/Draw/index.vue'),
   },
+
   {
     path: 'marker',
     component: () => import('../components/map/demo/examples/Marker/index.vue'),
