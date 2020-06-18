@@ -37,7 +37,7 @@ export default {
   methods: {
     // 根据定义的Prop属性值获取Slot插槽对象
     getSlotFromProp(name) {
-      let prefix = this.$options.name.replace('PjMap.', '');
+      let prefix = this.$options.name.replace('PjMap.Interactions.', '');
       prefix = `${prefix.toLowerCase()}.${name}`;
       // 查找具名插槽对象
       return getComponentFromProp(this.iMapApi.component, prefix, {}, false) || null;
