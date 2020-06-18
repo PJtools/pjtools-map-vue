@@ -13,6 +13,13 @@ export default {
     title: 'Map',
     sort: 2,
   },
+  tianditu: {
+    category: 'Components',
+    subtitle: '天地图',
+    type: 'Providers',
+    title: 'Tianditu',
+    sort: 1,
+  },
   'drag-pan': {
     category: 'Components',
     subtitle: '漫游',

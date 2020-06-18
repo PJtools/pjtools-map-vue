@@ -17,6 +17,15 @@ export default [
   },
 
   {
+    path: 'tianditu',
+    component: () => import('../components/map/demo/examples/Providers/Tianditu/index.vue'),
+  },
+  {
+    path: 'tianditu-cn',
+    component: () => import('../components/map/demo/examples/Providers/Tianditu/index.vue'),
+  },
+
+  {
     path: 'drag-pan',
     component: () => import('../components/map/demo/examples/Handlers/DragPan/index.vue'),
   },
