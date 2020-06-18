@@ -20,6 +20,13 @@ export default {
     title: 'Tianditu',
     sort: 1,
   },
+  baidu: {
+    category: 'Components',
+    subtitle: '百度地图',
+    type: 'Providers',
+    title: 'Baidu',
+    sort: 2,
+  },
   'drag-pan': {
     category: 'Components',
     subtitle: '漫游',

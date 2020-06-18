@@ -24,6 +24,14 @@ export default [
     path: 'tianditu-cn',
     component: () => import('../components/map/demo/examples/Providers/Tianditu/index.vue'),
   },
+  {
+    path: 'baidu',
+    component: () => import('../components/map/demo/examples/Providers/Baidu/index.vue'),
+  },
+  {
+    path: 'baidu-cn',
+    component: () => import('../components/map/demo/examples/Providers/Baidu/index.vue'),
+  },
 
   {
     path: 'drag-pan',
