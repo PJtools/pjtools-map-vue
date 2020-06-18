@@ -32,6 +32,14 @@ export default [
     component: () => import('../components/map/demo/examples/Interfaces/Measure/index.vue'),
   },
   {
+    path: 'draw',
+    component: () => import('../components/map/demo/examples/Interfaces/Draw/index.vue'),
+  },
+  {
+    path: 'draw-cn',
+    component: () => import('../components/map/demo/examples/Interfaces/Draw/index.vue'),
+  },
+  {
     path: 'marker',
     component: () => import('../components/map/demo/examples/Marker/index.vue'),
   },

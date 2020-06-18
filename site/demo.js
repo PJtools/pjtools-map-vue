@@ -27,6 +27,13 @@ export default {
     title: 'Measure',
     sort: 2,
   },
+  draw: {
+    category: 'Components',
+    subtitle: '绘图',
+    type: 'User Interaction',
+    title: 'Draw',
+    sort: 3,
+  },
   marker: {
     category: 'Components',
     subtitle: '标注',
