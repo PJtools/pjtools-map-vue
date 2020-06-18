@@ -116,7 +116,7 @@ class Draw extends BasicMapApiEvented {
     // 切换绘图模式
     this.changeMode(mode, options, { silent });
     // 更新状态
-    this._enabled = true;
+    this._enabled = mode === Constants.modes.STATIC ? false : true;
   }
 
   /**
@@ -182,6 +182,9 @@ class Draw extends BasicMapApiEvented {
   changeMode(mode, options = {}, eventOptions = {}) {
     const events = this[_ctx].events;
     events && events.changeMode(mode, options, eventOptions);
+    if (mode === Constants.modes.STATIC) {
+      this._enabled = false;
+    }
   }
 
   /**
