@@ -17,7 +17,7 @@ const instance = iMapApi.Interfaces.measure();
 
 	| 参数 | 说明 | 类型 | 默认值 |
 	| --- | --- | --- | --- |
-	| mode | 地图测量的模式，可选参数：`line` \| `polygon` \| `rectangle` \| `circle` \| | string | 'line' |
+	| mode | 地图测量的模式，可选参数：`line` \| `polygon` \| `rectangle` \| `circle` | string | 'line' |
 
 - #### instance.disable()
 
