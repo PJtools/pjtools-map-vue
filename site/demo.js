@@ -27,6 +27,13 @@ export default {
     title: 'Baidu',
     sort: 2,
   },
+  'open-street-map': {
+    category: 'Components',
+    subtitle: 'OSM地图',
+    type: 'Providers',
+    title: 'OpenStreetMap',
+    sort: 2,
+  },
   'drag-pan': {
     category: 'Components',
     subtitle: '漫游',

@@ -32,6 +32,14 @@ export default [
     path: 'baidu-cn',
     component: () => import('../components/map/demo/examples/Providers/Baidu/index.vue'),
   },
+  {
+    path: 'open-street-map',
+    component: () => import('../components/map/demo/examples/Providers/OSM/index.vue'),
+  },
+  {
+    path: 'open-street-map-cn',
+    component: () => import('../components/map/demo/examples/Providers/OSM/index.vue'),
+  },
 
   {
     path: 'drag-pan',
