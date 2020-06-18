@@ -716,3 +716,41 @@
 	| length | 矩形的长度，单位：km | number |
 	| width | 矩形的宽度，单位：km | number |
 	| properties | 选填项，Feature要素的Properties属性对象 | object | {} |
+
+### 常见互联网坐标转换
+
+- #### iMapApi.transform.ll2merc(lonlat)
+  标准WGS84 转换 Web墨卡托。参考格式：`[x, y]`
+
+- #### iMapApi.transform.merc2ll(merc)
+  Web墨卡托 转换 标准WGS84。参考格式：`[x, y]`
+
+- #### iMapApi.transform.bd2ll(lonlat)
+  百度经纬度 转换 标准WGS84。参考格式：`[x, y]`
+
+- #### iMapApi.transform.bd2merc(lonlat)
+  百度经纬度 转换 Web墨卡托。参考格式：`[x, y]`
+
+- #### iMapApi.transform.ll2bd(lonlat)
+  标准WGS84 转换 百度经纬度。参考格式：`[x, y]`
+
+- #### iMapApi.transform.ll2bdmerc(lonlat)
+  标准WGS84 转换 百度墨卡托。参考格式：`[x, y]`
+
+- #### iMapApi.transform.bdmerc2ll(lonlat)
+  百度墨卡托 转换 标准WGS84。参考格式：`[x, y]`
+
+- #### iMapApi.transform.ll2gcj(lonlat)
+  标准WGS84 转换 GCJ02火星坐标。参考格式：`[x, y]`
+
+- #### iMapApi.transform.gcj2ll(lonlat)
+  GCJ02火星坐标 转换 标准WGS84。参考格式：`[x, y]`
+
+- #### iMapApi.transform.gcj2merc(lonlat)
+  GCJ02火星坐标 转换 Web墨卡托。参考格式：`[x, y]`
+
+- #### iMapApi.transform.ll2gcjmerc(lonlat)
+  标准WGS84 转换 GCJ02火星墨卡托。参考格式：`[x, y]`
+
+- #### iMapApi.transform.gcjmerc2ll(lonlat)
+  GCJ02火星墨卡托 转换 标准WGS84。参考格式：`[x, y]`
