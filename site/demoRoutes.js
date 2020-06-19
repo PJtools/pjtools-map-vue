@@ -40,6 +40,14 @@ export default [
     path: 'open-street-map-cn',
     component: () => import('../components/map/demo/examples/Providers/OSM/index.vue'),
   },
+  {
+    path: 'bing',
+    component: () => import('../components/map/demo/examples/Providers/Bing/index.vue'),
+  },
+  {
+    path: 'bing-cn',
+    component: () => import('../components/map/demo/examples/Providers/Bing/index.vue'),
+  },
 
   {
     path: 'drag-pan',

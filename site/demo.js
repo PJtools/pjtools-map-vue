@@ -32,7 +32,14 @@ export default {
     subtitle: 'OSM地图',
     type: 'Providers',
     title: 'OpenStreetMap',
-    sort: 2,
+    sort: 3,
+  },
+  bing: {
+    category: 'Components',
+    subtitle: '必应地图',
+    type: 'Providers',
+    title: 'Bing',
+    sort: 4,
   },
   'drag-pan': {
     category: 'Components',
