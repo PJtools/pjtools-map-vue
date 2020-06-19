@@ -23,5 +23,3 @@
 	| 参数 | 说明 | 类型 | 默认值 |
 	| --- | --- | --- | --- |
 	| proxy | 是否拼接代理服务地址 | boolean | true |
-	| minzoom | 瓦片的最小层级 | number | null |
-	| maxzoom | 瓦片的最大层级 | number | null |
