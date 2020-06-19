@@ -1,6 +1,6 @@
 <cn>
-#### WMTS Services服务
-通过配置文件初始化渲染WMTS类型GIS服务图层。
+#### WMS Services服务
+通过配置文件初始化渲染WMS类型GIS服务图层。
 </cn>
 
 <us>
