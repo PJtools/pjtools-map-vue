@@ -227,6 +227,14 @@ export default [
     path: 'navigation-cn',
     component: () => import('../components/map/demo/examples/Controls/Navigation/index.vue'),
   },
+  {
+    path: 'scale',
+    component: () => import('../components/map/demo/examples/Controls/Scale/index.vue'),
+  },
+  {
+    path: 'scale-cn',
+    component: () => import('../components/map/demo/examples/Controls/Scale/index.vue'),
+  },
 
   {
     path: 'fullscreen',

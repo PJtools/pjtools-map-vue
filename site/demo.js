@@ -195,6 +195,13 @@ export default {
     title: 'Navigation',
     sort: 1,
   },
+  scale: {
+    category: 'Components',
+    subtitle: '比例尺',
+    type: 'Control',
+    title: 'Scale',
+    sort: 2,
+  },
   fullscreen: {
     category: 'Components',
     subtitle: '地图全屏',
