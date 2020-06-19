@@ -82,6 +82,79 @@ export default [
   },
 
   {
+    path: 'x-y-z-tile',
+    component: () => import('../components/map/demo/examples/Services/XYZTile/index.vue'),
+  },
+  {
+    path: 'x-y-z-tile-cn',
+    component: () => import('../components/map/demo/examples/Services/XYZTile/index.vue'),
+  },
+  {
+    path: 'geo-tile',
+    component: () => import('../components/map/demo/examples/Services/GeoTile/index.vue'),
+  },
+  {
+    path: 'geo-tile-cn',
+    component: () => import('../components/map/demo/examples/Services/GeoTile/index.vue'),
+  },
+  {
+    path: 'v-t-s',
+    component: () => import('../components/map/demo/examples/Services/VTS/index.vue'),
+  },
+  {
+    path: 'v-t-s-cn',
+    component: () => import('../components/map/demo/examples/Services/VTS/index.vue'),
+  },
+  {
+    path: 'w-m-t-s',
+    component: () => import('../components/map/demo/examples/Services/WMTS/index.vue'),
+  },
+  {
+    path: 'w-m-t-s-cn',
+    component: () => import('../components/map/demo/examples/Services/WMTS/index.vue'),
+  },
+  {
+    path: 'w-m-s',
+    component: () => import('../components/map/demo/examples/Services/WMS/index.vue'),
+  },
+  {
+    path: 'w-m-s-cn',
+    component: () => import('../components/map/demo/examples/Services/WMS/index.vue'),
+  },
+  {
+    path: 'geo-export',
+    component: () => import('../components/map/demo/examples/Services/GeoExport/index.vue'),
+  },
+  {
+    path: 'geo-export-cn',
+    component: () => import('../components/map/demo/examples/Services/GeoExport/index.vue'),
+  },
+  {
+    path: 'arcgis-w-m-t-s',
+    component: () => import('../components/map/demo/examples/Services/ArcgisWMTS/index.vue'),
+  },
+  {
+    path: 'arcgis-w-m-t-s-cn',
+    component: () => import('../components/map/demo/examples/Services/ArcgisWMTS/index.vue'),
+  },
+  {
+    path: 'arcgis-w-m-s',
+    component: () => import('../components/map/demo/examples/Services/ArcgisWMS/index.vue'),
+  },
+  {
+    path: 'arcgis-w-m-s-cn',
+    component: () => import('../components/map/demo/examples/Services/ArcgisWMS/index.vue'),
+  },
+  {
+    path: 'arcgis-export',
+    component: () => import('../components/map/demo/examples/Services/ArcgisExport/index.vue'),
+  },
+  {
+    path: 'arcgis-export-cn',
+    component: () => import('../components/map/demo/examples/Services/ArcgisExport/index.vue'),
+  },
+
+  {
     path: 'drag-pan',
     component: () => import('../components/map/demo/examples/Handlers/DragPan/index.vue'),
   },
