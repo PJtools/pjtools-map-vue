@@ -23,6 +23,7 @@ const Controls = {
     Attribution,
     Navigation,
     Scale,
+    MouseCoordinates,
   },
   props: {
     dataList: PropTypes.array,
