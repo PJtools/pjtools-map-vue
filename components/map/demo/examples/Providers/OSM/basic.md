@@ -1,6 +1,6 @@
 <cn>
 #### 默认OpenStreetMap地图
-通过配置文件初始化渲染百度地图服务源。
+通过配置文件初始化渲染OpenStreetMap地图服务源。
 </cn>
 
 <us>
