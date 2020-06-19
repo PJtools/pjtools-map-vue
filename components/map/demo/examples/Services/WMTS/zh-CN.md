@@ -28,4 +28,5 @@
 	| layerMatrixSet | 选填项，WMTS服务图层矩阵集名 | string | null |
 	| styleName | 选填项，WMTS服务图层样式名 | string | null |
 	| format | 选填项，WMTS服务的图片格式 | `image/tile` \| `image/png` \| `image/jpeg` | 'image/png' |
+	| zoomOffset | 选填项，瓦片偏移量 | number | null |
 	| units | 选填项，服务投影单位，影响计算服务的金字塔范围、层级偏移值是否解析正确 | `degrees` \| `m` | 'm' |
