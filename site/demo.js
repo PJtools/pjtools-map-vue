@@ -188,6 +188,13 @@ export default {
     title: 'Cursor',
     sort: 8,
   },
+  navigation: {
+    category: 'Components',
+    subtitle: '地图导航',
+    type: 'Control',
+    title: 'Navigation',
+    sort: 1,
+  },
   fullscreen: {
     category: 'Components',
     subtitle: '地图全屏',

@@ -220,6 +220,15 @@ export default [
   },
 
   {
+    path: 'navigation',
+    component: () => import('../components/map/demo/examples/Controls/Navigation/index.vue'),
+  },
+  {
+    path: 'navigation-cn',
+    component: () => import('../components/map/demo/examples/Controls/Navigation/index.vue'),
+  },
+
+  {
     path: 'fullscreen',
     component: () => import('../components/map/demo/examples/Interfaces/Fullscreen/index.vue'),
   },
