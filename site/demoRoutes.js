@@ -48,6 +48,38 @@ export default [
     path: 'bing-cn',
     component: () => import('../components/map/demo/examples/Providers/Bing/index.vue'),
   },
+  {
+    path: 'google',
+    component: () => import('../components/map/demo/examples/Providers/Google/index.vue'),
+  },
+  {
+    path: 'google-cn',
+    component: () => import('../components/map/demo/examples/Providers/Google/index.vue'),
+  },
+  {
+    path: 'g-d-map',
+    component: () => import('../components/map/demo/examples/Providers/GDMap/index.vue'),
+  },
+  {
+    path: 'g-d-map-cn',
+    component: () => import('../components/map/demo/examples/Providers/GDMap/index.vue'),
+  },
+  {
+    path: 'q-q-map',
+    component: () => import('../components/map/demo/examples/Providers/QQMap/index.vue'),
+  },
+  {
+    path: 'q-q-map-cn',
+    component: () => import('../components/map/demo/examples/Providers/QQMap/index.vue'),
+  },
+  {
+    path: 'mapbox',
+    component: () => import('../components/map/demo/examples/Providers/Mapbox/index.vue'),
+  },
+  {
+    path: 'mapbox-cn',
+    component: () => import('../components/map/demo/examples/Providers/Mapbox/index.vue'),
+  },
 
   {
     path: 'drag-pan',
