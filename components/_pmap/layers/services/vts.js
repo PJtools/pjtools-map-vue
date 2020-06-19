@@ -159,7 +159,7 @@ const fetchVTSLayerStyles = (own, id, url, layerOptions, options) => {
         const metadata = {
           ...layerOptions,
         };
-        metadata.layerName = layer;
+        metadata.layerName = layerOptions.layer;
         metadata.url = url;
         metadata.vtsStyleName = data.name || '';
         metadata.sprite = data.sprite ? `${isProxyUrl ? own.proxyURL : ''}${data.sprite}` : '';
