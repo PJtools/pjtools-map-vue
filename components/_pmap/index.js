@@ -427,7 +427,6 @@ const PJtoolsMap = (function() {
             return transformRequest(url, resourceType);
           }
         };
-        transformRequest = null;
 
         // 赋值地图的Options参数属性项
         this[_options] = opts;
