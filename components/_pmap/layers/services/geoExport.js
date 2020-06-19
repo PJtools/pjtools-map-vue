@@ -7,7 +7,6 @@
 import assign from 'lodash/assign';
 import { isBooleanFlase, isEmpty, fetchGetJson } from '../../../_util/methods-util';
 import { defaultServicesSourceOptions, defaultServicesLayerOptions, getServicesLayerSource, getServicesBaseLayer } from './index';
-import layer from '../../map/layer';
 
 const defaultServicesOptions = {
   // 图层名标识，多个以,逗号分割
