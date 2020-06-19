@@ -42,7 +42,7 @@ const ElementWrapper = {
       if (!slots) {
         return (
           <div>
-            <DefaultMarker {...{ props: vProps, options }} />
+            <DefaultMarker {...{ props: { ...vProps, options } }} />
           </div>
         );
       } else {

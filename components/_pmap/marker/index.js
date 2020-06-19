@@ -85,6 +85,7 @@ class Marker extends BasicMapApi {
     props.type = 'marker';
     const prefixCls = getPrefixCls('map');
     props.class = [`${prefixCls}-marker`];
+    opts.draggable && props.class.push('draggable');
     opts.className && props.class.push(opts.className);
     opts.style && (props.style = opts.style);
     opts.slots && (props.slots = opts.slots);
