@@ -302,4 +302,12 @@ export default [
     path: 'w-f-s-cn',
     component: () => import('../components/map/demo/examples/Query/WFS/index.vue'),
   },
+  {
+    path: 'geo-query',
+    component: () => import('../components/map/demo/examples/Query/GeoQuery/index.vue'),
+  },
+  {
+    path: 'geo-query-cn',
+    component: () => import('../components/map/demo/examples/Query/GeoQuery/index.vue'),
+  },
 ];

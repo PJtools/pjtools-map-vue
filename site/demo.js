@@ -258,4 +258,11 @@ export default {
     title: 'WFS',
     sort: 1,
   },
+  'geo-query': {
+    category: 'Components',
+    subtitle: 'GeoQuery服务',
+    type: 'Query',
+    title: 'GeoQuery',
+    sort: 2,
+  },
 };
