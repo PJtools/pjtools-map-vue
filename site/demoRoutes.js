@@ -318,4 +318,12 @@ export default [
     path: 'arcgis-w-f-s-cn',
     component: () => import('../components/map/demo/examples/Query/ArcgisWFS/index.vue'),
   },
+  {
+    path: 'arcgis-query',
+    component: () => import('../components/map/demo/examples/Query/ArcgisQuery/index.vue'),
+  },
+  {
+    path: 'arcgis-query-cn',
+    component: () => import('../components/map/demo/examples/Query/ArcgisQuery/index.vue'),
+  },
 ];

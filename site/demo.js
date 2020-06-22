@@ -272,4 +272,11 @@ export default {
     title: 'ArcgisWFS',
     sort: 3,
   },
+  'arcgis-query': {
+    category: 'Components',
+    subtitle: 'ArcgisQuery服务',
+    type: 'Query',
+    title: 'ArcgisQuery',
+    sort: 4,
+  },
 };
