@@ -21,7 +21,6 @@ xx.
 				// 通过配置的Query服务源进行数据过滤查询
 				iMapApi.Query.fetchServicesTaskByKey('ZRWG', {
 					filters: ['LIKE', 'ZRCODE', '3604210010008'],
-					max: 10,
 				}).then((data) => {
 					// 查询获取的数据渲染到矢量图层
 					const layer = iMapApi.Layers.addPolygonLayer('polygon-layer-id', null, {
