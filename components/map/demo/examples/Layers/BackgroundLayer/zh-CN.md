@@ -30,6 +30,9 @@ const layer = iMapApi.Layers.addBackgroundLayer('layer-id', {
 
 `BackgoundLayer`图层叠加渲染后，会返回一个`layer`变量图层实例对象，该实例对象挂载着对应图层的方法接口，具体说明如下：
 
+- #### layer.remove()
+  从地图Map中移除销毁图层。
+
 - #### layer.getPaint(key)
   获取图层的指定Paint属性名称的设定值。
 
