@@ -307,4 +307,11 @@ export default {
     title: 'PolygonLayer',
     sort: 4,
   },
+  'fill-extrusion-layer': {
+    category: 'Components',
+    subtitle: '3D面图层',
+    type: 'Layers',
+    title: 'FillExtrusionLayer',
+    sort: 5,
+  },
 };

@@ -359,4 +359,12 @@ export default [
     path: 'polygon-layer-cn',
     component: () => import('../components/map/demo/examples/Layers/PolygonLayer/index.vue'),
   },
+  {
+    path: 'fill-extrusion-layer',
+    component: () => import('../components/map/demo/examples/Layers/FillExtrusionLayer/index.vue'),
+  },
+  {
+    path: 'fill-extrusion-layer-cn',
+    component: () => import('../components/map/demo/examples/Layers/FillExtrusionLayer/index.vue'),
+  },
 ];
