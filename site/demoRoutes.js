@@ -367,4 +367,12 @@ export default [
     path: 'fill-extrusion-layer-cn',
     component: () => import('../components/map/demo/examples/Layers/FillExtrusionLayer/index.vue'),
   },
+  {
+    path: 'text-symbol-layer',
+    component: () => import('../components/map/demo/examples/Layers/TextSymbolLayer/index.vue'),
+  },
+  {
+    path: 'text-symbol-layer-cn',
+    component: () => import('../components/map/demo/examples/Layers/TextSymbolLayer/index.vue'),
+  },
 ];

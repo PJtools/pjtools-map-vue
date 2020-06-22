@@ -314,4 +314,11 @@ export default {
     title: 'FillExtrusionLayer',
     sort: 5,
   },
+  'text-symbol-layer': {
+    category: 'Components',
+    subtitle: '矢量文本图层',
+    type: 'Layers',
+    title: 'TextSymbolLayer',
+    sort: 6,
+  },
 };
