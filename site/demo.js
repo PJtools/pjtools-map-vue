@@ -321,4 +321,11 @@ export default {
     title: 'TextSymbolLayer',
     sort: 6,
   },
+  'icon-symbol-layer': {
+    category: 'Components',
+    subtitle: '符号图标图层',
+    type: 'Layers',
+    title: 'IconSymbolLayer',
+    sort: 7,
+  },
 };

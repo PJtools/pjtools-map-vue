@@ -375,4 +375,12 @@ export default [
     path: 'text-symbol-layer-cn',
     component: () => import('../components/map/demo/examples/Layers/TextSymbolLayer/index.vue'),
   },
+  {
+    path: 'icon-symbol-layer',
+    component: () => import('../components/map/demo/examples/Layers/IconSymbolLayer/index.vue'),
+  },
+  {
+    path: 'icon-symbol-layer-cn',
+    component: () => import('../components/map/demo/examples/Layers/IconSymbolLayer/index.vue'),
+  },
 ];
