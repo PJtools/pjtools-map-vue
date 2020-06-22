@@ -293,4 +293,11 @@ export default {
     title: 'CirclePointLayer',
     sort: 2,
   },
+  'line-layer': {
+    category: 'Components',
+    subtitle: '矢量线图层',
+    type: 'Layers',
+    title: 'LineLayer',
+    sort: 3,
+  },
 };

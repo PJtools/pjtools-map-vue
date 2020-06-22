@@ -343,4 +343,12 @@ export default [
     path: 'circle-point-layer-cn',
     component: () => import('../components/map/demo/examples/Layers/CirclePointLayer/index.vue'),
   },
+  {
+    path: 'line-layer',
+    component: () => import('../components/map/demo/examples/Layers/LineLayer/index.vue'),
+  },
+  {
+    path: 'line-layer-cn',
+    component: () => import('../components/map/demo/examples/Layers/LineLayer/index.vue'),
+  },
 ];
