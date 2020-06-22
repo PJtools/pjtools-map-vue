@@ -243,6 +243,14 @@ export default [
     path: 'attribution-cn',
     component: () => import('../components/map/demo/examples/Controls/Attribution/index.vue'),
   },
+  {
+    path: 'mouse-coordinates',
+    component: () => import('../components/map/demo/examples/Controls/MouseCoordinates/index.vue'),
+  },
+  {
+    path: 'mouse-coordinates-cn',
+    component: () => import('../components/map/demo/examples/Controls/MouseCoordinates/index.vue'),
+  },
 
   {
     path: 'fullscreen',

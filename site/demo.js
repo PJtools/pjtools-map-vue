@@ -209,6 +209,13 @@ export default {
     title: 'Attribution',
     sort: 3,
   },
+  'mouse-coordinates': {
+    category: 'Components',
+    subtitle: '光标地理坐标',
+    type: 'Control',
+    title: 'MouseCoordinates',
+    sort: 4,
+  },
   fullscreen: {
     category: 'Components',
     subtitle: '地图全屏',
