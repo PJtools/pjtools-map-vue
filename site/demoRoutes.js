@@ -310,4 +310,12 @@ export default [
     path: 'geo-query-cn',
     component: () => import('../components/map/demo/examples/Query/GeoQuery/index.vue'),
   },
+  {
+    path: 'arcgis-w-f-s',
+    component: () => import('../components/map/demo/examples/Query/ArcgisWFS/index.vue'),
+  },
+  {
+    path: 'arcgis-w-f-s-cn',
+    component: () => import('../components/map/demo/examples/Query/ArcgisWFS/index.vue'),
+  },
 ];

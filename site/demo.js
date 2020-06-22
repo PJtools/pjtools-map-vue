@@ -265,4 +265,11 @@ export default {
     title: 'GeoQuery',
     sort: 2,
   },
+  'arcgis-w-f-s': {
+    category: 'Components',
+    subtitle: 'ArcgisWFS服务',
+    type: 'Query',
+    title: 'ArcgisWFS',
+    sort: 3,
+  },
 };
