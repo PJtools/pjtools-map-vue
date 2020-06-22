@@ -286,4 +286,11 @@ export default {
     title: 'BackgroundLayer',
     sort: 1,
   },
+  'circle-point-layer': {
+    category: 'Components',
+    subtitle: '圆点图层',
+    type: 'Layers',
+    title: 'CirclePointLayer',
+    sort: 2,
+  },
 };

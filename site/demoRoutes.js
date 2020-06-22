@@ -335,4 +335,12 @@ export default [
     path: 'background-layer-cn',
     component: () => import('../components/map/demo/examples/Layers/BackgroundLayer/index.vue'),
   },
+  {
+    path: 'circle-point-layer',
+    component: () => import('../components/map/demo/examples/Layers/CirclePointLayer/index.vue'),
+  },
+  {
+    path: 'circle-point-layer-cn',
+    component: () => import('../components/map/demo/examples/Layers/CirclePointLayer/index.vue'),
+  },
 ];
