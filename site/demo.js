@@ -251,4 +251,11 @@ export default {
     title: 'Popup',
     sort: 2,
   },
+  'w-f-s': {
+    category: 'Components',
+    subtitle: 'WFS服务',
+    type: 'Query',
+    title: 'WFS',
+    sort: 1,
+  },
 };

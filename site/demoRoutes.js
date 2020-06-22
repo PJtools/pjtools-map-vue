@@ -293,4 +293,13 @@ export default [
     path: 'popup-cn',
     component: () => import('../components/map/demo/examples/Popup/index.vue'),
   },
+
+  {
+    path: 'w-f-s',
+    component: () => import('../components/map/demo/examples/Query/WFS/index.vue'),
+  },
+  {
+    path: 'w-f-s-cn',
+    component: () => import('../components/map/demo/examples/Query/WFS/index.vue'),
+  },
 ];
