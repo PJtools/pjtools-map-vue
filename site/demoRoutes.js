@@ -326,4 +326,13 @@ export default [
     path: 'arcgis-query-cn',
     component: () => import('../components/map/demo/examples/Query/ArcgisQuery/index.vue'),
   },
+
+  {
+    path: 'background-layer',
+    component: () => import('../components/map/demo/examples/Layers/BackgroundLayer/index.vue'),
+  },
+  {
+    path: 'background-layer-cn',
+    component: () => import('../components/map/demo/examples/Layers/BackgroundLayer/index.vue'),
+  },
 ];

@@ -279,4 +279,11 @@ export default {
     title: 'ArcgisQuery',
     sort: 4,
   },
+  'background-layer': {
+    category: 'Components',
+    subtitle: '背景图层',
+    type: 'Layers',
+    title: 'BackgroundLayer',
+    sort: 1,
+  },
 };
