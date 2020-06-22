@@ -29,6 +29,8 @@ xx.
 					});
 					// 缩放到图层数据的合适级别
 					layer.setLayerToMaxZoom();
+				}).catch(() => {
+					iMapApi.component.message.error(`[WFS Services]查询服务请求过滤数据失败，请重试.`);
 				});
 			},
 		}
