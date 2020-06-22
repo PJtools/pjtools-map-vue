@@ -323,7 +323,9 @@ class BasicLayerClass extends BasicMapApi {
 
   /**
    * 根据屏幕坐标查询当前图层的Features要素集合
-   * @param {Point} point
+   * @param {Point} point 屏幕坐标点或BBOX范围
+   * @param {Object} options 查询的参数条件
+   * @param {Boolean} isLayerGroup 是否查询范围为图层所属的图层组
    */
   queryFeaturesByPoint(point, options = {}, isLayerGroup = false) {
     if (!point) {
