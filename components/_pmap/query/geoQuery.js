@@ -109,6 +109,7 @@ const getQueryFilters = options => {
             case '~':
             case 'LIKE':
               where = `${filters[1]} LIKE '${filters[2].indexOf('%') !== -1 ? filters[2] : `%${filters[2]}%`}'`;
+              where = where.replace(/\%/g, '%25');
               break;
             case 'NULL':
               where = `${filters[1]} IS NULL`;
