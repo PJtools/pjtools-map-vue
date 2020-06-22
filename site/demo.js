@@ -202,6 +202,13 @@ export default {
     title: 'Scale',
     sort: 2,
   },
+  attribution: {
+    category: 'Components',
+    subtitle: '属性信息',
+    type: 'Control',
+    title: 'Attribution',
+    sort: 3,
+  },
   fullscreen: {
     category: 'Components',
     subtitle: '地图全屏',

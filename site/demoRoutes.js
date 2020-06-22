@@ -235,6 +235,14 @@ export default [
     path: 'scale-cn',
     component: () => import('../components/map/demo/examples/Controls/Scale/index.vue'),
   },
+  {
+    path: 'attribution',
+    component: () => import('../components/map/demo/examples/Controls/Attribution/index.vue'),
+  },
+  {
+    path: 'attribution-cn',
+    component: () => import('../components/map/demo/examples/Controls/Attribution/index.vue'),
+  },
 
   {
     path: 'fullscreen',
