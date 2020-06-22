@@ -300,4 +300,11 @@ export default {
     title: 'LineLayer',
     sort: 3,
   },
+  'polygon-layer': {
+    category: 'Components',
+    subtitle: '矢量面图层',
+    type: 'Layers',
+    title: 'PolygonLayer',
+    sort: 4,
+  },
 };

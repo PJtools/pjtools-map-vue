@@ -351,4 +351,12 @@ export default [
     path: 'line-layer-cn',
     component: () => import('../components/map/demo/examples/Layers/LineLayer/index.vue'),
   },
+  {
+    path: 'polygon-layer',
+    component: () => import('../components/map/demo/examples/Layers/PolygonLayer/index.vue'),
+  },
+  {
+    path: 'polygon-layer-cn',
+    component: () => import('../components/map/demo/examples/Layers/PolygonLayer/index.vue'),
+  },
 ];
