@@ -66,6 +66,7 @@ _site
 yarn.lock
 package-lock.json
 /coverage
+.publish
 site/static/
 
 # 备份文件

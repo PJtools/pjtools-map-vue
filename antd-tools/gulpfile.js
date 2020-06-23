@@ -31,6 +31,7 @@ const esDir = path.join(cwd, 'es');
 function dist(done) {
   rimraf.sync(path.join(cwd, 'dist'));
   process.env.RUN_ENV = 'PRODUCTION';
+
   const webpackConfig = require(path.join(cwd, 'build/webpack.build.config.js'));
   webpack(webpackConfig, (err, stats) => {
     if (err) {
@@ -140,7 +141,7 @@ function tag() {
 }
 
 function githubRelease(done) {
-  const changlogFiles = [path.join(cwd, 'docs/changelog.zh-CN.md')];
+  const changlogFiles = [path.join(cwd, 'docs/vue/changelog.zh-CN.md')];
   console.log('creating release on GitHub');
   if (!process.env.GITHUB_TOKEN) {
     console.log('no GitHub token found, skip');
@@ -229,7 +230,8 @@ function pub(done) {
       tagString = 'next';
     }
     if (packageJson.scripts['pre-publish']) {
-      runCmd('npm', ['run', 'pre-publish'], code2 => {
+      const publishNpm = process.env.PUBLISH_NPM_CLI || 'npm';
+      runCmd(publishNpm, ['run', 'pre-publish'], code2 => {
         if (code2) {
           done(code2);
           return;
