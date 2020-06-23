@@ -140,7 +140,7 @@ function tag() {
 }
 
 function githubRelease(done) {
-  const changlogFiles = [path.join(cwd, 'docs/changelog.en-US.md'), path.join(cwd, 'docs/changelog.zh-CN.md')];
+  const changlogFiles = [path.join(cwd, 'docs/changelog.zh-CN.md')];
   console.log('creating release on GitHub');
   if (!process.env.GITHUB_TOKEN) {
     console.log('no GitHub token found, skip');
@@ -157,9 +157,8 @@ function githubRelease(done) {
   });
   const date = new Date();
   const { version } = packageJson;
-  const enChangelog = getChangelog(changlogFiles[0], version);
-  const cnChangelog = getChangelog(changlogFiles[1], version);
-  const changelog = [`\`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}\``, enChangelog, '\n', '---', '\n', cnChangelog].join('\n');
+  const cnChangelog = getChangelog(changlogFiles[0], version);
+  const changelog = [`\`${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}\``, cnChangelog].join('\n');
   const [_, owner, repo] = execSync('git remote get-url origin') // eslint-disable-line
     .toString()
     .match(/github.com[:/](.+)\/(.+)\.git/);
