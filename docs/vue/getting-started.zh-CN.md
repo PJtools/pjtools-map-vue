@@ -6,6 +6,10 @@ PJtools Map Vue 致力于提供给Web前端程序员**简便**的WebGIS开发体
 
 ## 引入 pjtools-map-vue
 
+由于 `Map` 组件开发带有前置依赖环境，在直接使用`vue-cli`创建空白脚手架的时候会需要配置`Ant Design Vue`、`Less`、`按需加载`等，因此，**推荐使用**已经经配置前置环境的空白脚手架来开发Vue项目。
+
+> 空白脚手架：[直接下载](/static/downloads/pro-vue.7z)
+
 ### 1. 安装脚手架工具
 
 [vue-cli](https://github.com/vuejs/vue-cli)
