@@ -33,6 +33,7 @@
     "pub": "node antd-tools/cli/run.js pub",
     "pub-with-ci": "node antd-tools/cli/run.js pub-with-ci",
     "prepublish": "node antd-tools/cli/run.js guard",
+    "release": "node antd-tools/cli/run.js release",
     "prettier": "prettier -c --write '**/*'",
     "pretty-quick": "pretty-quick",
     "lint": "eslint -c ./.eslintrc --fix --ext .jsx,.js,.vue ./components",

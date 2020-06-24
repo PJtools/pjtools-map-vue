@@ -185,6 +185,13 @@ gulp.task(
 );
 
 gulp.task(
+  'release',
+  gulp.series(done => {
+    githubRelease(done);
+  }),
+);
+
+gulp.task(
   'check-git',
   gulp.series(done => {
     runCmd('git', ['status', '--porcelain'], (code, result) => {
