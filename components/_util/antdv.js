@@ -9,5 +9,6 @@ import PropTypes from 'ant-design-vue/es/_util/vue-types';
 import { initDefaultProps, filterEmpty, getComponentFromProp } from 'ant-design-vue/es/_util/props-util';
 import getTransitionProps from 'ant-design-vue/es/_util/getTransitionProps';
 import BaseMixin from 'ant-design-vue/es/_util/BaseMixin';
+import Portal from 'ant-design-vue/es/_util/Portal';
 
-export { antDirective, PropTypes, initDefaultProps, filterEmpty, getComponentFromProp, getTransitionProps, BaseMixin };
+export { antDirective, PropTypes, initDefaultProps, filterEmpty, getComponentFromProp, getTransitionProps, BaseMixin, Portal };
