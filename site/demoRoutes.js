@@ -220,6 +220,39 @@ export default [
   },
 
   {
+    path: 'w-f-s',
+    component: () => import('../components/map/demo/examples/Query/WFS/index.vue'),
+  },
+  {
+    path: 'w-f-s-cn',
+    component: () => import('../components/map/demo/examples/Query/WFS/index.vue'),
+  },
+  {
+    path: 'geo-query',
+    component: () => import('../components/map/demo/examples/Query/GeoQuery/index.vue'),
+  },
+  {
+    path: 'geo-query-cn',
+    component: () => import('../components/map/demo/examples/Query/GeoQuery/index.vue'),
+  },
+  {
+    path: 'arcgis-w-f-s',
+    component: () => import('../components/map/demo/examples/Query/ArcgisWFS/index.vue'),
+  },
+  {
+    path: 'arcgis-w-f-s-cn',
+    component: () => import('../components/map/demo/examples/Query/ArcgisWFS/index.vue'),
+  },
+  {
+    path: 'arcgis-query',
+    component: () => import('../components/map/demo/examples/Query/ArcgisQuery/index.vue'),
+  },
+  {
+    path: 'arcgis-query-cn',
+    component: () => import('../components/map/demo/examples/Query/ArcgisQuery/index.vue'),
+  },
+
+  {
     path: 'navigation',
     component: () => import('../components/map/demo/examples/Controls/Navigation/index.vue'),
   },
@@ -253,6 +286,23 @@ export default [
   },
 
   {
+    path: 'marker',
+    component: () => import('../components/map/demo/examples/Marker/index.vue'),
+  },
+  {
+    path: 'marker-cn',
+    component: () => import('../components/map/demo/examples/Marker/index.vue'),
+  },
+  {
+    path: 'popup',
+    component: () => import('../components/map/demo/examples/Popup/index.vue'),
+  },
+  {
+    path: 'popup-cn',
+    component: () => import('../components/map/demo/examples/Popup/index.vue'),
+  },
+
+  {
     path: 'fullscreen',
     component: () => import('../components/map/demo/examples/Interfaces/Fullscreen/index.vue'),
   },
@@ -276,55 +326,13 @@ export default [
     path: 'draw-cn',
     component: () => import('../components/map/demo/examples/Interfaces/Draw/index.vue'),
   },
-
   {
-    path: 'marker',
-    component: () => import('../components/map/demo/examples/Marker/index.vue'),
+    path: 'switcher',
+    component: () => import('../components/map/demo/examples/Interactions/Switcher/index.vue'),
   },
   {
-    path: 'marker-cn',
-    component: () => import('../components/map/demo/examples/Marker/index.vue'),
-  },
-  {
-    path: 'popup',
-    component: () => import('../components/map/demo/examples/Popup/index.vue'),
-  },
-  {
-    path: 'popup-cn',
-    component: () => import('../components/map/demo/examples/Popup/index.vue'),
-  },
-
-  {
-    path: 'w-f-s',
-    component: () => import('../components/map/demo/examples/Query/WFS/index.vue'),
-  },
-  {
-    path: 'w-f-s-cn',
-    component: () => import('../components/map/demo/examples/Query/WFS/index.vue'),
-  },
-  {
-    path: 'geo-query',
-    component: () => import('../components/map/demo/examples/Query/GeoQuery/index.vue'),
-  },
-  {
-    path: 'geo-query-cn',
-    component: () => import('../components/map/demo/examples/Query/GeoQuery/index.vue'),
-  },
-  {
-    path: 'arcgis-w-f-s',
-    component: () => import('../components/map/demo/examples/Query/ArcgisWFS/index.vue'),
-  },
-  {
-    path: 'arcgis-w-f-s-cn',
-    component: () => import('../components/map/demo/examples/Query/ArcgisWFS/index.vue'),
-  },
-  {
-    path: 'arcgis-query',
-    component: () => import('../components/map/demo/examples/Query/ArcgisQuery/index.vue'),
-  },
-  {
-    path: 'arcgis-query-cn',
-    component: () => import('../components/map/demo/examples/Query/ArcgisQuery/index.vue'),
+    path: 'switcher-cn',
+    component: () => import('../components/map/demo/examples/Interactions/Switcher/index.vue'),
   },
 
   {

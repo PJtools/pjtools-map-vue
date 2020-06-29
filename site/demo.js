@@ -13,6 +13,7 @@ export default {
     title: 'Map',
     sort: 2,
   },
+
   tianditu: {
     category: 'Components',
     subtitle: '天地图',
@@ -69,6 +70,7 @@ export default {
     title: 'Mapbox',
     sort: 8,
   },
+
   'x-y-z-tile': {
     category: 'Components',
     subtitle: 'XYZTile服务',
@@ -132,6 +134,7 @@ export default {
     title: 'ArcgisExport',
     sort: 9,
   },
+
   'drag-pan': {
     category: 'Components',
     subtitle: '漫游',
@@ -188,69 +191,7 @@ export default {
     title: 'Cursor',
     sort: 8,
   },
-  navigation: {
-    category: 'Components',
-    subtitle: '地图导航',
-    type: 'Control',
-    title: 'Navigation',
-    sort: 1,
-  },
-  scale: {
-    category: 'Components',
-    subtitle: '比例尺',
-    type: 'Control',
-    title: 'Scale',
-    sort: 2,
-  },
-  attribution: {
-    category: 'Components',
-    subtitle: '属性信息',
-    type: 'Control',
-    title: 'Attribution',
-    sort: 3,
-  },
-  'mouse-coordinates': {
-    category: 'Components',
-    subtitle: '光标地理坐标',
-    type: 'Control',
-    title: 'MouseCoordinates',
-    sort: 4,
-  },
-  fullscreen: {
-    category: 'Components',
-    subtitle: '地图全屏',
-    type: 'User Interaction',
-    title: 'Fullscreen',
-    sort: 1,
-  },
-  measure: {
-    category: 'Components',
-    subtitle: '测量',
-    type: 'User Interaction',
-    title: 'Measure',
-    sort: 2,
-  },
-  draw: {
-    category: 'Components',
-    subtitle: '绘图',
-    type: 'User Interaction',
-    title: 'Draw',
-    sort: 3,
-  },
-  marker: {
-    category: 'Components',
-    subtitle: '标注',
-    type: 'Marker And Pupop',
-    title: 'Marker',
-    sort: 1,
-  },
-  popup: {
-    category: 'Components',
-    subtitle: '气泡弹窗',
-    type: 'Marker And Pupop',
-    title: 'Popup',
-    sort: 2,
-  },
+
   'w-f-s': {
     category: 'Components',
     subtitle: 'WFS服务',
@@ -279,6 +220,80 @@ export default {
     title: 'ArcgisQuery',
     sort: 4,
   },
+
+  navigation: {
+    category: 'Components',
+    subtitle: '地图导航',
+    type: 'Control',
+    title: 'Navigation',
+    sort: 1,
+  },
+  scale: {
+    category: 'Components',
+    subtitle: '比例尺',
+    type: 'Control',
+    title: 'Scale',
+    sort: 2,
+  },
+  attribution: {
+    category: 'Components',
+    subtitle: '属性信息',
+    type: 'Control',
+    title: 'Attribution',
+    sort: 3,
+  },
+  'mouse-coordinates': {
+    category: 'Components',
+    subtitle: '光标地理坐标',
+    type: 'Control',
+    title: 'MouseCoordinates',
+    sort: 4,
+  },
+
+  marker: {
+    category: 'Components',
+    subtitle: '标注',
+    type: 'Marker And Pupop',
+    title: 'Marker',
+    sort: 1,
+  },
+  popup: {
+    category: 'Components',
+    subtitle: '气泡弹窗',
+    type: 'Marker And Pupop',
+    title: 'Popup',
+    sort: 2,
+  },
+
+  fullscreen: {
+    category: 'Components',
+    subtitle: '地图全屏',
+    type: 'User Interaction',
+    title: 'Fullscreen',
+    sort: 1,
+  },
+  measure: {
+    category: 'Components',
+    subtitle: '测量',
+    type: 'User Interaction',
+    title: 'Measure',
+    sort: 2,
+  },
+  draw: {
+    category: 'Components',
+    subtitle: '绘图',
+    type: 'User Interaction',
+    title: 'Draw',
+    sort: 3,
+  },
+  switcher: {
+    category: 'Components',
+    subtitle: '底图切换器',
+    type: 'User Interaction',
+    title: 'Switcher',
+    sort: 4,
+  },
+
   'background-layer': {
     category: 'Components',
     subtitle: '背景图层',
