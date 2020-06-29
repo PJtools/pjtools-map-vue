@@ -9,10 +9,10 @@ import Vue from 'vue';
 import Base from '../base';
 import hat from 'hat';
 import isPlainObject from 'lodash/isPlainObject';
-import { PreLoading, Message } from './components';
+import { PreLoading, Message, ComponentWrapper } from './components';
 import Controls from './controls';
 import Interactions from './interactions';
-import { initDefaultProps } from '../_util/antdv';
+import { initDefaultProps, getComponentFromProp, filterEmpty } from '../_util/antdv';
 import {
   getPrefixCls,
   isString,
@@ -42,6 +42,7 @@ import PJtoolsMap from '../_pmap';
 import mapProps from './mapProps';
 
 const Map = {
+  ComponentWrapper,
   name: 'PjMap',
   components: {
     PreLoading,
@@ -177,6 +178,23 @@ const Map = {
         });
     },
 
+    // 渲染地图的扩展UI组件区域
+    renderComponentsWrapper() {
+      const slotNodes = getComponentFromProp(this, 'default', {}, false);
+      const slotChildrenNodes = slotNodes ? filterEmpty(slotNodes()) : null;
+      // 判断是否为指定内置地图的扩展UI交互组件，反之则过滤掉
+      if (slotChildrenNodes) {
+        return slotChildrenNodes.filter(child => {
+          if (child.componentOptions && child.componentOptions.Ctor) {
+            const childOptions = child.componentOptions.Ctor && child.componentOptions.Ctor.options;
+            return !!(childOptions && isBooleanTrue(childOptions.builtIn));
+          }
+          return false;
+        });
+      }
+      return null;
+    },
+
     // 渲染地图的容器区域
     renderMapContainer() {
       const {
@@ -200,7 +218,7 @@ const Map = {
             {/* 地图交互组件 */}
             <Interactions ref="mapInteractions" data={mapInteractions} />
             {/* 地图扩展组件 */}
-            <section data-type="component"></section>
+            <section data-type="component">{this.renderComponentsWrapper()}</section>
           </div>
         </div>
       ) : null;
@@ -328,6 +346,7 @@ const Map = {
 Map.install = function(Vue) {
   Vue.use(Base);
   Vue.component(Map.name, Map);
+  Vue.component(Map.ComponentWrapper.name, Map.ComponentWrapper);
 };
 
 // 对外挂接静态方法

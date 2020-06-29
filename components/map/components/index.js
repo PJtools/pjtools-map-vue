@@ -7,5 +7,6 @@
 import { default as PreLoading } from './pre-loading';
 import { default as Message } from './message';
 import { default as ElementWrapper } from './element-wrapper';
+import { default as ComponentWrapper } from './component-wrapper';
 
-export { PreLoading, Message, ElementWrapper };
+export { PreLoading, Message, ElementWrapper, ComponentWrapper };
