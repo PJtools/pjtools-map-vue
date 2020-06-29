@@ -35,10 +35,12 @@ export default {
     },
   },
   mounted() {
-    // 是否无slots插槽，以默认Loading时运行动画
-    if (!this.slotsVNode) {
-      this.playPreloading();
-    }
+    this.$nextTick(() => {
+      // 是否无slots插槽，以默认Loading时运行动画
+      if (!this.slotsVNode) {
+        this.playPreloading();
+      }
+    });
   },
   beforeDestroy() {
     if (!this.slotsVNode) {
@@ -62,8 +64,10 @@ export default {
           animTimingFunction: Vivus.EASE,
         },
         () => {
-          this.vivus.play(!this.reverse ? -1 : 1);
-          this.reverse = !this.reverse;
+          if (this.vivus) {
+            this.vivus.play(!this.reverse ? -1 : 1);
+            this.reverse = !this.reverse;
+          }
         },
       );
     },
