@@ -8,5 +8,10 @@ import { default as PreLoading } from './pre-loading';
 import { default as Message } from './message';
 import { default as ElementWrapper } from './element-wrapper';
 import { default as ComponentWrapper } from './component-wrapper';
+import { default as Switcher } from './switcher';
 
-export { PreLoading, Message, ElementWrapper, ComponentWrapper };
+const MapUiComponents = {
+  Switcher,
+};
+
+export { PreLoading, Message, ElementWrapper, ComponentWrapper, MapUiComponents };

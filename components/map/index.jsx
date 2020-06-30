@@ -9,7 +9,7 @@ import Vue from 'vue';
 import Base from '../base';
 import hat from 'hat';
 import isPlainObject from 'lodash/isPlainObject';
-import { PreLoading, Message, ComponentWrapper } from './components';
+import { PreLoading, Message, ComponentWrapper, MapUiComponents } from './components';
 import Controls from './controls';
 import Interactions from './interactions';
 import { initDefaultProps, getComponentFromProp, filterEmpty } from '../_util/antdv';
@@ -43,6 +43,7 @@ import mapProps from './mapProps';
 
 const Map = {
   ComponentWrapper,
+  MapUiComponents,
   name: 'PjMap',
   components: {
     PreLoading,
@@ -347,6 +348,13 @@ Map.install = function(Vue) {
   Vue.use(Base);
   Vue.component(Map.name, Map);
   Vue.component(Map.ComponentWrapper.name, Map.ComponentWrapper);
+  if (Map.MapUiComponents) {
+    const keys = Object.keys(Map.MapUiComponents);
+    keys.map(key => {
+      const component = Map.MapUiComponents[key];
+      Vue.component(component.name, component);
+    });
+  }
 };
 
 // 对外挂接静态方法
