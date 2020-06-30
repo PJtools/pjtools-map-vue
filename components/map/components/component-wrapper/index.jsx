@@ -8,6 +8,8 @@ import { PropTypes, Portal, getComponentFromProp, filterEmpty } from '../../../_
 
 const windowIsUndefined = !(typeof window !== 'undefined' && window.document && window.document.createElement);
 
+export const PositionKeysEnum = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right', 'none'];
+
 const ComponentWrapper = {
   name: 'PjmapComponent',
   builtIn: true,
@@ -15,7 +17,7 @@ const ComponentWrapper = {
   props: {
     visible: PropTypes.bool.def(false),
     wrapClassName: PropTypes.any,
-    position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right', 'none']).def('top-left'),
+    position: PropTypes.oneOf(PositionKeysEnum).def('top-left'),
     offset: PropTypes.array.def([0, 0]),
   },
   model: {
@@ -132,10 +134,10 @@ const ComponentWrapper = {
             ? childNodes.map(child => {
                 const isVueComponent = !!child.componentOptions;
                 if (isVueComponent) {
-                  child.componentOptions.propsData = {
-                    isComponentWrapper: true,
-                    wrapperComponent: this,
-                  };
+                  if (child.componentOptions.Ctor && child.componentOptions.Ctor.options) {
+                    child.componentOptions.Ctor.options.isComponentWrapper = true;
+                    child.componentOptions.Ctor.options.wrapperComponent = this;
+                  }
                 }
                 return child;
               })
