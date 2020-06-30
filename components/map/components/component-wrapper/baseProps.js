@@ -18,4 +18,8 @@ export default () => ({
   position: PropTypes.oneOf(PositionKeysEnum),
   // 地图UI组件包的偏移量（当采用内置Wrapper对象则有效，反之属性无效）
   offset: PropTypes.array.def([0, 0]),
+  // 地图UI组件的Class类
+  className: PropTypes.any,
+  // 地图UI组件的Style样式
+  styles: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 });

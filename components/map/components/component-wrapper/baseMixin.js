@@ -57,5 +57,12 @@ export default {
       }
       return null;
     },
+
+    // 获取当前UI组件的Class类名
+    getClassNames(clsName) {
+      const { className } = this;
+      const cls = className ? [className] : [];
+      return clsName ? [clsName, ...cls] : [...cls];
+    },
   },
 };
