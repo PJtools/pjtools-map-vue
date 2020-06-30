@@ -8,7 +8,7 @@ import { PropTypes, Portal, getComponentFromProp, filterEmpty } from '../../../_
 
 const windowIsUndefined = !(typeof window !== 'undefined' && window.document && window.document.createElement);
 
-export const PositionKeysEnum = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right', 'none'];
+export const PositionKeysEnum = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'top', 'bottom', 'left', 'right'];
 
 const ComponentWrapper = {
   name: 'PjmapComponent',
@@ -17,7 +17,7 @@ const ComponentWrapper = {
   props: {
     visible: PropTypes.bool.def(false),
     wrapClassName: PropTypes.any,
-    position: PropTypes.oneOf(PositionKeysEnum).def('top-left'),
+    position: PropTypes.oneOf([...PositionKeysEnum, 'none']).def('top-left'),
     offset: PropTypes.array.def([0, 0]),
   },
   model: {
