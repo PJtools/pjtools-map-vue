@@ -120,14 +120,26 @@ const ComponentWrapper = {
     },
 
     // 获取组件包的插槽节点对象
-    getWrapperChildrenNodes() {
+    getWrapperChildrenNodes(h) {
       const { wrapperComponentClass, wrapperComponentOffset } = this;
       // 获取Slot插槽对象
       const slotNodes = getComponentFromProp(this, 'default', {}, false);
+      const childNodes = slotNodes ? filterEmpty(slotNodes()) : null;
 
       return (
         <div class={wrapperComponentClass} style={wrapperComponentOffset}>
-          {slotNodes ? filterEmpty(slotNodes()) : null}
+          {childNodes
+            ? childNodes.map(child => {
+                const isVueComponent = !!child.componentOptions;
+                if (isVueComponent) {
+                  child.componentOptions.propsData = {
+                    isComponentWrapper: true,
+                    wrapperComponent: this,
+                  };
+                }
+                return child;
+              })
+            : null}
         </div>
       );
     },
@@ -151,13 +163,13 @@ const ComponentWrapper = {
   beforeDestroy() {
     this.removeCurrentContainer();
   },
-  render() {
+  render(h) {
     let portal = null;
     if (this.wrapVisible) {
       portal = (
         <Portal
           getContainer={this.getDomContainer}
-          children={this.getWrapperChildrenNodes()}
+          children={this.getWrapperChildrenNodes(h)}
           {...{
             directives: [
               {
