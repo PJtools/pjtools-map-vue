@@ -152,8 +152,14 @@
 
     .position-direction(true);
 
+    &.position-none {
+      top: 0;
+      left: 0;
+    }
+
     .component-root-container {
       position: relative;
+      transition: transform 0.5s ease;
       pointer-events: auto;
     }
   }
