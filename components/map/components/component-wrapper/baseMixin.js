@@ -60,9 +60,12 @@ export default {
 
     // 获取当前UI组件的Class类名
     getClassNames(clsName) {
-      const { className } = this;
+      const {
+        className,
+        mapProvider: { prefixCls },
+      } = this;
       const cls = className ? [className] : [];
-      return clsName ? [clsName, ...cls] : [...cls];
+      return clsName ? [`${prefixCls}-component-${clsName}`, ...cls] : [...cls];
     },
   },
 };
