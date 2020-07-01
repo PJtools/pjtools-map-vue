@@ -139,7 +139,7 @@ const Switcher = {
           style={styles}
           onClick={this.handleItemClick.bind(this, item, index)}
         >
-          <span>{label}</span>
+          {label ? <span>{label}</span> : null}
         </div>
       );
     },
