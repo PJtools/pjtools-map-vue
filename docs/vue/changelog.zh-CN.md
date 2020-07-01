@@ -10,6 +10,10 @@
 
 ---
 
+## 0.1.3
+
+- 🔥 增加一个新的地图UI组件`Switcher`底图切换器
+
 ## 0.1.2
 
 - 🐞 修复 `preload` 在 `babel-plugin-import` 插件下局部引入时导致Style样式缺失引发报错问题
