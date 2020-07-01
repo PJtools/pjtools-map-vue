@@ -13,10 +13,6 @@ export default {
   inject: {
     mapProvider: { default: () => {} },
   },
-  model: {
-    prop: 'visible',
-    event: 'visibleChange',
-  },
   data() {
     return {
       isRender: !!this.visible,
@@ -48,8 +44,15 @@ export default {
         if (isComponentWrapper) {
           return isRender ? onRender() : null;
         } else {
+          const props = {
+            on: {
+              close: () => {
+                this.$emit('update:visible', false);
+              },
+            },
+          };
           return (
-            <ComponentWrapper visible={isRender} position={position} offset={offset} wrapClassName={wrapClassName} style={wrapStyle}>
+            <ComponentWrapper visible={isRender} position={position} offset={offset} wrapClassName={wrapClassName} style={wrapStyle} {...props}>
               {onRender()}
             </ComponentWrapper>
           );
