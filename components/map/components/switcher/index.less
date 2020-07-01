@@ -1,0 +1,116 @@
+/** 
+ * @文件说明: 定义地图Switcher组件样式
+ * @创建人: pjtools@vip.qq.com 
+ * @创建时间: 2020-06-30 15:48:41 
+ */
+
+@import '../../../style/themes/default';
+
+@switcher-prefix-cls: ~'@{map-prefix-cls}-component-switcher';
+
+.@{switcher-prefix-cls} {
+  box-sizing: border-box;
+  background-color: transparent;
+  padding: 10px;
+
+  .switcher-card {
+    position: relative;
+    transition-property: width;
+    transition-duration: 0.4s;
+
+    .switcher-card-item {
+      position: absolute;
+      top: 0;
+      right: 0;
+      border-radius: @map-border-radius;
+      background-color: rgba(120, 120, 120, 0.25);
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: 0 0;
+      transition-property: left, right, background, box-shadow;
+      transition-duration: 0.4s;
+      cursor: pointer;
+
+      &:last-child {
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.25);
+      }
+
+      & > span {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        display: inline-block;
+        font-size: @map-font-size-sm;
+        padding: 0 4px 0 10px;
+        border-bottom-right-radius: @map-border-radius;
+        border-top-left-radius: @border-radius-base;
+        color: @text-color;
+        font-weight: bold;
+        background: linear-gradient(to left, rgba(255, 255, 255, 0.9) 35%, rgba(255, 255, 255, 0.3) 100%);
+        z-index: 1;
+      }
+
+      &:hover,
+      &.active {
+        &::before {
+          position: absolute;
+          content: '';
+          width: 100%;
+          height: 100%;
+          border-radius: @map-border-radius;
+          border: 1px solid @primary-color;
+          top: 0;
+          left: 0;
+          z-index: 2;
+        }
+
+        & > span {
+          background: linear-gradient(to left, @primary-color 35%, fade(@primary-color, 30%) 100%);
+          color: @white;
+        }
+      }
+      &.active {
+        cursor: default;
+      }
+    }
+  }
+
+  &.reverse {
+    .switcher-card-item > span {
+      left: 0;
+      right: initial;
+      padding: 0 10px 0 4px;
+      border-bottom-right-radius: 0;
+      border-bottom-left-radius: @map-border-radius;
+      border-top-left-radius: 0;
+      border-top-right-radius: @border-radius-base;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0.9) 35%, rgba(255, 255, 255, 0.3) 100%);
+    }
+    .switcher-card-item:last-child {
+      box-shadow: none;
+    }
+    .switcher-card-item:first-child {
+      box-shadow: -2px 2px 5px rgba(0, 0, 0, 0.25);
+    }
+
+    .switcher-card-item {
+      &:hover > span,
+      &.active > span {
+        background: linear-gradient(to right, @primary-color 35%, fade(@primary-color, 30%) 100%);
+      }
+    }
+  }
+
+  &.expand {
+    .switcher-card-item,
+    .switcher-card-item:not(:first-child):last-child {
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+    }
+
+    &.reverse {
+      .switcher-card-item:not(:last-child):first-child {
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+}
