@@ -156,6 +156,12 @@ const ComponentWrapper = {
       this.container = null;
       this.component = null;
     },
+
+    // 执行当前组件包对象销毁
+    destroy() {
+      this.$emit('change', false);
+      this.$emit('close');
+    },
   },
   updated() {
     if (this.container) {
