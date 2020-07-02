@@ -86,7 +86,7 @@ export default {
             <div class={`${prefixCls}-content`}>
               <Icon slot="indicator" type="loading" spin />
               <span>{description}</span>
-              <span class="dot"></span>
+              <span class="pdot"></span>
             </div>
           ) : null}
         </div>
