@@ -63,8 +63,8 @@ export default [
         path: 'docs/vue/imapapi-cn',
         component: () => import('../docs/vue/map.zh-CN.md'),
       },
-      { path: '', redirect: '/docs/vue/getting-started-cn/' },
+      { path: '', redirect: '/components/map-cn/' },
     ],
   },
-  { path: '/*', redirect: '/docs/vue/getting-started-cn/' },
+  { path: '/*', redirect: '/docs/vue/changelog-cn/' },
 ];
