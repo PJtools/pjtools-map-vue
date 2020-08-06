@@ -46,7 +46,7 @@ this.$preload.load(
 | id | `必填项`，资源文件的唯一Id名称 | string | - |
 | src | `必填项`，资源文件的路径地址 | string | - |
 | type | 资源文件的类型，支持类型：`css、javascript`，当未设定时会根据文件后缀名自动判定 | string | - |
-| src | Javascript文件的输出对象，输出配置需匹配window对象下挂载的映射名 | string[] | - |
+| exports | Javascript文件的输出对象，输出配置需匹配window对象下挂载的映射名 | string[] | - |
 
 #### options - 预加载时的参数选项
 
