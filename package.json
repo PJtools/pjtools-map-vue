@@ -1,6 +1,6 @@
 {
   "name": "pjtools-map-vue",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "title": "PJtools Map Vue",
   "description": "基于GeoGlobe、MapboxGL版本开发库包，扩展构建Map Vue Component组件.",
   "keywords": [
