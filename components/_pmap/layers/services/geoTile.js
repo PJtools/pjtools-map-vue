@@ -5,7 +5,7 @@
  */
 
 import assign from 'lodash/assign';
-import { isBooleanFlase } from '../../../_util/methods-util';
+import { isBooleanFlase, isEmpty } from '../../../_util/methods-util';
 import { defaultServicesSourceOptions, defaultServicesLayerOptions, getServicesLayerSource, getServicesBaseLayer } from './index';
 
 /**
@@ -102,8 +102,8 @@ const fetchGeoTileLayerStyles = (own, id, url, layerOptions, options) => {
   const layer = getServicesBaseLayer(options);
   layer.id = id;
   layer.source = source;
-  layer.minzoom = !layer.minzoom || layer.minzoom < layerOptions.minZoom ? layerOptions.minZoom : layer.minzoom;
-  layer.maxzoom = !layer.maxzoom || layer.maxzoom > layerOptions.maxZoom + 1 ? layerOptions.maxZoom + 1 : layer.maxzoom;
+  layer.minzoom = !isEmpty(layer.minzoom) && layer.minzoom >= 0 ? layer.minzoom : layerOptions.minZoom;
+  layer.maxzoom = !isEmpty(layer.maxzoom) && layer.maxzoom <= 24 ? layer.maxzoom : layerOptions.maxZoom + 1;
   layer.metadata = assign({}, layer.metadata, {
     serviceType: 'GeoTile',
     serviceName: options.name || '',

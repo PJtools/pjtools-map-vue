@@ -5,7 +5,7 @@
  */
 
 import assign from 'lodash/assign';
-import { isBooleanFlase, isEmpty } from '../../../_util/methods-util';
+import { isBooleanFlase, isEmpty, isNumeric } from '../../../_util/methods-util';
 import { defaultServicesSourceOptions, defaultServicesLayerOptions, getServicesLayerSource, getServicesBaseLayer } from './index';
 import { topTileExtentToWMTS } from '../../util/topTileExtent';
 
@@ -83,7 +83,7 @@ export const getWMTSCapabilities = (capabilities, options, GeoGlobe) => {
       units: !isEmpty(options.units) && ['degrees', 'm'].indexOf(options.units) !== -1 ? options.units : 'm',
     });
     opts.topTileExtent = result.topTileExtent;
-    opts.zoomOffset = result.zoomOffset;
+    opts.zoomOffset = !isEmpty(options.zoomOffset) && isNumeric(options.zoomOffset) ? options.zoomOffset : result.zoomOffset;
     opts.zoom = opts.zoom.map(zoom => zoom + opts.zoomOffset);
     opts.minZoom = opts.zoom[0];
     opts.maxZoom = opts.zoom[opts.zoom.length - 1];
@@ -179,8 +179,8 @@ export const fetchWMTSLayerStyles = (own, id, url, layerOptions, options) => {
   const layer = getServicesBaseLayer(options);
   layer.id = id;
   layer.source = source;
-  layer.minzoom = isEmpty(layer.minzoom) || layer.minzoom < layerOptions.minZoom ? layerOptions.minZoom : layer.minzoom;
-  layer.maxzoom = isEmpty(layer.maxzoom) || layer.maxzoom > layerOptions.maxZoom + 1 ? layerOptions.maxZoom + 1 : layer.maxzoom;
+  layer.minzoom = !isEmpty(layer.minzoom) && layer.minzoom >= 0 ? layer.minzoom : layerOptions.minZoom;
+  layer.maxzoom = !isEmpty(layer.maxzoom) && layer.maxzoom <= 24 ? layer.maxzoom : layerOptions.maxZoom + 1;
   layer.metadata = assign({}, layer.metadata, {
     serviceType: 'WMTS',
     serviceName: options.name || '',
