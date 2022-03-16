@@ -4,57 +4,63 @@
  * @创建时间: 2020-06-09 17:27:55
  */
 
-import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions } from './basicLayer';
+import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions, overwriteArrayMerge } from './basicLayer';
 import deepmerge from 'deepmerge';
 import { isEmpty, isBooleanTrue } from '../../../_util/methods-util';
 
-const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
-  paint: {
-    'icon-color': 'rgba(0, 0, 0, 1)',
-    'icon-halo-blur': 0,
-    'icon-halo-color': 'rgba(0, 0, 0, 0)',
-    'icon-halo-width': 0,
-    'icon-opacity': 1,
-    'icon-translate': [0, 0],
-    'text-color': 'rgba(0, 0, 0, 1)',
-    'text-halo-blur': 0,
-    'text-halo-color': 'rgba(0, 0, 0, 0)',
-    'text-halo-width': 0,
-    'text-opacity': 1,
-    'text-translate': [0, 0],
+const defaultLayerOptions = deepmerge(
+  defaultVectorLayerOptions,
+  {
+    paint: {
+      'icon-color': 'rgba(0, 0, 0, 1)',
+      'icon-halo-blur': 0,
+      'icon-halo-color': 'rgba(0, 0, 0, 0)',
+      'icon-halo-width': 0,
+      'icon-opacity': 1,
+      'icon-translate': [0, 0],
+      'text-color': 'rgba(0, 0, 0, 1)',
+      'text-halo-blur': 0,
+      'text-halo-color': 'rgba(0, 0, 0, 0)',
+      'text-halo-width': 0,
+      'text-opacity': 1,
+      'text-translate': [0, 0],
+    },
+    layout: {
+      'symbol-placement': 'point',
+      'icon-allow-overlap': false,
+      'icon-anchor': 'center',
+      'icon-ignore-placement': false,
+      'icon-keep-upright': false,
+      'icon-offset': [0, 0],
+      'icon-optional': false,
+      'icon-padding': 0,
+      'icon-rotate': 0,
+      'icon-size': 1,
+      'icon-text-fit': 'none',
+      'text-allow-overlap': false,
+      'text-anchor': 'center',
+      'text-ignore-placement': false,
+      'text-justify': 'center',
+      'text-keep-upright': true,
+      'text-line-height': 1.2,
+      'text-max-angle': 45,
+      'text-max-width': 50,
+      'text-offset': [0, 0],
+      'text-optional': false,
+      'text-padding': 0,
+      'text-radial-offset': 0,
+      'text-rotate': 0,
+      'text-size': 16,
+      'text-transform': 'none',
+    },
+    metadata: {
+      layerTypeName: 'SymbolLayer',
+    },
   },
-  layout: {
-    'symbol-placement': 'point',
-    'icon-allow-overlap': false,
-    'icon-anchor': 'center',
-    'icon-ignore-placement': false,
-    'icon-keep-upright': false,
-    'icon-offset': [0, 0],
-    'icon-optional': false,
-    'icon-padding': 0,
-    'icon-rotate': 0,
-    'icon-size': 1,
-    'icon-text-fit': 'none',
-    'text-allow-overlap': false,
-    'text-anchor': 'center',
-    'text-ignore-placement': false,
-    'text-justify': 'center',
-    'text-keep-upright': true,
-    'text-line-height': 1.2,
-    'text-max-angle': 45,
-    'text-max-width': 50,
-    'text-offset': [0, 0],
-    'text-optional': false,
-    'text-padding': 0,
-    'text-radial-offset': 0,
-    'text-rotate': 0,
-    'text-size': 16,
-    'text-transform': 'none',
+  {
+    arrayMerge: overwriteArrayMerge,
   },
-  metadata: {
-    layerTypeName: 'SymbolLayer',
-  },
-});
+);
 
 const defaultOptions = {
   ...defaultVectorBasicOptions,
@@ -62,10 +68,14 @@ const defaultOptions = {
 
 class SymbolLayer extends BasicLayerClass {
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     opts.opacityPaints = ['icon-opacity', 'text-opacity'];
     // 合并原生Layer图层属性
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     layer.type = 'symbol';
     // 继承矢量图层基类
     super(iMapApi, id, layer, opts);

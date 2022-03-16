@@ -554,3 +554,6 @@ export const getSourceFeatures = function(data) {
   }
   return features;
 };
+
+// 获取图层选项数据数组格式合并规则
+export const overwriteArrayMerge = (destinationArray, sourceArray, options) => sourceArray;

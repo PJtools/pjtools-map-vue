@@ -4,18 +4,24 @@
  * @创建时间: 2020-05-22 15:01:49
  */
 
-import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions } from './basicLayer';
+import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions, overwriteArrayMerge } from './basicLayer';
 import deepmerge from 'deepmerge';
 
-const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
-  paint: {
-    'background-color': 'rgba(0, 0, 0, 1)',
-    'background-opacity': 1,
+const defaultLayerOptions = deepmerge(
+  defaultVectorLayerOptions,
+  {
+    paint: {
+      'background-color': 'rgba(0, 0, 0, 1)',
+      'background-opacity': 1,
+    },
+    metadata: {
+      layerTypeName: 'BackgroundLayer',
+    },
   },
-  metadata: {
-    layerTypeName: 'BackgroundLayer',
+  {
+    arrayMerge: overwriteArrayMerge,
   },
-});
+);
 
 const defaultOptions = {
   ...defaultVectorBasicOptions,
@@ -23,10 +29,14 @@ const defaultOptions = {
 
 class BackgroundLayer extends BasicLayerClass {
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     opts.opacityPaints = ['background-opacity'];
     // 合并原生Layer图层属性
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     layer.type = 'background';
     // 继承矢量图层基类
     super(iMapApi, id, layer, opts);

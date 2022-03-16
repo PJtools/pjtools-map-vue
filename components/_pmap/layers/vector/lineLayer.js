@@ -4,27 +4,33 @@
  * @创建时间: 2020-05-25 10:05:46
  */
 
-import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions } from './basicLayer';
+import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions, overwriteArrayMerge } from './basicLayer';
 import deepmerge from 'deepmerge';
 import { isEmpty } from '../../../_util/methods-util';
 
-const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
-  paint: {
-    'line-color': 'rgba(250, 84, 28, 0.8)',
-    'line-opacity': 1,
-    'line-width': 4,
-    'line-blur': 0,
-    'line-offset': 0,
-    'line-gap-width': 0,
+const defaultLayerOptions = deepmerge(
+  defaultVectorLayerOptions,
+  {
+    paint: {
+      'line-color': 'rgba(250, 84, 28, 0.8)',
+      'line-opacity': 1,
+      'line-width': 4,
+      'line-blur': 0,
+      'line-offset': 0,
+      'line-gap-width': 0,
+    },
+    layout: {
+      'line-cap': 'round',
+      'line-join': 'round',
+    },
+    metadata: {
+      layerTypeName: 'LineLayer',
+    },
   },
-  layout: {
-    'line-cap': 'round',
-    'line-join': 'round',
+  {
+    arrayMerge: overwriteArrayMerge,
   },
-  metadata: {
-    layerTypeName: 'LineLayer',
-  },
-});
+);
 
 const defaultOptions = {
   ...defaultVectorBasicOptions,
@@ -32,10 +38,14 @@ const defaultOptions = {
 
 class LineLayer extends BasicLayerClass {
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     opts.opacityPaints = ['line-opacity'];
     // 合并原生Layer图层属性
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     layer.type = 'line';
     // 继承矢量图层基类
     super(iMapApi, id, layer, opts);

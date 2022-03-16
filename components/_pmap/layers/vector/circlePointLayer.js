@@ -4,23 +4,29 @@
  * @创建时间: 2020-05-22 18:14:54
  */
 
-import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions } from './basicLayer';
+import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions, overwriteArrayMerge } from './basicLayer';
 import deepmerge from 'deepmerge';
 
-const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
-  paint: {
-    'circle-color': 'rgba(255, 216, 191, 0.9)',
-    'circle-opacity': 1,
-    'circle-radius': 5,
-    'circle-blur': 0,
-    'circle-stroke-color': 'rgba(250, 84, 28, 0.8)',
-    'circle-stroke-opacity': 1,
-    'circle-stroke-width': 2,
+const defaultLayerOptions = deepmerge(
+  defaultVectorLayerOptions,
+  {
+    paint: {
+      'circle-color': 'rgba(255, 216, 191, 0.9)',
+      'circle-opacity': 1,
+      'circle-radius': 5,
+      'circle-blur': 0,
+      'circle-stroke-color': 'rgba(250, 84, 28, 0.8)',
+      'circle-stroke-opacity': 1,
+      'circle-stroke-width': 2,
+    },
+    metadata: {
+      layerTypeName: 'CirclePointLayer',
+    },
   },
-  metadata: {
-    layerTypeName: 'CirclePointLayer',
+  {
+    arrayMerge: overwriteArrayMerge,
   },
-});
+);
 
 const defaultOptions = {
   ...defaultVectorBasicOptions,
@@ -28,10 +34,14 @@ const defaultOptions = {
 
 class CirclePointLayer extends BasicLayerClass {
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     opts.opacityPaints = ['circle-opacity', 'circle-stroke-opacity'];
     // 合并原生Layer图层属性
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     layer.type = 'circle';
     // 继承矢量图层基类
     super(iMapApi, id, layer, opts);

@@ -4,25 +4,31 @@
  * @创建时间: 2020-05-25 11:04:47
  */
 
-import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions } from './basicLayer';
+import BasicLayerClass, { defaultVectorLayerOptions, defaultVectorBasicOptions, overwriteArrayMerge } from './basicLayer';
 import deepmerge from 'deepmerge';
 import hat from 'hat';
 import cloneDeep from 'lodash/cloneDeep';
 import LineLayer from './lineLayer';
 import { isBooleanTrue } from '../../../_util/methods-util';
 
-const defaultLayerOptions = deepmerge(defaultVectorLayerOptions, {
-  paint: {
-    'fill-color': 'rgba(255, 156, 110, 0.45)',
-    'fill-opacity': 1,
-    'fill-antialias': true,
-    'fill-outline-color': 'rgba(255, 255, 255, 0)',
-    'line-color': 'rgba(250, 84, 28, 0.8)',
+const defaultLayerOptions = deepmerge(
+  defaultVectorLayerOptions,
+  {
+    paint: {
+      'fill-color': 'rgba(255, 156, 110, 0.45)',
+      'fill-opacity': 1,
+      'fill-antialias': true,
+      'fill-outline-color': 'rgba(255, 255, 255, 0)',
+      'line-color': 'rgba(250, 84, 28, 0.8)',
+    },
+    metadata: {
+      layerTypeName: 'PolygonLayer',
+    },
   },
-  metadata: {
-    layerTypeName: 'PolygonLayer',
+  {
+    arrayMerge: overwriteArrayMerge,
   },
-});
+);
 
 const defaultOptions = {
   ...defaultVectorBasicOptions,
@@ -39,12 +45,16 @@ class PolygonLayer extends BasicLayerClass {
   }
 
   constructor(iMapApi, id, layerOptions = {}, options = {}) {
-    const opts = deepmerge.all([{}, defaultOptions, options || {}]);
+    const opts = deepmerge.all([{}, defaultOptions, options || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     opts.outline = !!isBooleanTrue(opts.outline);
     opts.opacityPaints = ['fill-opacity'];
     // 合并原生Layer图层属性
     !opts.outline && (defaultLayerOptions.paint['fill-color'] = defaultLayerOptions.paint['line-color']);
-    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}]);
+    const layer = deepmerge.all([{}, defaultLayerOptions, layerOptions || {}], {
+      arrayMerge: overwriteArrayMerge,
+    });
     layer.type = 'fill';
     // 继承矢量图层基类
     !id && (id = hat());
