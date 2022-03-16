@@ -115,10 +115,12 @@ const layerGroup = {
             const newBeforeId = this.getNextLayerId(id);
             // 添加图层到地图
             const currentLayer = addMapLayer(groupLayer, newBeforeId);
-            // 存储当前图层对象
-            this._mapLayers[id].layers.push(currentLayer);
-            const mapLayersIdsItem = find(this._mapLayersIds, { layerGroupId: id });
-            mapLayersIdsItem.layersIds.push(currentLayer.id);
+            if (currentLayer) {
+              // 存储当前图层对象
+              this._mapLayers[id].layers.push(currentLayer);
+              const mapLayersIdsItem = find(this._mapLayersIds, { layerGroupId: id });
+              mapLayersIdsItem.layersIds.push(currentLayer.id);
+            }
           }
           return this._mapLayers[id];
         } else {
